@@ -1,12 +1,12 @@
 == Wash Out
 
-Wash Out is very simple SOAP service solution. It allows you to create SOAP services on top of your controllers in 3 steps.
+Wash Out is very simple SOAP service solution. It allows you to create SOAP services on top of your controllers in 3 steps (see Usage).
 
 == Install
 
   gem install wash_out
   
-== Usage
+== Simple Usage
 
 === I. Define structure in your controller
 
@@ -46,3 +46,10 @@ Return from your method to respond. In our case we should just respond with
   
 In complex scenarios we can do 
   return { :foo => 'foo', :bar => 'bar' }
+  
+  
+== Complex cases
+
+=== I have same substructures for several methods. Are there any ways to define WSDL besides hash?
+
+=== How to respond with soap error?
