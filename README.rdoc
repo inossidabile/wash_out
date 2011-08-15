@@ -6,7 +6,7 @@ Wash Out is very simple SOAP service solution. It allows you to create SOAP serv
 
   gem install wash_out
   
-== Simple Usage
+== Usage
 
 === I. Define structure in your controller
 
