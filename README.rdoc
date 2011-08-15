@@ -19,7 +19,7 @@ Wash Out is very simple SOAP service solution. It allows you to create SOAP serv
 Defined this way method "my_soap_method" will wait for two parameters:
 
 1. 'structure' will wait for complex type (defined separately in WSDL)
-2. 'bar' will wait for string (xsd:string in WSDL)
+2. 'bar' will wait for integer (xsd:integer in WSDL)
   
 On the other side it will return boolean (xsd:boolean in WSDL).
 
