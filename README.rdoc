@@ -1,0 +1,42 @@
+== Wash Out
+
+Wash Out is very simple SOAP service solution. It allows you to create SOAP services on top of your controllers in 3 steps.
+
+== Install
+
+  gem install wash_out
+  
+== Usage
+
+=== I. Define structure in your controller
+
+  class TestController < ApplicationController
+    wash_with_soap :my_soap_method => { 
+      :in => { 'structure' => { 'foo' => :string }, 'bar' => :integer },
+      :out => :boolean
+    }
+
+Defined this way method "my_soap_method" will wait for two parameters:
+
+  1. 'structure' will wait for complex type (defined separately in WSDL)
+  2. 'bar' will wait for string (xsd:string in WSDL)
+  
+On the other side it will return boolean (xsd:boolean in WSDL).
+
+=== II. Define worker
+
+At same controller define action "my_soap_method"
+
+  def my_soap_method
+    @soap # this will contain data passed by SOAP request
+  end
+  
+Parameters are handling by WashOut::Param entity. To get values use 'value' and '[]' methods.
+
+To get 'bar' parameter: @soap['bar'].value
+To get 'foo' from 'structure': @soap['structure']['foo'].value
+
+=== III. Return something
+
+Return from your method to respond. In our case we should just respond with "return true" or "return false". In complex
+scenarios we can do "return { :foo => 'foo', :bar => 'bar' }".
