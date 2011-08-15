@@ -52,4 +52,4 @@ In complex scenarios we can do
 
 === I have same substructures for several methods. Are there any ways to define WSDL besides hash?
 
-=== How to respond with soap error?
+=== How to respond with SOAP error?
