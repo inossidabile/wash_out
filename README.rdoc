@@ -23,6 +23,8 @@ Defined this way method "my_soap_method" will wait for two parameters:
   
 On the other side it will return boolean (xsd:boolean in WSDL).
 
+To enable routes, add 'wash_with_soap :test' to your routes.rb.
+
 === II. Define worker
 
 At same controller define action "my_soap_method"
