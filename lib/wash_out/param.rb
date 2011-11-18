@@ -35,14 +35,12 @@ module WashOut
         end
       else
         case type
-          when 'string';  data.to_str
-          when 'integer'; data.to_int
-          when 'double';  data.fo_float
+          when 'string';  data.to_s
+          when 'integer'; data.to_i
+          when 'double';  data.fo_f
           when 'boolean'; !!data
         end
       end
-
-      self
     end
 
     def struct?

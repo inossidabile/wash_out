@@ -5,15 +5,17 @@ module WashOut
 
       def wsdl_method(method, options={})
         try_param = ->(opts) do
-          Hash[*Array(opts).map { |name, opt|
-            [ name,
+          opts = { :value => opts } unless opts.is_a? Hash
+
+          Hash[*opts.map { |name, opt|
+            [ name.to_s,
               if opt.is_a? WashOut::Param
                 opt
               else
                 WashOut::Param.new(name, opt)
               end
             ]
-          }]
+          }.flatten]
         end
 
         self.wsdl_methods[method.to_s] = {
