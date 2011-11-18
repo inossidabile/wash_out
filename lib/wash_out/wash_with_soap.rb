@@ -1,24 +1,32 @@
 module WashOut
   module WashWithSoap
-    def self.included(base)
-      
-      base.class_eval do
-        class <<self
-          attr_accessor :wash_with_soap_map
+    module ClassMethods
+      attr_accessor :wsdl_methods
+
+      def wsdl_method(method, options={})
+        try_param = ->(opts) do
+          Hash[*Array(opts).map { |name, opt|
+            [ name,
+              if opt.is_a? WashOut::Param
+                opt
+              else
+                WashOut::Param.new(name, opt)
+              end
+            ]
+          }]
         end
-        
-        def self.wash_with_soap(map)
-          map.each do |method, params|
-            params[:in]  = WashOut::Param.new(method, map[method][:in]) unless map[method][:in].is_a?(Param)
-            params[:out] = WashOut::Param.new("#{method}_responce", map[method][:out]) unless map[method][:out].is_a?(Param)
-          end
-          
-          self.wash_with_soap_map = map
-          
-          include WashOut::Dispatcher
-        end
+
+        self.wsdl_methods[method.to_s] = {
+          :in  => try_param.(options[:args]),
+          :out => try_param.(options[:return])
+        }
       end
-      
+    end
+
+    def self.included(base)
+      base.send :extend, ClassMethods
+      base.send :include, WashOut::Dispatcher
+      base.wsdl_methods = {}
     end
   end
 end
