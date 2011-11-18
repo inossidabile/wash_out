@@ -1,11 +1,11 @@
 module WashOutHelper
   def wsdl_data(xml, param)
-    if param.struct?
-      param.value.values.each do |p|
-        wsdl_data xml, p
-      end
+    if param.is_a? Hash
+      wsdl_data xml, param.map
     else
-      xml.tag! param.name, param.value.to_s
+      param.each do |opt, value|
+        xml.tag! opt.name, value.to_s
+      end
     end
   end
 

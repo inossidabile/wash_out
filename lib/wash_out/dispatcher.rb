@@ -24,8 +24,10 @@ module WashOut
 
       result = send(method, *args)
 
-      result = { "value" => result } unless result.is_a? Hash
-      @result = current[:out].map { |opt, value| current[:out][opt].load(value) }
+      result = { 'value' => result } unless result.is_a? Hash
+      @result = Hash[*current[:out].values.map do |param|
+        [param, param.load(result[param.name])]
+      end.flatten]
 
       render :template => 'wash_with_soap/response'
     end
