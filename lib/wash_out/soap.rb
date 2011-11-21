@@ -1,5 +1,5 @@
 module WashOut
-  module WashWithSoap
+  module SOAP
     module ClassMethods
       attr_accessor :wsdl_methods
 
