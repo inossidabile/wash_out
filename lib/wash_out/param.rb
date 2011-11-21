@@ -37,8 +37,8 @@ module WashOut
         case type
           when 'string';  data.to_s
           when 'integer'; data.to_i
-          when 'double';  data.fo_f
-          when 'boolean'; !!data
+          when 'double';  data.to_f
+          when 'boolean'; data == 'true'
         end
       end
     end
