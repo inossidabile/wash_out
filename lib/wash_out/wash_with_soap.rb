@@ -3,24 +3,13 @@ module WashOut
     module ClassMethods
       attr_accessor :wsdl_methods
 
+      # Define a SOAP method +method+. The function has two required +options+:
+      # :args and :return. Each is a type +definition+ of format described in
+      # WashOut::Param#parse_def.
       def wsdl_method(method, options={})
-        try_param = ->(opts) do
-          opts = { :value => opts } unless opts.is_a? Hash
-
-          Hash[*opts.map { |name, opt|
-            [ name.to_s,
-              if opt.is_a? WashOut::Param
-                opt
-              else
-                WashOut::Param.new(name, opt)
-              end
-            ]
-          }.flatten]
-        end
-
         self.wsdl_methods[method.to_s] = {
-          :in  => try_param.(options[:args]),
-          :out => try_param.(options[:return])
+          :in  => WashOut::Param.parse_def(options[:args]),
+          :out => WashOut::Param.parse_def(options[:return])
         }
       end
     end
