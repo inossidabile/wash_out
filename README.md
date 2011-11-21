@@ -53,7 +53,7 @@ end
 ```ruby
 # config/routes.rb
 HelloWorld::Application.routes.draw do
-  wash_with_soap :api
+  wash_out :api
 end
 ```
 
@@ -61,7 +61,7 @@ License
 -------
 
     Copyright (C) 2011 by Boris Staal <boris@roundlake.ru>,
-                          Peter Zotov <peterz@roundlake.ru>.
+                          Peter Zotov <p.zotov@roundlake.ru>.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
