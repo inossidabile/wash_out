@@ -34,7 +34,7 @@ module WashOut
 
       result = { 'value' => result } unless result.is_a? Hash
       @result = Hash[*current[:out].values.map do |param|
-        [param, param.load(result[param.name])]
+        [param, param.store(result[param.name])]
       end.flatten]
 
       render :template => 'wash_with_soap/response'

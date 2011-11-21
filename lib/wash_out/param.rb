@@ -41,6 +41,18 @@ module WashOut
       end
     end
 
+    # The opposite of #load.
+    def store(data)
+      if struct?
+        data = ActiveSupport::HashWithIndifferentAccess.new(data)
+        @map.map do |param|
+          param.store(data[param.name])
+        end
+      else
+        data.to_s
+      end
+    end
+
     # Checks if this Param defines a complex type.
     def struct?
       type == 'struct'

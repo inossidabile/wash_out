@@ -36,6 +36,6 @@ module WashOutHelper
       :maxOccurs => 'unbounded'
     }
 
-    return extend_with.merge(data)
+    extend_with.merge(data)
   end
 end
