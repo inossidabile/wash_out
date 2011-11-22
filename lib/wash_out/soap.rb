@@ -1,5 +1,9 @@
+require 'active_support/concern'
+
 module WashOut
   module SOAP
+    extend ActiveSupport::Concern
+
     module ClassMethods
       attr_accessor :soap_actions
 
@@ -18,10 +22,9 @@ module WashOut
       end
     end
 
-    def self.included(base)
-      base.send :extend, ClassMethods
-      base.send :include, WashOut::Dispatcher
-      base.wsdl_methods = {}
+    included do
+      include WashOut::Dispatcher
+      self.wsdl_methods = {}
     end
   end
 end
