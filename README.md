@@ -37,7 +37,7 @@ class ApiController < ApplicationController
     render :soap => (a + b)
   end
 
-  soap_action "Add circle",
+  soap_action "AddCircle",
               :args   => { :circle => { :center => { :x => :integer,
                                                      :y => :integer },
                                         :radius => :float } },
