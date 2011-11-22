@@ -1,5 +1,5 @@
 PATH
-  remote: /Users/lovchy/Sites/wash_out
+  remote: /home/whitequark/wash_out
   specs:
     wash_out (0.1)
 
