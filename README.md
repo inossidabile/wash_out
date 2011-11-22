@@ -11,7 +11,7 @@ Installation
 Usage
 -----
 
-A SOAP endpoint in WashOut is simply a Rails controller which includes the module WashOut::Dispatcher. Each SOAP
+A SOAP endpoint in WashOut is simply a Rails controller which includes the module WashOut::SOAP. Each SOAP
 action corresponds to a certain controller method; this mapping, as well as the argument definition, is defined
 by [soap_action][] method. Check the method documentation for complete info; here,
 only a few examples will be demonstrated.
