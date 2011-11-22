@@ -17,7 +17,7 @@ module WashOut
     end
 
     # This action maps the SOAP action to a controller method defined with
-    # +wsdl_method+.
+    # +soap_action+.
     def _soap
       map     = self.class.soap_actions
       method  = request.env['HTTP_SOAPACTION'].gsub(/^\"(.*)\"$/, '\1')

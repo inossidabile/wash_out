@@ -13,10 +13,10 @@ Usage
 
 A SOAP endpoint in WashOut is simply a Rails controller which includes the module WashOut::Dispatcher. Each SOAP
 action corresponds to a certain controller method; this mapping, as well as the argument definition, is defined
-by [wsdl_method][] method. Check the method documentation for complete info; here,
+by [soap_action][] method. Check the method documentation for complete info; here,
 only a few examples will be demonstrated.
 
-  [wsdl_method]: #
+  [soap_action]: #
 
 ```ruby
 # app/controllers/api_controller.rb
