@@ -21,31 +21,34 @@ only a few examples will be demonstrated.
 ```ruby
 # app/controllers/api_controller.rb
 class ApiController < ApplicationController
-  include WashOut::Dispatcher
+  include WashOut::SOAP
 
-  wsdl_method :integer_to_string,
+  soap_action "integer_to_string",
               :args   => :integer,
               :return => :string
   def integer_to_string(value)
-    value.to_s
+    render :soap => value.to_s
   end
 
-  wsdl_method :concat,
+  soap_action "concat",
               :args   => { :a => :string, :b => :string }
               :return => :string
   def concat(a, b)
-    a + b
+    render :soap => (a + b)
   end
 
-  wsdl_method :add_circle,
+  soap_action "Add circle",
               :args   => { :circle => { :center => { :x => :integer,
                                                      :y => :integer },
                                         :radius => :float } },
-              :return => []
+              :return => [],
+              :to     => :add_circle
   def add_circle(circle)
     raise SOAPError, "radius is too small" if circle[:radius] < 3.0
 
     Circle.new(circle[:center][:x], circle[:center][:y], circle[:radius])
+
+    render :soap => nil
   end
 end
 ```

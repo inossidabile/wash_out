@@ -7,8 +7,13 @@ module ActionDispatch::Routing
   class Mapper
     # Adds the routes for a SOAP endpoint at +controller+.
     def wash_out(controller)
-      match "#{controller.to_s}/wsdl" => "#{controller.to_s}#wsdl"
-      match "#{controller.to_s}/soap" => "#{controller.to_s}#soap"
+      match "#{controller.to_s}/wsdl" => "#{controller.to_s}#_wsdl"
+      match "#{controller.to_s}/action" => "#{controller.to_s}#_soap"
     end
   end
+end
+
+Mime::Type.register "application/soap+xml", :soap
+ActionController.add_renderer :soap do |what, options|
+  _render_soap(what, options)
 end

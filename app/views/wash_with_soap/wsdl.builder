@@ -1,6 +1,6 @@
 xml.instruct!
-xml.definitions 'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema', 
-                'xmlns:soap' => 'http://schemas.xmlsoap.org/wsdl/soap/', 
+xml.definitions 'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
+                'xmlns:soap' => 'http://schemas.xmlsoap.org/wsdl/soap/',
                 'xmlns:soapenc' => 'http://schemas.xmlsoap.org/soap/encoding/',
                 'xmlns:wsdl' => 'http://schemas.xmlsoap.org/wsdl/',
                 'xmlns:typens' => @namespace,
@@ -33,7 +33,7 @@ xml.definitions 'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
     @map.keys.each do |operation|
       xml.operation :name => operation do
         xml.input :message => "typens:#{operation}"
-        xml.otput :message => "typens:#{operation}_response"
+        xml.output :message => "typens:#{operation}_response"
       end
     end
   end
@@ -59,7 +59,7 @@ xml.definitions 'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
 
   xml.service :name => "service" do
     xml.port :name => "#{@name}_port", :binding => "#{@name}_binding" do
-      xml.tag! "soap:address", :location => url_for(:action => :soap, :only_path => false)
+      xml.tag! "soap:address", :location => url_for(:action => :soap, :only_path => false, :format => 'soap')
     end
   end
 end

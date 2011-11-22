@@ -8,8 +8,8 @@ module WashOut
     class SoapError < Exception; end
 
     # This action generates the WSDL for defined SOAP methods.
-    def wsdl
-      @map       = self.class.wsdl_methods
+    def _wsdl
+      @map       = self.class.soap_actions
       @name      = controller_path.gsub('/', '_')
       @namespace = 'urn:WashOut'
 
@@ -18,8 +18,8 @@ module WashOut
 
     # This action maps the SOAP action to a controller method defined with
     # +wsdl_method+.
-    def soap
-      map     = self.class.wsdl_methods
+    def _soap
+      map     = self.class.soap_actions
       method  = request.env['HTTP_SOAPACTION'].gsub(/^\"(.*)\"$/, '\1')
       current = map[method]
 
@@ -27,29 +27,34 @@ module WashOut
 
       xml_data = params['Envelope']['Body'][method]
 
-      # Like proc{}
-      args = xml_data.map { |opt, value| current[:in][opt].load(value) }
+      params = xml_data.map do |opt, value|
+        current[:in].find { |param| param.name == opt }.load(value)
+      end
+      @_params = HashWithIndifferentAccess.new(params)
 
-      result = send(method, *args)
+      send(current[:to])
+    end
 
+    def _render_soap(result, options)
       result = { 'value' => result } unless result.is_a? Hash
-      @result = Hash[*current[:out].values.map do |param|
+      result = HashWithIndifferentAccess.new(result)
+      result = Hash[*current[:out].map do |param|
         [param, param.store(result[param.name])]
       end.flatten]
 
-      render :template => 'wash_with_soap/response'
+      render :template => 'wash_with_soap/response',
+             :locals => { :result => result }
     end
 
     private
 
     def self.included(controller)
-      controller.send :rescue_from, SoapError, :with => :wash_out_error
+      controller.send :rescue_from, SoapError, :with => :_render_soap_error
     end
 
-    def wash_out_error(error)
-      @error_message = error.message
-
-      render :template => 'wash_with_soap/error', :status => 500
+    def _render_soap_error(error)
+      render :template => 'wash_with_soap/error', :status => 500,
+             :locals => { :error_message => error.message }
     end
   end
 end
