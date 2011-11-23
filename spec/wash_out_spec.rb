@@ -77,7 +77,7 @@ describe WashOut do
     mock_controller do
       soap_action "error", :args => { :need_error => :boolean }, :return => []
       def error
-        raise SOAPError, "you wanted one" if params[:need_error]
+        raise self.class.const_get(:SOAPError), "you wanted one" if params[:need_error]
 
         render :soap => nil
       end
