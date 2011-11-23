@@ -8,7 +8,7 @@ module ActionDispatch::Routing
     # Adds the routes for a SOAP endpoint at +controller+.
     def wash_out(controller)
       match "#{controller.to_s}/wsdl" => "#{controller.to_s}#_wsdl"
-      match "#{controller.to_s}/action" => "#{controller.to_s}#_soap"
+      match "#{controller.to_s}/action" => "#{controller.to_s}#_action", :defaults => { :format => 'soap' }
     end
   end
 end

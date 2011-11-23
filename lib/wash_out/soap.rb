@@ -24,7 +24,7 @@ module WashOut
 
     included do
       include WashOut::Dispatcher
-      self.wsdl_methods = {}
+      self.soap_actions = {}
     end
   end
 end

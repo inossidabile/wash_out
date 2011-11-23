@@ -17,7 +17,7 @@ module WashOutHelper
 
       xml.complexType :name => param.name do
         xml.sequence do
-          param.value.each do |key, value|
+          param.map.each do |key, value|
             more << value if value.struct?
             xml.element wsdl_occurence(value, :name => key, :type => value.namespaced_type)
           end
