@@ -6,7 +6,9 @@ Wash Out is a gem that greatly simplifies creation of SOAP service providers.
 Installation
 ------------
 
-    $ gem install wash_out
+In your Gemfile, add this line:
+
+    gem 'wash_out'
 
 Usage
 -----
