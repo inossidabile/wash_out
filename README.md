@@ -18,7 +18,7 @@ action corresponds to a certain controller method; this mapping, as well as the 
 by [soap_action][] method. Check the method documentation for complete info; here,
 only a few examples will be demonstrated.
 
-  [soap_action]: #
+  [soap_action]: http://rubydoc.info/gems/wash_out/0.2.0/WashOut/SOAP/ClassMethods#soap_action-instance_method
 
 ```ruby
 # app/controllers/api_controller.rb
@@ -28,15 +28,15 @@ class ApiController < ApplicationController
   soap_action "integer_to_string",
               :args   => :integer,
               :return => :string
-  def integer_to_string(value)
-    render :soap => value.to_s
+  def integer_to_string
+    render :soap => params[:value].to_s
   end
 
   soap_action "concat",
-              :args   => { :a => :string, :b => :string }
+              :args   => { :a => :string, :b => :string },
               :return => :string
-  def concat(a, b)
-    render :soap => (a + b)
+  def concat
+    render :soap => (params[:a] + params[:b])
   end
 
   soap_action "AddCircle",
@@ -45,7 +45,9 @@ class ApiController < ApplicationController
                                         :radius => :float } },
               :return => [],
               :to     => :add_circle
-  def add_circle(circle)
+  def add_circle
+    circle = params[:circle]
+
     raise SOAPError, "radius is too small" if circle[:radius] < 3.0
 
     Circle.new(circle[:center][:x], circle[:center][:y], circle[:radius])
@@ -60,6 +62,19 @@ end
 HelloWorld::Application.routes.draw do
   wash_out :api
 end
+```
+
+In such a setup, the generated WSDL may be queried at path `/api/wsdl`. So, with a
+gem like Savon, a request can be done using this path:
+
+```ruby
+require 'savon'
+
+client = Savon::Client.new("http://localhost:3000/api/wsdl")
+client.wsdl.soap_actions # => [:integer_to_string, :concat]
+client.request(:concat) do
+  soap.body = { :a => "123", :b => "abc" }
+end[:value] # => "123abc"
 ```
 
 License
