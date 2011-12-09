@@ -106,20 +106,4 @@ describe WashOut do
       client.request(:nonexistent)
     }.should raise_exception(Savon::SOAP::Fault)
   end
-
-  it "should understand action names in UTF-8" do
-    mock_controller do
-      soap_action "тест", :args => [], :returl => [], :to => :test
-      def test
-        render :soap => nil
-      end
-    end.use!
-
-    client = savon_instance
-    lambda {
-      # Due to controller mocking, we need to simulate (de)marshalling done by
-      # the networking.
-      client.request("тест".force_encoding('US-ASCII'))
-    }.should_not raise_exception
-  end
 end
