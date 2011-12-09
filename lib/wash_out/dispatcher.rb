@@ -1,3 +1,5 @@
+require 'nori'
+
 module WashOut
   # The WashOut::Dispatcher module should be included in a controller acting
   # as a SOAP endpoint. It includes actions for generating WSDL and handling
@@ -25,15 +27,16 @@ module WashOut
 
       raise SOAPError, "Method #{method} does not exists" unless @_current
 
-      xml_data = params['Envelope']['Body'][method]
+      params = Nori.parse(request.body)
+      xml_data = params[:envelope][:body][method.downcase.to_sym]
 
-      params = (xml_data || {}).map do |opt, value|
-        opt = opt.underscore
-        param = @_current[:in].find { |param| param.name == opt }
+      @_params = HashWithIndifferentAccess.new
+      (xml_data || {}).map do |opt, value|
+        param = @_current[:in].find { |param| param.name.underscore.to_sym == opt }
         raise SOAPError, "unknown parameter #{opt}" unless param
-        [ opt, param.load(value) ]
+
+        @_params[opt] = param.load(value)
       end
-      @_params.merge!(Hash[*params.flatten])
 
       send(@_current[:to])
     end
