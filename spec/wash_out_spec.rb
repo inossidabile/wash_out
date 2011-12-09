@@ -95,4 +95,13 @@ describe WashOut do
       end
     }.should raise_exception(Savon::SOAP::Fault)
   end
+
+  it "should report a SOAP error if method does not exists" do
+    mock_controller{}.use!
+
+    client = savon_instance
+    lambda {
+      client.request(:nonexistent)
+    }.should raise_exception(Savon::SOAP::Fault)
+  end
 end

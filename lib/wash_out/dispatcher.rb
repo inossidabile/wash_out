@@ -23,7 +23,7 @@ module WashOut
       method    = request.env['HTTP_SOAPACTION'].gsub(/^\"(.*)\"$/, '\1')
       @_current = map[method]
 
-      raise SoapError, "Method #{method} does not exists" unless @_current
+      raise SOAPError, "Method #{method} does not exists" unless @_current
 
       xml_data = params['Envelope']['Body'][method]
 
