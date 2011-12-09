@@ -35,7 +35,7 @@ module WashOut
         param = @_current[:in].find { |param| param.name.underscore.to_sym == opt }
         raise SOAPError, "unknown parameter #{opt}" unless param
 
-        @_params[opt] = param.load(value)
+        @_params[param.name] = param.load(value)
       end
 
       send(@_current[:to])
