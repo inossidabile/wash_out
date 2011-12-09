@@ -18,7 +18,7 @@ action corresponds to a certain controller method; this mapping, as well as the 
 by [soap_action][] method. Check the method documentation for complete info; here,
 only a few examples will be demonstrated.
 
-  [soap_action]: http://rubydoc.info/gems/wash_out/0.2.0/WashOut/SOAP/ClassMethods#soap_action-instance_method
+  [soap_action]: http://rubydoc.info/gems/wash_out/0.2.1/WashOut/SOAP/ClassMethods#soap_action-instance_method
 
 ```ruby
 # app/controllers/api_controller.rb
