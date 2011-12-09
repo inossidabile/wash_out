@@ -49,15 +49,19 @@ module WashOut
              :locals => { :result => result }
     end
 
+    # Render a SOAP error response.
+    #
+    # Rails do not support sequental rescue_from handling, that is, rescuing an
+    # exception from a rescue_from handler. Hence this function is a public API.
+    def render_soap_error(error)
+      render :template => 'wash_with_soap/error', :status => 500,
+             :locals => { :error_message => error.message }
+    end
+
     private
 
     def self.included(controller)
-      controller.send :rescue_from, SOAPError, :with => :_render_soap_error
-    end
-
-    def _render_soap_error(error)
-      render :template => 'wash_with_soap/error', :status => 500,
-             :locals => { :error_message => error.message }
+      controller.send :rescue_from, SOAPError, :with => :render_soap_error
     end
   end
 end
