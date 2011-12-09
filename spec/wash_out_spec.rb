@@ -106,4 +106,18 @@ describe WashOut do
       client.request(:nonexistent)
     }.should raise_exception(Savon::SOAP::Fault)
   end
+
+  it "should be possible to explicitly render a SOAP error" do
+    mock_controller do
+      soap_action "error", :args => [], :return => []
+      def error
+        render_soap_error "a message"
+      end
+    end.use!
+
+    client = savon_instance
+    lambda {
+      client.request(:error)
+    }.should raise_exception(Savon::SOAP::Fault)
+  end
 end
