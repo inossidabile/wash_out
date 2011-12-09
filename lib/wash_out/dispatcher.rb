@@ -21,7 +21,7 @@ module WashOut
     def _action
       map       = self.class.soap_actions
       method    = request.env['HTTP_SOAPACTION'].gsub(/^\"(.*)\"$/, '\1')
-      @_current = map[method]
+      @_current = map[method.force_encoding('UTF-8')]
 
       raise SOAPError, "Method #{method} does not exists" unless @_current
 
