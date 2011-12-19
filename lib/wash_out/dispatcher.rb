@@ -68,6 +68,7 @@ module WashOut
 
     def self.included(controller)
       controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
+      controller.send :helper, :wash_out
       controller.send :before_filter, :_parse_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
     end
 
