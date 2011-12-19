@@ -15,8 +15,8 @@ Usage
 
 A SOAP endpoint in WashOut is simply a Rails controller which includes the module WashOut::SOAP. Each SOAP
 action corresponds to a certain controller method; this mapping, as well as the argument definition, is defined
-by [soap_action][] method. Check the method documentation for complete info; here,
-only a few examples will be demonstrated.
+by [soap_action][] method. Check the method documentation for complete info; here, only a few examples will be
+demonstrated.
 
   [soap_action]: http://rubydoc.info/gems/wash_out/0.2.1/WashOut/SOAP/ClassMethods#soap_action-instance_method
 
@@ -53,6 +53,13 @@ class ApiController < ApplicationController
     Circle.new(circle[:center][:x], circle[:center][:y], circle[:radius])
 
     render :soap => nil
+  end
+
+  # You can use all Rails features like filtering, too. A SOAP controller
+  # is just like a normal controller with a special routing.
+  before_filter :dump_parameters
+  def dump_parameters
+    Rails.logger.log(params.inspect)
   end
 end
 ```

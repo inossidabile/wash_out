@@ -35,7 +35,7 @@ module WashOut
           when 'string';  data.to_s
           when 'integer'; data.to_i
           when 'double';  data.to_f
-          when 'boolean'; data == 'true' # Is this bad?
+          when 'boolean'; data # Nori handles that for us
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
       end

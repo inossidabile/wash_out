@@ -9,8 +9,25 @@ module WashOut
     # response.
     class SOAPError < Exception; end
 
+    # This filter parses the SOAP request and puts it into +params+ array.
+    def _parse_soap_parameters
+      soap_action = request.env['wash_out.soap_action']
+      action_spec = self.class.soap_actions[soap_action]
+
+      params = Nori.parse(request.body)
+      xml_data = params[:envelope][:body][soap_action.underscore.to_sym]
+
+      @_params = HashWithIndifferentAccess.new
+      (xml_data || {}).map do |opt, value|
+        param = action_spec[:in].find { |param| param.name.underscore.to_sym == opt }
+        raise SOAPError, "unknown parameter #{opt}" unless param
+
+        @_params[param.name] = param.load(value)
+      end
+    end
+
     # This action generates the WSDL for defined SOAP methods.
-    def _wsdl
+    def _generate_wsdl
       @map       = self.class.soap_actions
       @namespace = 'urn:WashOut'
       @name      = controller_path.gsub('/', '_')
@@ -18,38 +35,24 @@ module WashOut
       render :template => 'wash_with_soap/wsdl'
     end
 
-    # This action maps the SOAP action to a controller method defined with
-    # +soap_action+.
-    def _action
-      map       = self.class.soap_actions
-      method    = request.env['HTTP_SOAPACTION'].gsub(/^\"(.*)\"$/, '\1')
-      @_current = map[method.force_encoding('UTF-8')]
-
-      raise SOAPError, "Method #{method} does not exists" unless @_current
-
-      params = Nori.parse(request.body)
-      xml_data = params[:envelope][:body][method.downcase.to_sym]
-
-      @_params = HashWithIndifferentAccess.new
-      (xml_data || {}).map do |opt, value|
-        param = @_current[:in].find { |param| param.name.underscore.to_sym == opt }
-        raise SOAPError, "unknown parameter #{opt}" unless param
-
-        @_params[param.name] = param.load(value)
-      end
-
-      send(@_current[:to])
-    end
-
+    # Render a SOAP response.
     def _render_soap(result, options)
+      soap_action = request.env['wash_out.soap_action']
+      action_spec = self.class.soap_actions[soap_action]
+
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
-      result = Hash[*@_current[:out].map do |param|
+      result = Hash[*action_spec[:out].map do |param|
         [param, param.store(result[param.name])]
       end.flatten]
 
       render :template => 'wash_with_soap/response',
              :locals => { :result => result }
+    end
+
+    # This action is a fallback for all undefined SOAP actions.
+    def _invalid_action
+      render_soap_error("Cannot find SOAP action mapping for #{request.env['wash_out.soap_action']}")
     end
 
     # Render a SOAP error response.
@@ -65,6 +68,7 @@ module WashOut
 
     def self.included(controller)
       controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
+      controller.send :before_filter, :_parse_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
     end
 
     def _render_soap_exception(error)

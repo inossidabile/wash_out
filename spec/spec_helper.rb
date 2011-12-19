@@ -20,6 +20,8 @@ RSpec.configure do |config|
   config.mock_with :rspec
 end
 
+require 'savon'
+
 Savon.configure do |config|
   config.log = false            # disable logging
 end
@@ -27,12 +29,23 @@ end
 HTTPI.logger = Logger.new(open("/dev/null", 'w'))
 HTTPI.adapter = :rack
 
+HTTPI::Adapters::Rack.mount 'app', Dummy::Application
+
 Dummy::Application.routes.draw do
   wash_out :api
 end
 
 def savon_instance
   Savon::Client.new do
-    wsdl.document = 'http://dummy/api/wsdl'
+    wsdl.document = 'http://app/api/wsdl'
   end
+end
+
+def mock_controller(&block)
+  Object.send :remove_const, :ApiController if defined?(ApiController)
+  Object.send :const_set, :ApiController, Class.new(ApplicationController) {
+    include WashOut::SOAP
+
+    class_exec &block if block
+  }
 end

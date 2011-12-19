@@ -8,36 +8,40 @@ describe WashOut do
   end
 
   it "should allow to include SOAP module" do
-    mock_controller do
-      # nothing
-    end.should_not raise_exception
+    lambda {
+      mock_controller do
+        # nothing
+      end
+    }.should_not raise_exception
   end
 
   it "should allow definition of a simple action" do
-    mock_controller do
-      soap_action "answer", :args => [], :return => :int
-    end.should_not raise_exception
+    lambda {
+      mock_controller do
+        soap_action "answer", :args => [], :return => :int
+      end
+    }.should_not raise_exception
   end
 
   it "should answer to request without parameters" do
     mock_controller do
       soap_action "answer", :args => [], :return => :int
       def answer
-        render :soap => 42
+        render :soap => "42"
       end
-    end.use!
+    end
 
     client = savon_instance
-    client.request(:answer).to_hash[:value].should == 42
+    client.request(:answer).to_hash[:value].should == "42"
   end
 
   it "should answer to request with one parameter" do
     mock_controller do
-      soap_action "check_answer", :args => :integer, :return => :boolean
+      soap_action "checkAnswer", :args => :integer, :return => :boolean, :to => 'check_answer'
       def check_answer
         render :soap => (params[:value] == 42)
       end
-    end.use!
+    end
 
     client = savon_instance
     client.request(:check_answer) do
@@ -54,7 +58,7 @@ describe WashOut do
       def funky
         render :soap => ((params[:a] * 10).to_s + params[:b])
       end
-    end.use!
+    end
 
     client = savon_instance
     client.request(:funky) do
@@ -69,7 +73,7 @@ describe WashOut do
       def answer
         render :soap => "forty two"
       end
-    end.use!
+    end
 
     client = savon_instance
     client.request('AnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything').to_hash[:value].should == "forty two"
@@ -83,7 +87,7 @@ describe WashOut do
 
         render :soap => nil
       end
-    end.use!
+    end
 
     client = savon_instance
     lambda {
@@ -99,7 +103,7 @@ describe WashOut do
   end
 
   it "should report a SOAP error if method does not exists" do
-    mock_controller{}.use!
+    mock_controller
 
     client = savon_instance
     lambda {
@@ -113,7 +117,7 @@ describe WashOut do
       def error
         render_soap_error "a message"
       end
-    end.use!
+    end
 
     client = savon_instance
     lambda {
