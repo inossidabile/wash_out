@@ -25,11 +25,10 @@ module WashOut
     # Converts a generic externally derived Ruby value, such as String or
     # Hash, to a native Ruby object according to the definition of this type.
     def load(data)
+      check_if_missing(data)
+
       if struct?
-        data = ActiveSupport::HashWithIndifferentAccess.new(data)
-        @map.map do |param|
-          param.load(data[param.name])
-        end
+        map_struct(data) { |param, elem| param.load(elem) }
       else
         case type
           when 'string';  data.to_s
@@ -43,11 +42,10 @@ module WashOut
 
     # The opposite of #load.
     def store(data)
+      check_if_missing(data)
+
       if struct?
-        data = ActiveSupport::HashWithIndifferentAccess.new(data)
-        @map.map do |param|
-          param.store(data[param.name])
-        end
+        map_struct(data) { |param, elem| param.store(elem) }
       else
         data.to_s
       end
@@ -92,6 +90,28 @@ module WashOut
         end
       else
         definition.to_a
+      end
+    end
+
+    private
+
+    # Used to load or store an entire structure.
+    def map_struct(data)
+      data   = data.with_indifferent_access
+      struct = {}.with_indifferent_access
+
+      # RUBY18 Enumerable#each_with_object is better, but 1.9 only.
+      @map.map do |param|
+        struct[param.name] = yield param, data[param.name]
+      end
+
+      struct
+    end
+
+    # Raise an appropriate exception if a required datum is missing.
+    def check_if_missing(data)
+      if data.nil?
+        raise WashOut::Dispatcher::SOAPError, "Required SOAP parameter #{@name} is missing"
       end
     end
   end

@@ -66,6 +66,28 @@ describe WashOut do
     end.to_hash[:value].should == '420k'
   end
 
+  it "should understand nested parameter specifications" do
+    mock_controller do
+      soap_action "getArea", :args   => { :circle => { :center => { :x => :integer,
+                                                                    :y => :integer },
+                                                       :radius => :double } },
+                             :return => { :area => :double,
+                                          :distance_from_o => :double },
+                             :to     => :get_area
+      def get_area
+        circle = params[:circle]
+        render :soap => { :area            => Math::PI * circle[:radius] ** 2,
+                          :distance_from_o => Math.sqrt(circle[:center][:x] ** 2 + circle[:center][:y] ** 2) }
+      end
+    end
+
+    client = savon_instance
+    client.request(:get_area) do
+      soap.body = { :circle => { :center => { :x => 3, :y => 4 },
+                                 :radius => 5 } }
+    end.to_hash.should == ({ :area => (Math::PI * 25).to_s, :distance_from_o => (5.0).to_s })
+  end
+
   it "should allow arbitrary action names" do
     mock_controller do
       soap_action "AnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything",
