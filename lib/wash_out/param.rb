@@ -64,12 +64,12 @@ module WashOut
     # Parses a +definition+. The format of the definition is best described
     # by the following BNF-like grammar.
     #
-    # simple_type := :string | :integer | :double | :boolean
-    # nested_type := type_hash | simple_type | WashOut::Param instance
-    # type_hash   := { :parameter_name => nested_type, ... }
-    # definition  := [ WashOut::Param, ... ] |
-    #                type_hash |
-    #                simple_type
+    #   simple_type := :string | :integer | :double | :boolean
+    #   nested_type := type_hash | simple_type | WashOut::Param instance
+    #   type_hash   := { :parameter_name => nested_type, ... }
+    #   definition  := [ WashOut::Param, ... ] |
+    #                  type_hash |
+    #                  simple_type
     #
     # If a simple type is passed as the +definition+, a single Param is returned
     # with the +name+ set to "value".
