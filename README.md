@@ -42,7 +42,7 @@ class ApiController < ApplicationController
   soap_action "AddCircle",
               :args   => { :circle => { :center => { :x => :integer,
                                                      :y => :integer },
-                                        :radius => :float } },
+                                        :radius => :double } },
               :return => [],
               :to     => :add_circle
   def add_circle
