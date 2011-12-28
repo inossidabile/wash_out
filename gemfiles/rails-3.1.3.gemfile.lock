@@ -1,7 +1,7 @@
 PATH
-  remote: /home/whitequark/wash_out
+  remote: /Users/lovchy/Sites/wash_out
   specs:
-    wash_out (0.2.1)
+    wash_out (0.2.3)
       nori
 
 GEM

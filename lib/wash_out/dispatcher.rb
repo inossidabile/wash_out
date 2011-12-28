@@ -14,8 +14,12 @@ module WashOut
       soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action]
 
+      strip = Nori.strip_namespaces?
+
+      Nori.strip_namespaces = true
       params = Nori.parse(request.body)
       xml_data = params[:envelope][:body][soap_action.underscore.to_sym]
+      Nori.strip_namespaces = strip
 
       @_params = HashWithIndifferentAccess.new
       (xml_data || {}).map do |opt, value|
