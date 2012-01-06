@@ -2,16 +2,15 @@ xml.instruct!
 xml.definitions 'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
                 'xmlns:soap' => 'http://schemas.xmlsoap.org/wsdl/soap/',
                 'xmlns:soapenc' => 'http://schemas.xmlsoap.org/soap/encoding/',
-                'xmlns:wsdl' => 'http://schemas.xmlsoap.org/wsdl/',
                 'xmlns:typens' => @namespace,
                 'targetNamespace' => @namespace,
                 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/' do
   xml.types do
-    xml.tag! "xsd:schema", :xmlns => 'http://www.w3.org/2001/XMLSchema', :targetNamespace => @namespace
-
-    @map.each do |operation, formats|
-      formats[:in].each do |p|
-        wsdl_type xml, p
+    xml.tag! "xsd:schema", :targetNamespace => @namespace do
+      @map.each do |operation, formats|
+        formats[:in].each do |p|
+          wsdl_type xml, p
+        end
       end
     end
   end

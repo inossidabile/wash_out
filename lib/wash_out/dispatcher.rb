@@ -23,10 +23,12 @@ module WashOut
 
       @_params = HashWithIndifferentAccess.new
       (xml_data || {}).map do |opt, value|
-        param = action_spec[:in].find { |param| param.name.underscore.to_sym == opt }
-        raise SOAPError, "unknown parameter #{opt}" unless param
+        unless opt[0] == '@'
+          param = action_spec[:in].find { |param| param.name.underscore.to_sym == opt }
+          raise SOAPError, "unknown parameter #{opt}" unless param
 
-        @_params[param.name] = param.load(value)
+          @_params[param.name] = param.load(value)
+        end
       end
     end
 
