@@ -59,7 +59,7 @@ class ApiController < ApplicationController
   # is just like a normal controller with a special routing.
   before_filter :dump_parameters
   def dump_parameters
-    Rails.logger.add(ActiveSupport::BufferedLogger::DEBUG, params.inspect)
+    Rails.logger.debug params.inspect
   end
 end
 ```
