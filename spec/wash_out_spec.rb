@@ -15,6 +15,36 @@ describe WashOut do
     }.should_not raise_exception
   end
 
+  it "should generate WSDL" do
+    mock_controller do
+      soap_action "answer", :args => [], :return => :int
+      def answer
+        render :soap => "42"
+      end
+
+      soap_action "getArea", :args   => { :circle => { :center => { :x => :integer,
+                                                                    :y => :integer },
+                                                       :radius => :double } },
+                             :return => { :area => :double,
+                                          :distance_from_o => :double },
+                             :to     => :get_area
+      def get_area
+        circle = params[:circle]
+        render :soap => { :area            => Math::PI * circle[:radius] ** 2,
+                          :distance_from_o => Math.sqrt(circle[:center][:x] ** 2 + circle[:center][:y] ** 2) }
+      end
+    end
+
+    client = savon_instance
+    xml    = Nori.parse client.wsdl.xml
+
+    # Savon underscores method names so we 
+    # get back just what we have at controller
+    client.wsdl.soap_actions.should == [:answer, :get_area]
+
+    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['answer', 'getArea']
+  end
+
   it "should allow definition of a simple action" do
     lambda {
       mock_controller do

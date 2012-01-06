@@ -13,13 +13,11 @@ module WashOutHelper
     more = []
 
     if param.struct?
-      return if param.value.blank?
-
       xml.complexType :name => param.name do
         xml.sequence do
-          param.map.each do |key, value|
+          param.map.each do |value|
             more << value if value.struct?
-            xml.element wsdl_occurence(value, :name => key, :type => value.namespaced_type)
+            xml.element wsdl_occurence(value, :name => value.name, :type => value.namespaced_type)
           end
         end
       end
