@@ -1,7 +1,7 @@
-Wash Out
+WashOut
 ========
 
-Wash Out is a gem that greatly simplifies creation of SOAP service providers.
+WashOut is a gem that greatly simplifies creation of SOAP service providers. 
 
 Installation
 ------------
@@ -9,6 +9,20 @@ Installation
 In your Gemfile, add this line:
 
     gem 'wash_out'
+
+Compatibility
+--------------
+
+Rails >3.0 only.
+
+WashOut should work like a charm on CRuby 1.9.x.
+
+We do support CRuby 1.8.7. However it is not a goal and it is not well supported by our specs. According to
+this fact it maybe sometimes broken from the start on major releases. You are welcome to hold on an old
+version and give us enough issues and pull-requests to make it work.
+
+All dependencies are JRuby-compatible so again it will work well in --1.9 mode but it can fail with
+fresh releases if you go --1.8.
 
 Usage
 -----
