@@ -3,13 +3,6 @@ WashOut
 
 WashOut is a gem that greatly simplifies creation of SOAP service providers. 
 
-Installation
-------------
-
-In your Gemfile, add this line:
-
-    gem 'wash_out'
-
 Compatibility
 --------------
 
@@ -23,6 +16,13 @@ version and give us enough issues and pull-requests to make it work.
 
 All dependencies are JRuby-compatible so again it will work well in --1.9 mode but it can fail with
 fresh releases if you go --1.8.
+
+Installation
+------------
+
+In your Gemfile, add this line:
+
+    gem 'wash_out'
 
 Usage
 -----
