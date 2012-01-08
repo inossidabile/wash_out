@@ -35,8 +35,8 @@ demonstrated.
   [soap_action]: http://rubydoc.info/gems/wash_out/WashOut/SOAP/ClassMethods#soap_action-instance_method
 
 ```ruby
-# app/controllers/api_controller.rb
-class ApiController < ApplicationController
+# app/controllers/rumbas_controller.rb
+class RumbasController < ApplicationController
   include WashOut::SOAP
 
   soap_action "integer_to_string",
@@ -80,8 +80,8 @@ end
 
 ```ruby
 # config/routes.rb
-HelloWorld::Application.routes.draw do
-  wash_out :api
+WashOutSample::Application.routes.draw do
+  wash_out :rumbas
 end
 ```
 
@@ -91,12 +91,17 @@ gem like Savon, a request can be done using this path:
 ```ruby
 require 'savon'
 
-client = Savon::Client.new("http://localhost:3000/api/wsdl")
-client.wsdl.soap_actions # => [:integer_to_string, :concat]
-client.request(:concat) do
+client = Savon::Client.new("http://localhost:3000/rumbas/wsdl")
+
+client.wsdl.soap_actions # => [:integer_to_string, :concat, :add_circle]
+
+result = client.request(:concat) do
   soap.body = { :a => "123", :b => "abc" }
-end[:value] # => "123abc"
+end
+result.to_hash # => {:value=>"123abc"}
 ```
+
+Take a look at [WashOut sample application](https://github.com/roundlake/wash_out-sample).
 
 License
 -------
