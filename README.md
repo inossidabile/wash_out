@@ -1,7 +1,9 @@
 WashOut
 ========
 
-WashOut is a gem that greatly simplifies creation of SOAP service providers. 
+WashOut is a gem that greatly simplifies creation of SOAP service providers.
+
+But if you have a chance, please [http://stopsoap.com/](http://stopsoap.com/).
 
 Compatibility
 --------------
