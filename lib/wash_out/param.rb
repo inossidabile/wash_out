@@ -78,6 +78,7 @@ module WashOut
     #
     # This function returns an array of WashOut::Param objects.
     def self.parse_def(definition)
+      raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
       return [] if definition == nil
       
       if [Array, Symbol].include?(definition.class)

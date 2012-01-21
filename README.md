@@ -59,7 +59,7 @@ class RumbasController < ApplicationController
               :args   => { :circle => { :center => { :x => :integer,
                                                      :y => :integer },
                                         :radius => :double } },
-              :return => [],
+              :return => nil, # [] for wash_out below 0.3.0
               :to     => :add_circle
   def add_circle
     circle = params[:circle]
@@ -100,6 +100,11 @@ client.wsdl.soap_actions # => [:integer_to_string, :concat, :add_circle]
 result = client.request(:concat) do
   soap.body = { :a => "123", :b => "abc" }
 end
+
+# actual wash_out
+result.to_hash # => {:concat_reponse => {:value=>"123abc"}}
+
+# wash_out below 0.3.0 (and this is malformed response so please update)
 result.to_hash # => {:value=>"123abc"}
 ```
 
