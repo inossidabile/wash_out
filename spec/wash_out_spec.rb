@@ -17,12 +17,12 @@ describe WashOut do
 
   it "should generate WSDL" do
     mock_controller do
-      soap_action "answer", :args => [], :return => :int
+      soap_action "answer", :args => nil, :return => :int
       def answer
         render :soap => "42"
       end
 
-      soap_action "getArea", :args   => { :circle => { :center => { :x => :integer,
+      soap_action "getArea", :args   => { :circle => { :center => { :x => [:integer],
                                                                     :y => :integer },
                                                        :radius => :double } },
                              :return => { :area => :double,
@@ -42,20 +42,24 @@ describe WashOut do
     # get back just what we have at controller
     client.wsdl.soap_actions.should == [:answer, :get_area]
 
+    x = xml[:definitions][:types][:schema][:complex_type].find{|x| x[:'@name'] == 'center'}[:sequence][:element].find{|x| x[:'@name'] == 'x'}
+    x[:'@min_occurs'].should == "0"
+    x[:'@max_occurs'].should == "unbounded"
+
     xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['answer', 'getArea']
   end
 
   it "should allow definition of a simple action" do
     lambda {
       mock_controller do
-        soap_action "answer", :args => [], :return => :int
+        soap_action "answer", :args => nil, :return => :int
       end
     }.should_not raise_exception
   end
 
   it "should answer to request without parameters" do
     mock_controller do
-      soap_action "answer", :args => [], :return => :int
+      soap_action "answer", :args => nil, :return => :int
       def answer
         render :soap => "42"
       end
@@ -123,7 +127,7 @@ describe WashOut do
     
     mock_controller do
       soap_action name,
-                  :args => [], :return => :integer, :to => :answer
+                  :args => nil, :return => :integer, :to => :answer
       def answer
         render :soap => "forty two"
       end
@@ -135,7 +139,7 @@ describe WashOut do
 
   it "should correctly report SOAP errors" do
     mock_controller do
-      soap_action "error", :args => { :need_error => :boolean }, :return => []
+      soap_action "error", :args => { :need_error => :boolean }, :return => nil
       def error
         raise self.class.const_get(:SOAPError), "you wanted one" if params[:need_error]
 
@@ -167,7 +171,7 @@ describe WashOut do
 
   it "should be possible to explicitly render a SOAP error" do
     mock_controller do
-      soap_action "error", :args => [], :return => []
+      soap_action "error", :args => nil, :return => nil
       def error
         render_soap_error "a message"
       end
@@ -182,7 +186,7 @@ describe WashOut do
   it "should handle nested returns" do
     mock_controller do
       soap_action "gogogo",
-                  :args   => [],
+                  :args   => nil,
                   :return => {
                     :zoo => :string,
                     :boo => {
@@ -208,11 +212,11 @@ describe WashOut do
     mock_controller do
       soap_action "rumba",
                   :args   => {
-                    :rumbas => :integer
+                    :rumbas => [:integer]
                   },
-                  :return => []
+                  :return => nil
       def rumba
-        raise params.inspect
+        params.should == {"rumbas" => [1, 2, 3]}
         render :soap => nil
       end
     end
@@ -222,5 +226,20 @@ describe WashOut do
         :rumbas => [1, 2, 3]
       }
     end
+  end
+  
+  it "should be able to return arrays" do
+    mock_controller do
+      soap_action "rumba",
+                  :args   => nil,
+                  :return => {
+                    :rumbas => [:integer]
+                  }
+      def rumba
+        render :soap => {:rumbas => [1, 2, 3]}
+      end
+    end
+    
+    savon_instance.request(:rumba).to_hash[:rumba_response].should == {:rumbas => ["1", "2", "3"]}
   end
 end

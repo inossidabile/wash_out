@@ -28,27 +28,26 @@ module WashOut
     def load(data)
       check_if_missing(data)
 
+      data = Array(data) if @multiplied
+
       if struct?
         map_struct(data) { |param, elem| param.load(elem) }
       else
-        case type
-          when 'string';  data.to_s
-          when 'integer'; data.to_i
-          when 'double';  data.to_f
-          when 'boolean'; data # Nori handles that for us
+        operation = case type
+          when 'string';  :to_s
+          when 'integer'; :to_i
+          when 'double';  :to_f
+          when 'boolean'; nil # Nori handles that for us
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
-      end
-    end
-
-    # The opposite of #load.
-    def store(data)
-      check_if_missing(data)
-
-      if struct?
-        map_struct(data) { |param, elem| param.store(elem) }
-      else
-        data.to_s
+        
+        if operation.nil?
+          data
+        elsif data.is_a? Array
+          data.map{|x| x.send(operation)}
+        else
+          data.send(operation)
+        end
       end
     end
 
@@ -79,24 +78,30 @@ module WashOut
     #
     # This function returns an array of WashOut::Param objects.
     def self.parse_def(definition)
-      definition = { :value => definition } if definition.is_a? Symbol
+      return [] if definition == nil
+      
+      if [Array, Symbol].include?(definition.class)
+        definition = { :value => definition }
+      end
 
       if definition.is_a? Hash
         definition.map do |name, opt|
           if opt.is_a? WashOut::Param
             opt
+          elsif opt.is_a? Array
+            WashOut::Param.new(name, opt[0], true)
           else
             WashOut::Param.new(name, opt)
           end
         end
       else
-        definition.to_a
+        raise RuntimeError, "Wrong definition: #{type.inspect}"
       end
     end
 
     private
 
-    # Used to load or store an entire structure.
+    # Used to load an entire structure.
     def map_struct(data)
       data   = data.with_indifferent_access
       struct = {}.with_indifferent_access

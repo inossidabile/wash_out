@@ -55,7 +55,11 @@ module WashOut
       
       inject = lambda {|data, spec|
         spec.each do |param|
-          param.value = param.struct? ? inject.call(data[param.name], param.map) : data[param.name]
+          if param.struct?
+            inject.call(data[param.name], param.map)
+          else
+            param.value = data[param.name]
+          end
         end
       }
       
