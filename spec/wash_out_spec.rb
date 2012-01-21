@@ -178,4 +178,49 @@ describe WashOut do
       client.request(:error)
     }.should raise_exception(Savon::SOAP::Fault)
   end
+  
+  it "should handle nested returns" do
+    mock_controller do
+      soap_action "gogogo",
+                  :args   => [],
+                  :return => {
+                    :zoo => :string,
+                    :boo => {
+                      :moo => :string,
+                      :doo => :string
+                    }
+                  }
+      def gogogo
+        render :soap => {
+          :zoo => 'zoo',
+          :boo => {
+            :moo => 'moo',
+            :doo => 'doo'
+          }
+        }
+      end
+    end
+    
+    savon_instance.request(:gogogo)[:gogogo_response].should == {:zoo=>"zoo", :boo=>{:moo=>"moo", :doo=>"doo", :"@xsi:type"=>"tns:boo"}}
+  end
+  
+  it "should handle arrays" do
+    mock_controller do
+      soap_action "rumba",
+                  :args   => {
+                    :rumbas => :integer
+                  },
+                  :return => []
+      def rumba
+        raise params.inspect
+        render :soap => nil
+      end
+    end
+    
+    savon_instance.request(:rumba) do
+      soap.body = {
+        :rumbas => [1, 2, 3]
+      }
+    end
+  end
 end

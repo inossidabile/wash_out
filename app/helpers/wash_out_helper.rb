@@ -1,10 +1,14 @@
 module WashOutHelper
-  def wsdl_data(xml, param)
-    if param.is_a? Hash
-      wsdl_data xml, param.map
-    else
-      param.each do |opt, value|
-        xml.tag! "tns:#{opt.name}", value.to_s, "xsi:type" => opt.namespaced_type
+  def wsdl_data(xml, params)
+    params.each do |param|
+      tag_name = "tns:#{param.name}"
+
+      if param.struct?
+        xml.tag! tag_name, "xsi:type" => param.namespaced_type do
+          wsdl_data(xml, param.map)
+        end
+      else
+        xml.tag! tag_name, param.value.to_s, "xsi:type" => param.namespaced_type
       end
     end
   end

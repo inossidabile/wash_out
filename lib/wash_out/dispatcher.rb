@@ -52,9 +52,14 @@ module WashOut
 
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
-      result = Hash[*action_spec[:out].map do |param|
-        [param, param.store(result[param.name])]
-      end.flatten]
+      
+      inject = lambda {|data, spec|
+        spec.each do |param|
+          param.value = param.struct? ? inject.call(data[param.name], param.map) : data[param.name]
+        end
+      }
+      
+      result = inject.call(result, action_spec[:out])
 
       render :template => 'wash_with_soap/response',
              :locals => { :result => result }
