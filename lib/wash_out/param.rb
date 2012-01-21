@@ -99,6 +99,12 @@ module WashOut
         raise RuntimeError, "Wrong definition: #{type.inspect}"
       end
     end
+    
+    def clone
+      copy = self.class.new(@name, @type.to_sym, @multiplied)
+      copy.map = @map.map{|x| x.clone}
+      copy
+    end
 
     private
 

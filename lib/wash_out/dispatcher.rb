@@ -48,7 +48,7 @@ module WashOut
     def _render_soap(result, options)
       @namespace  = NAMESPACE
       @operation  = soap_action = request.env['wash_out.soap_action']
-      action_spec = self.class.soap_actions[soap_action]
+      action_spec = self.class.soap_actions[soap_action][:out].clone
 
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
@@ -62,11 +62,9 @@ module WashOut
           end
         end
       }
-      
-      result = inject.call(result, action_spec[:out])
 
       render :template => 'wash_with_soap/response',
-             :locals => { :result => result }
+             :locals => { :result => inject.call(result, action_spec) }
     end
 
     # This action is a fallback for all undefined SOAP actions.
