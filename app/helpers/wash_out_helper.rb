@@ -4,7 +4,7 @@ module WashOutHelper
       wsdl_data xml, param.map
     else
       param.each do |opt, value|
-        xml.tag! opt.name, value.to_s
+        xml.tag! "tns:#{opt.name}", value.to_s, "xsi:type" => opt.namespaced_type
       end
     end
   end

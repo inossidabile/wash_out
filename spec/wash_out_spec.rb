@@ -62,7 +62,7 @@ describe WashOut do
     end
 
     client = savon_instance
-    client.request(:answer).to_hash[:value].should == "42"
+    client.request(:answer).to_hash[:answer_response][:value].should == "42"
   end
 
   it "should answer to request with one parameter" do
@@ -76,10 +76,10 @@ describe WashOut do
     client = savon_instance
     client.request(:check_answer) do
       soap.body = { :value => 42 }
-    end.to_hash[:value].should == true
+    end.to_hash[:check_answer_response][:value].should == true
     client.request(:check_answer) do
       soap.body = { :value => 13 }
-    end.to_hash[:value].should == false
+    end.to_hash[:check_answer_response][:value].should == false
   end
 
   it "should answer to request with two parameter" do
@@ -93,7 +93,7 @@ describe WashOut do
     client = savon_instance
     client.request(:funky) do
       soap.body = { :a => 42, :b => 'k' }
-    end.to_hash[:value].should == '420k'
+    end.to_hash[:funky_response][:value].should == '420k'
   end
 
   it "should understand nested parameter specifications" do
@@ -115,12 +115,14 @@ describe WashOut do
     client.request(:get_area) do
       soap.body = { :circle => { :center => { :x => 3, :y => 4 },
                                  :radius => 5 } }
-    end.to_hash.should == ({ :area => (Math::PI * 25).to_s, :distance_from_o => (5.0).to_s })
+    end.to_hash[:get_area_response].should == ({ :area => (Math::PI * 25).to_s, :distance_from_o => (5.0).to_s })
   end
 
   it "should allow arbitrary action names" do
+    name = 'AnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything'
+    
     mock_controller do
-      soap_action "AnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything",
+      soap_action name,
                   :args => [], :return => :integer, :to => :answer
       def answer
         render :soap => "forty two"
@@ -128,7 +130,7 @@ describe WashOut do
     end
 
     client = savon_instance
-    client.request('AnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything').to_hash[:value].should == "forty two"
+    client.request(name).to_hash["#{name.underscore}_response".to_sym][:value].should == "forty two"
   end
 
   it "should correctly report SOAP errors" do
