@@ -34,7 +34,7 @@ describe WashOut do
                           :distance_from_o => Math.sqrt(circle[:center][:x] ** 2 + circle[:center][:y] ** 2) }
       end
     end
-
+    
     client = savon_instance
     xml    = Nori.parse client.wsdl.xml
 
@@ -43,8 +43,8 @@ describe WashOut do
     client.wsdl.soap_actions.should == [:answer, :get_area]
 
     x = xml[:definitions][:types][:schema][:complex_type].find{|x| x[:'@name'] == 'center'}[:sequence][:element].find{|x| x[:'@name'] == 'x'}
-    x[:'@min_occurs'].should == "0"
-    x[:'@max_occurs'].should == "unbounded"
+    x[:'@xsi:min_occurs'].should == "0"
+    x[:'@xsi:max_occurs'].should == "unbounded"
 
     xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['answer', 'getArea']
   end
