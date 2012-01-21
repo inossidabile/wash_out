@@ -242,4 +242,21 @@ describe WashOut do
     
     savon_instance.request(:rumba).to_hash[:rumba_response].should == {:rumbas => ["1", "2", "3"]}
   end
+  
+  it "should deprecate old syntax" do
+    # save rspec context check
+    raise_runtime_exception = raise_exception(RuntimeError)
+
+    mock_controller do
+      lambda {
+        soap_action "rumba",
+                    :args   => :integer,
+                    :return => []
+      }.should raise_runtime_exception
+      def rumba
+        render :soap => nil
+      end
+    end
+  end
+  
 end
