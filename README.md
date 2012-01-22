@@ -41,6 +41,7 @@ demonstrated.
 class RumbasController < ApplicationController
   include WashOut::SOAP
 
+  # Simple case
   soap_action "integer_to_string",
               :args   => :integer,
               :return => :string
@@ -55,6 +56,7 @@ class RumbasController < ApplicationController
     render :soap => (params[:a] + params[:b])
   end
 
+  # Complex structures
   soap_action "AddCircle",
               :args   => { :circle => { :center => { :x => :integer,
                                                      :y => :integer },
@@ -69,6 +71,14 @@ class RumbasController < ApplicationController
     Circle.new(circle[:center][:x], circle[:center][:y], circle[:radius])
 
     render :soap => nil
+  end
+
+  # Arrays
+  soap_action "integers_to_boolean",
+              :args => { :data => [:integer] },
+              :return => [:boolean]
+  def integers_to_boolean
+    render :soap => params[:data].map{|x| x ? 1 : 0}
   end
 
   # You can use all Rails features like filtering, too. A SOAP controller
