@@ -232,15 +232,13 @@ describe WashOut do
     mock_controller do
       soap_action "rumba",
                   :args   => nil,
-                  :return => {
-                    :rumbas => [:integer]
-                  }
+                  :return => [:integer]
       def rumba
-        render :soap => {:rumbas => [1, 2, 3]}
+        render :soap => [1, 2, 3]
       end
     end
     
-    savon_instance.request(:rumba).to_hash[:rumba_response].should == {:rumbas => ["1", "2", "3"]}
+    savon_instance.request(:rumba).to_hash[:rumba_response].should == {:value => ["1", "2", "3"]}
   end
   
   it "should deprecate old syntax" do
