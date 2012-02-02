@@ -34,7 +34,7 @@ describe WashOut do
                           :distance_from_o => Math.sqrt(circle[:center][:x] ** 2 + circle[:center][:y] ** 2) }
       end
     end
-    
+
     client = savon_instance
     xml    = Nori.parse client.wsdl.xml
 
@@ -124,7 +124,7 @@ describe WashOut do
 
   it "should allow arbitrary action names" do
     name = 'AnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything'
-    
+
     mock_controller do
       soap_action name,
                   :args => nil, :return => :integer, :to => :answer
@@ -182,7 +182,7 @@ describe WashOut do
       client.request(:error)
     }.should raise_exception(Savon::SOAP::Fault)
   end
-  
+
   it "should handle nested returns" do
     mock_controller do
       soap_action "gogogo",
@@ -204,10 +204,10 @@ describe WashOut do
         }
       end
     end
-    
+
     savon_instance.request(:gogogo)[:gogogo_response].should == {:zoo=>"zoo", :boo=>{:moo=>"moo", :doo=>"doo", :"@xsi:type"=>"tns:boo"}}
   end
-  
+
   it "should handle arrays" do
     mock_controller do
       soap_action "rumba",
@@ -220,14 +220,45 @@ describe WashOut do
         render :soap => nil
       end
     end
-    
+
     savon_instance.request(:rumba) do
       soap.body = {
         :rumbas => [1, 2, 3]
       }
     end
   end
-  
+
+  it "should handle complex structures inside arrays" do
+    mock_controller do
+      soap_action "rumba",
+                  :args   => {
+                    :rumbas => [ { 
+                      :zombies => :string,
+                      :puppies => :string
+                    } ]
+                  },
+                  :return => nil
+      def rumba
+        params.should == {
+          "rumbas" => [
+            {"zombies" => 'suck', "puppies" => 'rock'},
+            {"zombies" => 'slow', "puppies" => 'fast'}
+          ]
+        }
+        render :soap => nil
+      end
+    end
+
+    savon_instance.request(:rumba) do
+      soap.body = {
+        :rumbas => [
+          {:zombies => 'suck', :puppies => 'rock'},
+          {:zombies => 'slow', :puppies => 'fast'}
+        ]
+      }
+    end
+  end
+
   it "should be able to return arrays" do
     mock_controller do
       soap_action "rumba",
@@ -237,10 +268,10 @@ describe WashOut do
         render :soap => [1, 2, 3]
       end
     end
-    
+
     savon_instance.request(:rumba).to_hash[:rumba_response].should == {:value => ["1", "2", "3"]}
   end
-  
+
   it "should deprecate old syntax" do
     # save rspec context check
     raise_runtime_exception = raise_exception(RuntimeError)
@@ -256,5 +287,5 @@ describe WashOut do
       end
     end
   end
-  
+
 end

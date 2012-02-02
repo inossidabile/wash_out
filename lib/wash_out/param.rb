@@ -31,7 +31,13 @@ module WashOut
       data = Array(data) if @multiplied
 
       if struct?
-        map_struct(data) { |param, elem| param.load(elem) }
+        if @multiplied
+          data.map do |x|
+            map_struct(x) { |param, elem| param.load(elem) }
+          end
+        else
+          map_struct(data) { |param, elem| param.load(elem) }
+        end
       else
         operation = case type
           when 'string';  :to_s
@@ -40,10 +46,10 @@ module WashOut
           when 'boolean'; nil # Nori handles that for us
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
-        
+
         if operation.nil?
           data
-        elsif data.is_a? Array
+        elsif @multiplied
           data.map{|x| x.send(operation)}
         else
           data.send(operation)
@@ -80,7 +86,7 @@ module WashOut
     def self.parse_def(definition)
       raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
       return [] if definition == nil
-      
+
       if [Array, Symbol].include?(definition.class)
         definition = { :value => definition }
       end
@@ -99,7 +105,7 @@ module WashOut
         raise RuntimeError, "Wrong definition: #{type.inspect}"
       end
     end
-    
+
     def clone
       copy = self.class.new(@name, @type.to_sym, @multiplied)
       copy.map = @map.map{|x| x.clone}
@@ -124,7 +130,7 @@ module WashOut
     # Raise an appropriate exception if a required datum is missing.
     def check_if_missing(data)
       if data.nil?
-        raise WashOut::Dispatcher::SOAPError, "Required SOAP parameter #{@name} is missing"
+        raise WashOut::Dispatcher::SOAPError, "Required SOAP parameter '#{@name}' is missing"
       end
     end
   end
