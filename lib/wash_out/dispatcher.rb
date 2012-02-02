@@ -7,7 +7,7 @@ module WashOut
   module Dispatcher
     # Default Type namespace
     NAMESPACE = 'urn:WashOut'
-    
+
     # A SOAPError exception can be raised to return a correct SOAP error
     # response.
     class SOAPError < Exception; end
@@ -17,12 +17,18 @@ module WashOut
       soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action]
 
-      strip = Nori.strip_namespaces?
-
+      # Do not interfere with project-space Nori setup
+      strip   = Nori.strip_namespaces?
+      convert = Nori.convert_tags?
       Nori.strip_namespaces = true
+      Nori.convert_tags_to { |tag| tag.snakecase.to_sym }
+
       params = Nori.parse(request.body)
       xml_data = params[:envelope][:body][soap_action.underscore.to_sym]
+
+      # Reset Nori setup to project-space
       Nori.strip_namespaces = strip
+      Nori.convert_tags_to convert
 
       @_params = HashWithIndifferentAccess.new
       (xml_data || {}).map do |opt, value|
@@ -52,7 +58,7 @@ module WashOut
 
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
-      
+
       inject = lambda {|data, spec|
         spec.each do |param|
           if param.struct?
