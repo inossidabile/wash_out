@@ -12,6 +12,8 @@ Rails >3.0 only.
 
 WashOut should work like a charm on CRuby 1.9.x.
 
+![Travis CI](https://secure.travis-ci.org/roundlake/wash_out.png)
+
 We do support CRuby 1.8.7. However it is not a goal and it is not well supported by our specs. According to
 this fact it maybe sometimes broken from the start on major releases. You are welcome to hold on an old
 version and give us enough issues and pull-requests to make it work.
