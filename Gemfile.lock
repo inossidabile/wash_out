@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    wash_out (0.3.0)
+    wash_out (0.3.1)
       nori
 
 GEM
