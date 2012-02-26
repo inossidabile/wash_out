@@ -1,5 +1,4 @@
 require 'nori'
-require 'crack/xml'
 
 module WashOut
   # The WashOut::Dispatcher module should be included in a controller acting
