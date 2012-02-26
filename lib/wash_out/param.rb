@@ -25,18 +25,21 @@ module WashOut
 
     # Converts a generic externally derived Ruby value, such as String or
     # Hash, to a native Ruby object according to the definition of this type.
-    def load(data)
-      check_if_missing(data)
+    def load(data, key)
+      if !data.has_key? key
+        raise WashOut::Dispatcher::SOAPError, "Required SOAP parameter '#{key}' is missing"
+      end
 
+      data = data[key]
       data = Array(data) if @multiplied
 
       if struct?
         if @multiplied
           data.map do |x|
-            map_struct(x) { |param, elem| param.load(elem) }
+            map_struct(x) { |param, data, elem| param.load(data, elem) }
           end
         else
-          map_struct(data) { |param, elem| param.load(elem) }
+          map_struct(data) { |param, data, elem| param.load(data, elem) }
         end
       else
         operation = case type
@@ -121,17 +124,10 @@ module WashOut
 
       # RUBY18 Enumerable#each_with_object is better, but 1.9 only.
       @map.map do |param|
-        struct[param.name] = yield param, data[param.name]
+        struct[param.name] = yield param, data, param.name
       end
 
       struct
-    end
-
-    # Raise an appropriate exception if a required datum is missing.
-    def check_if_missing(data)
-      if data.nil?
-        raise WashOut::Dispatcher::SOAPError, "Required SOAP parameter '#{@name}' is missing"
-      end
     end
   end
 end

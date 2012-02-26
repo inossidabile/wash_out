@@ -24,20 +24,16 @@ module WashOut
       Nori.convert_tags_to { |tag| tag.snakecase.to_sym }
 
       params = Nori.parse(request.body)
-      xml_data = params[:envelope][:body][soap_action.underscore.to_sym]
+      xml_data = params[:envelope][:body][soap_action.underscore.to_sym] || {}
 
       # Reset Nori setup to project-space
       Nori.strip_namespaces = strip
       Nori.convert_tags_to convert
 
       @_params = HashWithIndifferentAccess.new
-      (xml_data || {}).map do |opt, value|
-        unless opt.to_s.starts_with? '@'
-          param = action_spec[:in].find { |param| param.name.underscore.to_sym == opt }
-          raise SOAPError, "unknown parameter #{opt}" unless param
 
-          @_params[param.name] = param.load(value)
-        end
+      action_spec[:in].each do |param|
+        @_params[param.name] = param.load(xml_data, param.name.to_sym)
       end
     end
 

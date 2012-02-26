@@ -69,6 +69,20 @@ describe WashOut do
     client.request(:answer).to_hash[:answer_response][:value].should == "42"
   end
 
+  it "should answer to request with empty parameter" do
+    mock_controller do
+      soap_action "answer", :args => {:a => :string}, :return => {:a => :string}
+      def answer
+        render :soap => {:a => params[:a]}
+      end
+    end
+
+    client = savon_instance
+    client.request(:answer) do
+      soap.body = { :a => '' }
+    end.to_hash[:answer_response][:a].should == ''
+  end
+
   it "should answer to request with one parameter" do
     mock_controller do
       soap_action "checkAnswer", :args => :integer, :return => :boolean, :to => 'check_answer'
