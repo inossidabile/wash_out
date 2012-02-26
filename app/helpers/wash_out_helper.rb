@@ -8,11 +8,11 @@ module WashOutHelper
       end
     end
   end
-  
+
   def wsdl_data_value(xml, param, value=false)
     value  ||= param.value.to_s
     tag_name = "tns:#{param.name}"
-    
+
     if param.struct?
       xml.tag! tag_name, "xsi:type" => param.namespaced_type do
         wsdl_data(xml, param.map)

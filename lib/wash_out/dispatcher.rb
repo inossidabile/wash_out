@@ -1,4 +1,5 @@
 require 'nori'
+require 'crack/xml'
 
 module WashOut
   # The WashOut::Dispatcher module should be included in a controller acting
@@ -25,6 +26,24 @@ module WashOut
 
       params = Nori.parse(request.body)
       xml_data = params[:envelope][:body][soap_action.underscore.to_sym] || {}
+
+      strip_empty_nodes = lambda{|hash|
+        hash.each do |key, value|
+          if value.is_a? Hash
+            value = value.delete_if{|key, value| key.to_s[0] == '@'}
+
+            if value.length > 0
+              hash[key] = strip_empty_nodes.call(value)
+            else
+              hash[key] = nil
+            end
+          end
+        end
+
+        hash
+      }
+
+      xml_data = strip_empty_nodes.call(xml_data)
 
       # Reset Nori setup to project-space
       Nori.strip_namespaces = strip
