@@ -302,4 +302,119 @@ describe WashOut do
     end
   end
 
+    it "should handle complex structures inside arrays" do
+    mock_controller do
+      soap_action "rumba",
+        :args   => {
+          :rumbas => [ {
+            :zombies => :string,
+            :puppies => :string
+          } ]
+        },
+        :return => nil
+
+      def rumba
+        params.should == {
+          "rumbas" => [
+            {"zombies" => 'suck', "puppies" => 'rock'},
+            {"zombies" => 'suck2', "puppies" => 'rock2'}
+          ]
+        }
+        render :soap => nil
+      end
+    end
+
+    savon_instance.request(:rumba) do
+      soap.body = {
+        :rumbas => [
+          {:zombies => 'suck', :puppies => 'rock'},
+          {:zombies => 'suck2', :puppies => 'rock2'}
+        ]
+      }
+    end
+  end
+
+  it "should handle complex structures inside arrays (single entry)" do
+    mock_controller do
+      soap_action "rumba",
+        :args => {
+          :rumbas => [{:zombies => :string, :puppies => :string}]
+        },
+        :return => nil
+      def rumba
+        params.should == {
+          "rumbas" => [
+            {"zombies" => 'suck', "puppies" => 'rock'}
+          ]
+        }
+        render :soap => nil
+      end
+    end
+
+    savon_instance.request(:rumba) do
+      soap.body = {
+        :rumbas => [{:zombies => 'suck', :puppies => 'rock'}]
+      }
+    end
+  end
+
+  it "should handle return of elements with same name in different places" do
+    mock_controller do
+      soap_action "rumba",
+        :args   => nil,
+        :return => {:rumbas => {:zombies => :string,:puppies => :string},
+                    :rumbas2 => {:zombies => :string,:puppies => :string}}
+      def rumba
+        render :soap => {:rumbas => {:zombies => "suck",:puppies => "rock"},
+                    :rumbas2 => {:zombies => "suck2",:puppies => "rock2"}}
+      end
+    end
+
+    savon_instance.request(:rumba)[:rumba_response].should == {
+      :rumbas => {:zombies => "suck",:puppies => "rock", :"@xsi:type"=>"tns:rumbas"},
+      :rumbas2 => {:zombies => "suck2",:puppies => "rock2", :"@xsi:type"=>"tns:rumbas2"}
+    }
+  end
+
+  it "should handle return of complex structures inside arrays" do
+    mock_controller do
+      soap_action "rumba",
+        :args   => nil,
+        :return => {
+          :rumbas => [{:zombies => :string, :puppies => :string}]
+        }
+      def rumba
+        render :soap =>
+          {:rumbas => [
+              {:zombies => "suck", :puppies => "rock" },
+              {:zombies => "suck", :puppies => "rock" }
+            ]
+          }
+      end
+    end
+
+    savon_instance.request(:rumba)[:rumba_response].should == {
+      :rumbas => [
+        {:zombies => "suck",:puppies => "rock"},
+        {:zombies => "suck", :puppies => "rock" }
+      ]
+    }
+  end
+
+  it "should handle return of complex structures inside arrays (single)" do
+    mock_controller do
+      soap_action "rumba",
+        :args   => nil,
+        :return => {
+          :rumbas => [{:zombies => :string}]
+        }
+      def rumba
+        render :soap => {:rumbas => [{:zombies => "sucks"}]}
+      end
+    end
+
+    resp = savon_instance.request(:rumba)[:rumba_response].should == {:rumbas => [{:zombies => "sucks"}]}
+  end
+
+
 end
