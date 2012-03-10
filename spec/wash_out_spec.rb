@@ -333,8 +333,8 @@ describe WashOut do
 
     savon_instance.request(:rumba)[:rumba_response].should == {
       :rumbas => [
-        {:zombies => "suck1",:puppies => "rock1"},
-        {:zombies => "suck2", :puppies => "rock2"}
+        {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:rumbas"},
+        {:zombies => "suck2", :puppies => "rock2", :"@xsi:type"=>"tns:rumbas" }
       ]
     }
   end

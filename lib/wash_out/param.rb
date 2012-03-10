@@ -109,10 +109,8 @@ module WashOut
       end
     end
 
-    def clone
+    def flat_copy
       copy = self.class.new(@name, @type.to_sym, @multiplied)
-      copy.map = @map.map{|x| x.clone}
-      copy
     end
 
     private
