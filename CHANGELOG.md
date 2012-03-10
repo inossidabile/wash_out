@@ -3,7 +3,9 @@
 ## 0.3.2
 
 * WashOut doesn't check existance of parameters anymore you should do it yourself from now
-* Proper handling of blank parameters
+* Proper handling of blank parameters (#10)
+* Proper handling of complex structures inside arrays (#9)
+* Response performance improved
 
 ## 0.3.1
 
