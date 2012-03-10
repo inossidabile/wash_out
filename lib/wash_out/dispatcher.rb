@@ -51,7 +51,11 @@ module WashOut
       @_params = HashWithIndifferentAccess.new
 
       action_spec[:in].each do |param|
-        @_params[param.name] = param.load(xml_data, param.name.to_sym)
+        key = param.name.to_sym
+
+        if xml_data.has_key? key
+          @_params[param.name] = param.load(xml_data, key)
+        end
       end
     end
 

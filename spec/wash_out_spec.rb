@@ -52,7 +52,7 @@ describe WashOut do
   it "should allow definition of a simple action" do
     lambda {
       mock_controller do
-        soap_action "answer", :args => nil, :return => :int
+        soap_action "answer", :args => nil, :return => :integer
       end
     }.should_not raise_exception
   end
@@ -60,6 +60,18 @@ describe WashOut do
   it "should answer to request without parameters" do
     mock_controller do
       soap_action "answer", :args => nil, :return => :int
+      def answer
+        render :soap => "42"
+      end
+    end
+
+    client = savon_instance
+    client.request(:answer).to_hash[:answer_response][:value].should == "42"
+  end
+
+  it "should respond to request with insufficient parameters" do
+    mock_controller do
+      soap_action "answer", :args => {:a => :integer}, :return => :integer
       def answer
         render :soap => "42"
       end
@@ -300,6 +312,31 @@ describe WashOut do
         render :soap => nil
       end
     end
+  end
+
+  it "should handle return of complex structures inside arrays" do
+    mock_controller do
+      soap_action "rumba",
+        :args   => nil,
+        :return => {
+          :rumbas => [{:zombies => :string, :puppies => :string}]
+        }
+      def rumba
+        render :soap =>
+          {:rumbas => [
+              {:zombies => "suck1", :puppies => "rock1" },
+              {:zombies => "suck2", :puppies => "rock2" }
+            ]
+          }
+      end
+    end
+
+    savon_instance.request(:rumba)[:rumba_response].should == {
+      :rumbas => [
+        {:zombies => "suck1",:puppies => "rock1"},
+        {:zombies => "suck2", :puppies => "rock2"}
+      ]
+    }
   end
 
 end
