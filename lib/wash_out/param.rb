@@ -31,15 +31,19 @@ module WashOut
       end
 
       data = data[key]
-      data = Array(data) if @multiplied
+      data = [data] if @multiplied && !data.is_a?(Array)
 
       if struct?
         if @multiplied
           data.map do |x|
-            map_struct(x) { |param, data, elem| param.load(data, elem) }
+            map_struct x do |param, data, elem|
+              param.load(data, elem)
+            end
           end
         else
-          map_struct(data) { |param, data, elem| param.load(data, elem) }
+          map_struct data do |param, data, elem|
+            param.load(data, elem)
+          end
         end
       else
         operation = case type
@@ -122,7 +126,9 @@ module WashOut
 
       # RUBY18 Enumerable#each_with_object is better, but 1.9 only.
       @map.map do |param|
-        struct[param.name] = yield param, data, param.name
+        if data.has_key? param.name
+          struct[param.name] = yield param, data, param.name
+        end
       end
 
       struct
