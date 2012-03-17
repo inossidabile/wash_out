@@ -125,7 +125,7 @@ Take a look at [WashOut sample application](https://github.com/roundlake/wash_ou
 Namespace
 ---------
 
-Use `config.action_view.washout_namespace = 'urn:test'` inside your environment configuration to modify default `urn:WashOut` namespace.
+Use `config.action_view.washout_namespace = ..` inside your environment configuration to modify SOAP namespace. The default value is: `urn:WashOut`.
 
 License
 -------
