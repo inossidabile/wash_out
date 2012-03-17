@@ -5,12 +5,14 @@ module WashOut
   # as a SOAP endpoint. It includes actions for generating WSDL and handling
   # SOAP requests.
   module Dispatcher
-    # Default Type namespace
-    NAMESPACE = 'urn:WashOut'
-
     # A SOAPError exception can be raised to return a correct SOAP error
     # response.
     class SOAPError < Exception; end
+
+    def namespace
+      namespace   = ActionView::Base.washout_namespace if defined?(ActionView::Base)
+      namespace ||= 'urn:WashOut'
+    end
 
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
@@ -62,7 +64,7 @@ module WashOut
     # This action generates the WSDL for defined SOAP methods.
     def _generate_wsdl
       @map       = self.class.soap_actions
-      @namespace = NAMESPACE
+      @namespace = namespace
       @name      = controller_path.gsub('/', '_')
 
       render :template => 'wash_with_soap/wsdl'
@@ -70,7 +72,7 @@ module WashOut
 
     # Render a SOAP response.
     def _render_soap(result, options)
-      @namespace  = NAMESPACE
+      @namespace  = namespace
       @operation  = soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action][:out].clone
 

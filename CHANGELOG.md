@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3
+
+* Tiny fixes in wash_out behavior with inline arrays (#11, #12)
+* Ability to change namespace
+
 ## 0.3.2
 
 * WashOut doesn't check existance of parameters anymore you should do it yourself from now
