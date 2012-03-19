@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+* WSDL generation fixed to support complex structures for return values
+
 ## 0.3.3
 
 * Tiny fixes in wash_out behavior with inline arrays (#11, #12)

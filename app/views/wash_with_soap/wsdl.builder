@@ -11,7 +11,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   xml.types do
     xml.tag! "xsd:schema", :targetNamespace => @namespace do
       @map.each do |operation, formats|
-        formats[:in].each do |p|
+        (formats[:in] + formats[:out]).each do |p|
           wsdl_type xml, p
         end
       end
