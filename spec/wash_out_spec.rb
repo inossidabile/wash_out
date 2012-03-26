@@ -3,6 +3,11 @@
 require 'spec_helper'
 
 describe WashOut do
+  before(:each) do
+    WashOut::Engine.snakecase = true
+    WashOut::Engine.namespace = false
+  end
+
   it "should be valid" do
     WashOut.should be_a(Module)
   end
@@ -81,19 +86,19 @@ describe WashOut do
     client.request(:answer).to_hash[:answer_response][:value].should == "42"
   end
 
-  # it "should answer to request with empty parameter" do
-  #   mock_controller do
-  #     soap_action "answer", :args => {:a => :string}, :return => {:a => :string}
-  #     def answer
-  #       render :soap => {:a => params[:a]}
-  #     end
-  #   end
-  # 
-  #   client = savon_instance
-  #   client.request(:answer) do
-  #     soap.body = { :a => '' }
-  #   end.to_hash[:answer_response][:a].should == ''
-  # end
+  it "should answer to request with empty parameter" do
+    mock_controller do
+      soap_action "answer", :args => {:a => :string}, :return => {:a => :string}
+      def answer
+        render :soap => {:a => params[:a]}
+      end
+    end
+
+    client = savon_instance
+    client.request(:answer) do
+      soap.body = { :a => '' }
+    end.to_hash[:answer_response][:a].should == {:"@xsi:type"=>"xsd:string"}
+  end
 
   it "should answer to request with one parameter" do
     mock_controller do
@@ -110,6 +115,23 @@ describe WashOut do
     client.request(:check_answer) do
       soap.body = { :value => 13 }
     end.to_hash[:check_answer_response][:value].should == false
+  end
+
+  it "should handle snakecase option properly" do
+    WashOut::Engine.snakecase = false
+
+    mock_controller do
+      soap_action "rocknroll", :args => {:ZOMG => :string}, :return => nil
+      def rocknroll
+        params["ZOMG"].should == "yam!"
+        render :soap => nil
+      end
+    end
+
+    client = savon_instance
+    client.request(:rocknroll) do
+      soap.body = { "ZOMG" => 'yam!' }
+    end
   end
 
   it "should answer to request with two parameter" do

@@ -9,11 +9,6 @@ module WashOut
     # response.
     class SOAPError < Exception; end
 
-    def namespace
-      namespace   = ActionView::Base.washout_namespace if defined?(ActionView::Base)
-      namespace ||= 'urn:WashOut'
-    end
-
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
       soap_action = request.env['wash_out.soap_action']
@@ -23,10 +18,18 @@ module WashOut
       strip   = Nori.strip_namespaces?
       convert = Nori.convert_tags?
       Nori.strip_namespaces = true
-      Nori.convert_tags_to { |tag| tag.snakecase.to_sym }
+
+      if WashOut::Engine.snakecase
+        Nori.convert_tags_to { |tag| tag.snakecase.to_sym }
+      else
+        Nori.convert_tags_to { |tag| tag.to_sym }
+      end
 
       params = Nori.parse(request.body)
-      xml_data = params[:envelope][:body][soap_action.underscore.to_sym] || {}
+
+      xml_data = params.values_at(:envelope, :Envelope).compact.first
+      xml_data = xml_data.values_at(:body, :Body).compact.first
+      xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym).compact.first || {}
 
       strip_empty_nodes = lambda{|hash|
         hash.each do |key, value|
@@ -64,7 +67,7 @@ module WashOut
     # This action generates the WSDL for defined SOAP methods.
     def _generate_wsdl
       @map       = self.class.soap_actions
-      @namespace = namespace
+      @namespace = WashOut::Engine.namespace
       @name      = controller_path.gsub('/', '_')
 
       render :template => 'wash_with_soap/wsdl'
@@ -72,7 +75,7 @@ module WashOut
 
     # Render a SOAP response.
     def _render_soap(result, options)
-      @namespace  = namespace
+      @namespace  = WashOut::Engine.namespace
       @operation  = soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action][:out].clone
 

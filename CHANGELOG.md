@@ -3,6 +3,8 @@
 ## 0.3.4
 
 * WSDL generation fixed to support complex structures for return values
+* Configuration moved to OrderedOptions with proper Engine binding
+* `snakecase` configuration directive added: if set to false, wash_out won't modify params keys
 
 ## 0.3.3
 
