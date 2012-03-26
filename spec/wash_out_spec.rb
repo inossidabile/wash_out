@@ -361,4 +361,100 @@ describe WashOut do
     }
   end
 
+    it "should handle return of structs in structs in arrays" do
+    mock_controller do
+      soap_action "rumba",
+        :args => nil,
+        :return => [{:rumbas => {:zombies => :integer}}]
+
+      def rumba
+        render :soap => [{:rumbas => {:zombies => 100000}}, {:rumbas => {:zombies => 2}}]
+      end
+    end
+
+    savon_instance.request(:rumba)[:rumba_response].should == {
+      :value => [
+        {
+          :rumbas => {
+            :zombies => "100000",
+            :"@xsi:type" => "tns:rumbas"
+          },
+          :"@xsi:type" => "tns:value"
+        },
+        {
+          :rumbas => {
+            :zombies => "2",
+            :"@xsi:type" => "tns:rumbas"
+          },
+          :"@xsi:type"=>"tns:value"
+        }
+      ]
+    }
+  end
+
+  it "should handle complex structs/arrays" do
+    mock_controller do
+      soap_action "rumba",
+        :args => nil,
+        :return => {
+          :rumbas => [
+            {
+              :zombies => :string,
+              :puppies => [
+                {:kittens => :integer}
+              ]
+            }
+          ]
+        }
+
+      def rumba
+        render :soap => {
+          :rumbas => [
+            {
+              :zombies => "abc",
+              :puppies => [
+                {:kittens => 1},
+                {:kittens => 5},
+              ]
+            },
+            {
+              :zombies => "def",
+              :puppies => [
+                {:kittens => 4}
+              ]
+            }
+          ]
+        }
+      end
+    end
+
+    savon_instance.request(:rumba)[:rumba_response].should == {
+      :rumbas => [
+        {
+          :zombies => "abc",
+          :puppies => [
+            {
+              :kittens => "1",
+              :"@xsi:type" => "tns:puppies"
+            },
+            {
+              :kittens => "5",
+              :"@xsi:type" => "tns:puppies"
+            }
+          ],
+          :"@xsi:type"=>"tns:rumbas"
+        },
+        {
+          :zombies => "def",
+          :puppies => [
+            {
+              :kittens => "4",
+              :"@xsi:type" => "tns:puppies"
+            }
+          ],
+          :"@xsi:type"=>"tns:rumbas"
+        }
+      ]
+    }
+  end
 end
