@@ -77,7 +77,7 @@ module WashOut
     def _render_soap(result, options)
       @namespace  = WashOut::Engine.namespace
       @operation  = soap_action = request.env['wash_out.soap_action']
-      action_spec = self.class.soap_actions[soap_action][:out].clone
+      action_spec = self.class.soap_actions[soap_action][:out]
 
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
