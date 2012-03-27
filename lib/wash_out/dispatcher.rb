@@ -82,21 +82,27 @@ module WashOut
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
 
-      inject = lambda {|data, source_spec|
-        spec = source_spec.clone
+      inject = lambda {|data, map|
+        result_spec = []
 
-        spec.each_with_index do |param, i|
+        map.each_with_index do |param, i|
+          result_spec[i] = param.flat_copy
+
+          # Inline complex structure
           if param.struct? && !param.multiplied
-            spec[i].map = inject.call(data[param.name], param.map)
+            result_spec[i].map = inject.call(data[param.name], param.map)
+
+          # Inline array of complex structures
           elsif param.struct? && param.multiplied
-            spec[i].map = data[param.name].map{|e| inject.call(e, param.map)}
+            result_spec[i].map = data[param.name].map{|e| inject.call(e, param.map)}
+
           else
-            spec[i] = param.flat_copy
-            spec[i].value = data[param.name]
+            result_spec[i].value = data[param.name]
+
           end
         end
 
-        return spec
+        return result_spec
       }
 
       render :template => 'wash_with_soap/response',

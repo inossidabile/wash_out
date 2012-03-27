@@ -361,7 +361,7 @@ describe WashOut do
     }
   end
 
-    it "should handle return of structs in structs in arrays" do
+  it "should handle return of structs in structs in arrays" do
     mock_controller do
       soap_action "rumba",
         :args => nil,
@@ -446,12 +446,10 @@ describe WashOut do
         },
         {
           :zombies => "def",
-          :puppies => [
-            {
-              :kittens => "4",
-              :"@xsi:type" => "tns:puppies"
-            }
-          ],
+          :puppies => {
+            :kittens => "4",
+            :"@xsi:type" => "tns:puppies"
+          },
           :"@xsi:type"=>"tns:rumbas"
         }
       ]
