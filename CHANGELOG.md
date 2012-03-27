@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5
+
+* Very evil thread-safety bug fixed. You are encouraged to never use anything below this version.
+
 ## 0.3.4
 
 * WSDL generation fixed to support complex structures for return values
