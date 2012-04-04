@@ -25,7 +25,7 @@ module WashOut
         Nori.convert_tags_to { |tag| tag.to_sym }
       end
 
-      params = Nori.parse(request.body)
+      params = Nori.parse(request.body.read)
 
       xml_data = params.values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
