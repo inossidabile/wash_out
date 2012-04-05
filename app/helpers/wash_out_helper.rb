@@ -48,8 +48,8 @@ module WashOutHelper
 
   def wsdl_occurence(param, extend_with = {})
     data = !param.multiplied ? {} : {
-      "xsi:minOccurs" => 0,
-      "xsi:maxOccurs" => 'unbounded'
+      "minOccurs" => 0,
+      "maxOccurs" => 'unbounded'
     }
 
     extend_with.merge(data)
