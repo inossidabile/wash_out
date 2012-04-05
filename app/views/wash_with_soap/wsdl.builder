@@ -51,16 +51,16 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
       xml.tag! "soap:address", :location => url_for(:action => '_action', :only_path => false)
     end
   end
-  
+
   @map.each do |operation, formats|
     xml.message :name => "#{operation}" do
       formats[:in].each do |p|
-        xml.part wsdl_occurence(p, :name => p.name, :type => p.namespaced_type)
+        xml.part wsdl_occurence(p, true, :name => p.name, :type => p.namespaced_type)
       end
     end
     xml.message :name => "#{operation}_response" do
       formats[:out].each do |p|
-        xml.part wsdl_occurence(p, :name => p.name, :type => p.namespaced_type)
+        xml.part wsdl_occurence(p, true, :name => p.name, :type => p.namespaced_type)
       end
     end
   end

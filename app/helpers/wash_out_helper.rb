@@ -35,7 +35,7 @@ module WashOutHelper
         xml.tag! "xsd:sequence" do
           param.map.each do |value|
             more << value if value.struct?
-            xml.tag! "xsd:element", wsdl_occurence(value, :name => value.name, :type => value.namespaced_type)
+            xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
           end
         end
       end
@@ -46,11 +46,10 @@ module WashOutHelper
     end
   end
 
-  def wsdl_occurence(param, extend_with = {})
+  def wsdl_occurence(param, inject, extend_with = {})
     data = !param.multiplied ? {} : {
-      "xmlns"     => 'http://www.w3.org/2001/XMLSchema',
-      "minOccurs" => 0,
-      "maxOccurs" => 'unbounded'
+      "#{'xsi:' if inject}minOccurs" => 0,
+      "#{'xsi:' if inject}maxOccurs" => 'unbounded'
     }
 
     extend_with.merge(data)
