@@ -3,13 +3,13 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
                 'xmlns:tns' => @namespace,
                 'xmlns:soap' => 'http://schemas.xmlsoap.org/wsdl/soap/',
                 'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
-                "xmlns:xsi" => 'http://www.w3.org/2001/XMLSchema-instance',
+                'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
                 'xmlns:soap-enc' => 'http://schemas.xmlsoap.org/soap/encoding/',
                 'xmlns:wsdl' => 'http://schemas.xmlsoap.org/wsdl/',
                 'name' => @name,
                 'targetNamespace' => @namespace do
   xml.types do
-    xml.tag! "xsd:schema", :targetNamespace => @namespace do
+    xml.tag! "schema", :targetNamespace => @namespace, :xmlns => 'http://www.w3.org/2001/XMLSchema' do
       @map.each do |operation, formats|
         (formats[:in] + formats[:out]).each do |p|
           wsdl_type xml, p
