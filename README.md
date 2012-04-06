@@ -140,6 +140,12 @@ Credits
 * Boris Staal ([@_inossidabile](http://twitter.com/#!/_inossidabile))
 * Peter Zotov ([@whitequark](http://twitter.com/#!/whitequark))
 
+Contributors
+------------
+
+* Bjorn Nilsson [@Bjorn-Nilsson][]
+* Tobias Bielohlawek [@rngtng][]
+
 LICENSE
 -------
 
