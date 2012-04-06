@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.6
+
+* Unicorn stream reading bug (#20)
+* .NET minOccurs/maxOccurs basic WSDL compatibility (#22, #23)
+
 ## 0.3.5
 
 * Very evil thread-safety bug fixed. You are encouraged to never use anything below this version.
