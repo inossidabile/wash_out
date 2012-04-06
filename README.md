@@ -130,7 +130,7 @@ Use `config.wash_out...` inside your environment configuration to setup WashOut.
 Available properties are:
 
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
-* **snakecase**: Determines if WashOut should modify parameters keys to snakecase. Default is true.
+* **snakecase**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 
 Credits
 -------
