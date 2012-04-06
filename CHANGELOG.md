@@ -41,3 +41,5 @@
 * The syntax for empty set (no input params or output params) changed from [] to nil.
 * SOAP response format improved. All results are now wrapped into tns:messages instead of soap:Body.
 * Arrays (minOccurs/maxOccurs) are now supported with `:foo => [:integer]` syntax.
+
+[@rngtng]: https://github.com/rngtng
