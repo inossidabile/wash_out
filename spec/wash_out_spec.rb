@@ -134,6 +134,34 @@ describe WashOut do
     end
   end
 
+  context "optional arrays" do
+    it "should answer for simple structure" do
+      mock_controller do
+        soap_action "rocknroll",
+                    :args => nil, :return => { :my_value => [:integer] }
+        def rocknroll
+          render :soap => {}
+        end
+      end
+
+      client = savon_instance
+      client.request(:rocknroll).to_hash["rocknroll_response".to_sym].should be_nil
+    end
+
+    it "should answer for complex structure" do
+      mock_controller do
+        soap_action "rocknroll",
+                    :args => nil, :return => { :my_value => [{ :value => :integer}] }
+        def rocknroll
+          render :soap => {}
+        end
+      end
+
+      client = savon_instance
+      client.request(:rocknroll).to_hash["rocknroll_response".to_sym].should be_nil
+    end
+  end
+
   it "should answer to request with two parameter" do
     mock_controller do
       soap_action "funky", :args => { :a => :integer, :b => :string }, :return => :string
