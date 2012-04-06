@@ -143,7 +143,7 @@ Credits
 Contributors
 ------------
 
-* Bjorn Nilsson ([@Bjorn-Nilsson](https://github.com/Bjorn-Nilsson))
+* Björn Nilsson ([@Bjorn-Nilsson](https://github.com/Bjorn-Nilsson))
 * Tobias Bielohlawek ([@rngtng](https://github.com/rngtng))
 
 LICENSE
