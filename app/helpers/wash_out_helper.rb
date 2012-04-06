@@ -7,6 +7,7 @@ module WashOutHelper
         if !param.multiplied
           xml.tag! tag_name, param.value, "xsi:type" => param.namespaced_type
         else
+          param.value = [] unless param.value.is_a?(Array)
           param.value.each do |v|
             xml.tag! tag_name, v, "xsi:type" => param.namespaced_type
           end
