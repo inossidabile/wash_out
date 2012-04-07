@@ -138,7 +138,7 @@ describe WashOut do
         end
       end
 
-      client.request(:rocknroll).to_hash["rocknroll_response".to_sym].should be_nil
+      client.request(:rocknroll).to_hash[:rocknroll_response].should be_nil
     end
 
     it "should answer for complex structure" do
@@ -150,7 +150,19 @@ describe WashOut do
         end
       end
 
-      client.request(:rocknroll).to_hash["rocknroll_response".to_sym].should be_nil
+      client.request(:rocknroll).to_hash[:rocknroll_response].should be_nil
+    end
+
+    it "should answer for nested complex structure" do
+      mock_controller do
+        soap_action "rocknroll",
+                    :args => nil, :return => { :my_value => { :my_array => [{ :value => :integer}] } }
+        def rocknroll
+          render :soap => {}
+        end
+      end
+
+      client.request(:rocknroll).to_hash[:rocknroll_response][:my_value].should == { :"@xsi:type" => "tns:my_value" }
     end
   end
 
