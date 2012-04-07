@@ -35,7 +35,7 @@ Dummy::Application.routes.draw do
   wash_out :api
 end
 
-def savon_instance
+def client
   Savon::Client.new do
     wsdl.document = 'http://app/api/wsdl'
   end
