@@ -2,7 +2,7 @@
 
 ## 0.3.7
 
-* Better empty parameters handling (#26) [@rngtng][]
+* Better empty parameters handling (#26, #30) [@rngtng][]
 
 ## 0.3.6
 
