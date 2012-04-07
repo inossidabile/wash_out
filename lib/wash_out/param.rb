@@ -69,9 +69,13 @@ module WashOut
       type == 'struct'
     end
 
+    def namespaced_name
+      "tns:#{name}"
+    end
+
     # Returns a WSDL namespaced identifier for this type.
     def namespaced_type
-      struct? ? "tns:#{name}" : "xsd:#{type}"
+      struct? ? namespaced_name : "xsd:#{type}"
     end
 
     # Parses a +definition+. The format of the definition is best described

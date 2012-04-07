@@ -469,4 +469,16 @@ describe WashOut do
       ]
     }
   end
+
+  it "should autoconvert snakecase if answer expects camelcase" do
+    mock_controller do
+      soap_action "rocknroll",
+                  :args => nil, :return => { :MyValue => :integer }
+      def rocknroll
+        render :soap => { :my_value => 42 }
+      end
+    end
+
+    client.request(:rocknroll).to_xml.should include('<tns:MyValue xsi:type="xsd:integer">42</tns:MyValue>')
+  end
 end
