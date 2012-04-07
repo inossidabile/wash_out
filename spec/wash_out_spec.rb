@@ -40,10 +40,9 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     xml    = Nori.parse client.wsdl.xml
 
-    # Savon underscores method names so we 
+    # Savon underscores method names so we
     # get back just what we have at controller
     client.wsdl.soap_actions.should == [:answer, :get_area]
 
@@ -70,7 +69,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     client.request(:answer).to_hash[:answer_response][:value].should == "42"
   end
 
@@ -82,7 +80,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     client.request(:answer).to_hash[:answer_response][:value].should == "42"
   end
 
@@ -94,7 +91,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     client.request(:answer) do
       soap.body = { :a => '' }
     end.to_hash[:answer_response][:a].should == {:"@xsi:type"=>"xsd:string"}
@@ -108,7 +104,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     client.request(:check_answer) do
       soap.body = { :value => 42 }
     end.to_hash[:check_answer_response][:value].should == true
@@ -128,7 +123,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     client.request(:rocknroll) do
       soap.body = { "ZOMG" => 'yam!' }
     end
@@ -144,7 +138,6 @@ describe WashOut do
         end
       end
 
-      client = savon_instance
       client.request(:rocknroll).to_hash["rocknroll_response".to_sym].should be_nil
     end
 
@@ -157,7 +150,6 @@ describe WashOut do
         end
       end
 
-      client = savon_instance
       client.request(:rocknroll).to_hash["rocknroll_response".to_sym].should be_nil
     end
   end
@@ -170,7 +162,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     client.request(:funky) do
       soap.body = { :a => 42, :b => 'k' }
     end.to_hash[:funky_response][:value].should == '420k'
@@ -191,7 +182,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     client.request(:get_area) do
       soap.body = { :circle => { :center => { :x => 3, :y => 4 },
                                  :radius => 5 } }
@@ -209,7 +199,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     client.request(name).to_hash["#{name.underscore}_response".to_sym][:value].should == "forty two"
   end
 
@@ -223,7 +212,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     lambda {
       client.request(:error) do
         soap.body = { :need_error => false }
@@ -239,7 +227,6 @@ describe WashOut do
   it "should report a SOAP error if method does not exists" do
     mock_controller
 
-    client = savon_instance
     lambda {
       client.request(:nonexistent)
     }.should raise_exception(Savon::SOAP::Fault)
@@ -253,7 +240,6 @@ describe WashOut do
       end
     end
 
-    client = savon_instance
     lambda {
       client.request(:error)
     }.should raise_exception(Savon::SOAP::Fault)
@@ -281,7 +267,7 @@ describe WashOut do
       end
     end
 
-    savon_instance.request(:gogogo)[:gogogo_response].should == {:zoo=>"zoo", :boo=>{:moo=>"moo", :doo=>"doo", :"@xsi:type"=>"tns:boo"}}
+    client.request(:gogogo)[:gogogo_response].should == {:zoo=>"zoo", :boo=>{:moo=>"moo", :doo=>"doo", :"@xsi:type"=>"tns:boo"}}
   end
 
   it "should handle arrays" do
@@ -297,7 +283,7 @@ describe WashOut do
       end
     end
 
-    savon_instance.request(:rumba) do
+    client.request(:rumba) do
       soap.body = {
         :rumbas => [1, 2, 3]
       }
@@ -308,7 +294,7 @@ describe WashOut do
     mock_controller do
       soap_action "rumba",
                   :args   => {
-                    :rumbas => [ { 
+                    :rumbas => [ {
                       :zombies => :string,
                       :puppies => :string
                     } ]
@@ -325,7 +311,7 @@ describe WashOut do
       end
     end
 
-    savon_instance.request(:rumba) do
+    client.request(:rumba) do
       soap.body = {
         :rumbas => [
           {:zombies => 'suck', :puppies => 'rock'},
@@ -345,7 +331,7 @@ describe WashOut do
       end
     end
 
-    savon_instance.request(:rumba).to_hash[:rumba_response].should == {:value => ["1", "2", "3"]}
+    client.request(:rumba).to_hash[:rumba_response].should == {:value => ["1", "2", "3"]}
   end
 
   it "should deprecate old syntax" do
@@ -381,7 +367,7 @@ describe WashOut do
       end
     end
 
-    savon_instance.request(:rumba)[:rumba_response].should == {
+    client.request(:rumba)[:rumba_response].should == {
       :rumbas => [
         {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:rumbas"},
         {:zombies => "suck2", :puppies => "rock2", :"@xsi:type"=>"tns:rumbas" }
@@ -400,7 +386,7 @@ describe WashOut do
       end
     end
 
-    savon_instance.request(:rumba)[:rumba_response].should == {
+    client.request(:rumba)[:rumba_response].should == {
       :value => [
         {
           :rumbas => {
@@ -456,7 +442,7 @@ describe WashOut do
       end
     end
 
-    savon_instance.request(:rumba)[:rumba_response].should == {
+    client.request(:rumba)[:rumba_response].should == {
       :rumbas => [
         {
           :zombies => "abc",
