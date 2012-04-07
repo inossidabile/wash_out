@@ -87,18 +87,19 @@ module WashOut
 
         map.each_with_index do |param, i|
           result_spec[i] = param.flat_copy
+          data_value     = data[param.name] || data[param.name.snakecase]
 
           # Inline complex structure
           if param.struct? && !param.multiplied
-            result_spec[i].map = inject.call(data[param.name], param.map)
+            result_spec[i].map = inject.call(data_value, param.map)
 
           # Inline array of complex structures
           elsif param.struct? && param.multiplied
-            data[param.name] = [] unless data[param.name].is_a?(Array)
-            result_spec[i].map = data[param.name].map{|e| inject.call(e, param.map)}
+            data_value = [] unless data_value.is_a?(Array)
+            result_spec[i].map = data_value.map{|e| inject.call(e, param.map)}
 
           else
-            result_spec[i].value = data[param.name]
+            result_spec[i].value = data_value
 
           end
         end
