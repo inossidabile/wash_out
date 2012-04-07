@@ -94,6 +94,7 @@ module WashOut
 
           # Inline array of complex structures
           elsif param.struct? && param.multiplied
+            data ||= {} #fallback in case no data is given
             data[param.name] = [] unless data[param.name].is_a?(Array)
             result_spec[i].map = data[param.name].map{|e| inject.call(e, param.map)}
 
