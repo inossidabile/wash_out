@@ -11,9 +11,6 @@ module WashOut
 
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
-      soap_action = request.env['wash_out.soap_action']
-      action_spec = self.class.soap_actions[soap_action]
-
       # Do not interfere with project-space Nori setup
       strip   = Nori.strip_namespaces?
       convert = Nori.convert_tags?
@@ -25,9 +22,18 @@ module WashOut
         Nori.convert_tags_to { |tag| tag.to_sym }
       end
 
-      params = Nori.parse(request.body.read)
+      @_params = Nori.parse(request.body.read)
 
-      xml_data = params.values_at(:envelope, :Envelope).compact.first
+      # Reset Nori setup to project-space
+      Nori.strip_namespaces = strip
+      Nori.convert_tags_to convert
+    end
+
+    def _map_soap_parameters
+      soap_action = request.env['wash_out.soap_action']
+      action_spec = self.class.soap_actions[soap_action]
+
+      xml_data = @_params.values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
       xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym).compact.first || {}
 
@@ -48,10 +54,6 @@ module WashOut
       }
 
       xml_data = strip_empty_nodes.call(xml_data)
-
-      # Reset Nori setup to project-space
-      Nori.strip_namespaces = strip
-      Nori.convert_tags_to convert
 
       @_params = HashWithIndifferentAccess.new
 
@@ -131,6 +133,7 @@ module WashOut
       controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
       controller.send :helper, :wash_out
       controller.send :before_filter, :_parse_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
+      controller.send :before_filter, :_map_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
     end
 
     def _render_soap_exception(error)
