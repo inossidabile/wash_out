@@ -109,7 +109,7 @@ module WashOut
           end
         end
       else
-        raise RuntimeError, "Wrong definition: #{type.inspect}"
+        raise RuntimeError, "Wrong definition: #{definition.inspect}"
       end
     end
 
