@@ -122,6 +122,11 @@ result.to_hash # => {:value=>"123abc"}
 
 Take a look at [WashOut sample application](https://github.com/roundlake/wash_out-sample).
 
+.Net C# interoperability
+---------
+
+Please note that .Net clients require you to use :int instead of :integer 
+
 Configuration
 ---------
 
