@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0
+
+* Better content-type for the response (#33) [@inossidabile][]
+* Date type support (#18) [@inossidabile][]
+
 ## 0.3.7
 
 * Better empty parameters handling (#26, #30) [@rngtng][]
@@ -42,4 +47,5 @@
 * SOAP response format improved. All results are now wrapped into tns:messages instead of soap:Body.
 * Arrays (minOccurs/maxOccurs) are now supported with `:foo => [:integer]` syntax.
 
+[@inossidabile]: https://twitter.com/#!/_inossidabile
 [@rngtng]: https://github.com/rngtng
