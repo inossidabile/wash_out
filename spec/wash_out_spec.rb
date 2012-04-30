@@ -38,19 +38,25 @@ describe WashOut do
         render :soap => { :area            => Math::PI * circle[:radius] ** 2,
                           :distance_from_o => Math.sqrt(circle[:center][:x] ** 2 + circle[:center][:y] ** 2) }
       end
+
+      soap_action "rocky", :args   => { :circle => { :x => :integer } },
+                             :return => { :circle => { :y => :integer } }
+      def rocky; end
     end
 
     xml    = Nori.parse client.wsdl.xml
 
     # Savon underscores method names so we
     # get back just what we have at controller
-    client.wsdl.soap_actions.should == [:answer, :get_area]
+    client.wsdl.soap_actions.should == [:answer, :get_area, :rocky]
 
     x = xml[:definitions][:types][:schema][:complex_type].find{|x| x[:'@name'] == 'center'}[:sequence][:element].find{|x| x[:'@name'] == 'x'}
     x[:'@min_occurs'].should == "0"
     x[:'@max_occurs'].should == "unbounded"
 
-    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['answer', 'getArea']
+    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['answer', 'getArea', 'rocky']
+
+    client.wsdl.xml.include?('<xsd:complexType name="circle1">').should == true
   end
 
   it "should allow definition of a simple action" do

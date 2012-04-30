@@ -28,11 +28,17 @@ module WashOutHelper
     end
   end
 
-  def wsdl_type(xml, param)
+  def wsdl_type(xml, param, types={})
     more = []
 
     if param.struct?
+      name       = param.name
+      param.name = param.name + types[param.name].to_s
+
       xml.tag! "xsd:complexType", :name => param.name do
+        types[name] ||= 0
+        types[name]  += 1
+
         xml.tag! "xsd:sequence" do
           param.map.each do |value|
             more << value if value.struct?
@@ -43,7 +49,7 @@ module WashOutHelper
     end
 
     more.each do |p|
-      wsdl_type xml, p
+      wsdl_type xml, p, types
     end
   end
 
