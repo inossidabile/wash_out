@@ -481,4 +481,22 @@ describe WashOut do
       ]
     }
   end
+
+  it "handles dates" do
+    mock_controller do
+      soap_action "date",
+        :args   => :date,
+        :return => :nil
+      def date
+        params[:value].should == Date.parse('2000-12-30')
+        render :soap => nil
+      end
+    end
+
+    client.request(:date) do
+      soap.body = {
+        :value => '2000-12-30'
+      }
+    end
+  end
 end
