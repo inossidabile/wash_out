@@ -1,5 +1,6 @@
 module WashOut
   class Param
+    attr_accessor :raw_name
     attr_accessor :name
     attr_accessor :map
     attr_accessor :type
@@ -12,6 +13,8 @@ module WashOut
       type ||= {}
 
       @name       = name.to_s
+      @raw_name   = name.to_s
+      @name       = @name.camelize if WashOut::Engine.camelize_output
       @map        = {}
       @multiplied = multiplied
 
@@ -116,6 +119,8 @@ module WashOut
 
     def flat_copy
       copy = self.class.new(@name, @type.to_sym, @multiplied)
+      copy.raw_name = raw_name
+      copy
     end
 
     private
@@ -127,8 +132,8 @@ module WashOut
 
       # RUBY18 Enumerable#each_with_object is better, but 1.9 only.
       @map.map do |param|
-        if data.has_key? param.name
-          struct[param.name] = yield param, data, param.name
+        if data.has_key? param.raw_name
+          struct[param.raw_name] = yield param, data, param.raw_name
         end
       end
 

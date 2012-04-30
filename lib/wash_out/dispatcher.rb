@@ -58,10 +58,10 @@ module WashOut
       @_params = HashWithIndifferentAccess.new
 
       action_spec[:in].each do |param|
-        key = param.name.to_sym
+        key = param.raw_name.to_sym
 
         if xml_data.has_key? key
-          @_params[param.name] = param.load(xml_data, key)
+          @_params[param.raw_name] = param.load(xml_data, key)
         end
       end
     end
@@ -92,17 +92,16 @@ module WashOut
 
           # Inline complex structure
           if param.struct? && !param.multiplied
-            result_spec[i].map = inject.call(data[param.name], param.map)
+            result_spec[i].map = inject.call(data[param.raw_name], param.map)
 
           # Inline array of complex structures
           elsif param.struct? && param.multiplied
             data ||= {} #fallback in case no data is given
-            data[param.name] = [] unless data[param.name].is_a?(Array)
-            result_spec[i].map = data[param.name].map{|e| inject.call(e, param.map)}
+            data[param.raw_name] = [] unless data[param.raw_name].is_a?(Array)
+            result_spec[i].map = data[param.raw_name].map{|e| inject.call(e, param.map)}
 
           else
-            result_spec[i].value = data[param.name]
-
+            result_spec[i].value = data[param.raw_name]
           end
         end
 

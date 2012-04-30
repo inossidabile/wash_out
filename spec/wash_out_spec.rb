@@ -51,13 +51,13 @@ describe WashOut do
     # get back just what we have at controller
     client.wsdl.soap_actions.should == [:answer, :get_area, :rocky]
 
-    x = xml[:definitions][:types][:schema][:complex_type].find{|x| x[:'@name'] == 'center'}[:sequence][:element].find{|x| x[:'@name'] == 'x'}
+    x = xml[:definitions][:types][:schema][:complex_type].find{|x| x[:'@name'] == 'Center'}[:sequence][:element].find{|x| x[:'@name'] == 'X'}
     x[:'@min_occurs'].should == "0"
     x[:'@max_occurs'].should == "unbounded"
 
     xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['answer', 'getArea', 'rocky']
 
-    client.wsdl.xml.include?('<xsd:complexType name="circle1">').should == true
+    client.wsdl.xml.include?('<xsd:complexType name="Circle1">').should == true
   end
 
   it "should allow definition of a simple action" do
@@ -170,7 +170,7 @@ describe WashOut do
         end
       end
 
-      client.request(:rocknroll).to_hash[:rocknroll_response][:my_value].should == { :"@xsi:type" => "tns:my_value" }
+      client.request(:rocknroll).to_hash[:rocknroll_response][:my_value].should == { :"@xsi:type" => "tns:MyValue" }
     end
   end
 
@@ -287,7 +287,7 @@ describe WashOut do
       end
     end
 
-    client.request(:gogogo)[:gogogo_response].should == {:zoo=>"zoo", :boo=>{:moo=>"moo", :doo=>"doo", :"@xsi:type"=>"tns:boo"}}
+    client.request(:gogogo)[:gogogo_response].should == {:zoo=>"zoo", :boo=>{:moo=>"moo", :doo=>"doo", :"@xsi:type"=>"tns:Boo"}}
   end
 
   it "should handle arrays" do
@@ -389,8 +389,8 @@ describe WashOut do
 
     client.request(:rumba)[:rumba_response].should == {
       :rumbas => [
-        {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:rumbas"},
-        {:zombies => "suck2", :puppies => "rock2", :"@xsi:type"=>"tns:rumbas" }
+        {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:Rumbas"},
+        {:zombies => "suck2", :puppies => "rock2", :"@xsi:type"=>"tns:Rumbas" }
       ]
     }
   end
@@ -411,16 +411,16 @@ describe WashOut do
         {
           :rumbas => {
             :zombies => "100000",
-            :"@xsi:type" => "tns:rumbas"
+            :"@xsi:type" => "tns:Rumbas"
           },
-          :"@xsi:type" => "tns:value"
+          :"@xsi:type" => "tns:Value"
         },
         {
           :rumbas => {
             :zombies => "2",
-            :"@xsi:type" => "tns:rumbas"
+            :"@xsi:type" => "tns:Rumbas"
           },
-          :"@xsi:type"=>"tns:value"
+          :"@xsi:type"=>"tns:Value"
         }
       ]
     }
@@ -469,22 +469,22 @@ describe WashOut do
           :puppies => [
             {
               :kittens => "1",
-              :"@xsi:type" => "tns:puppies"
+              :"@xsi:type" => "tns:Puppies"
             },
             {
               :kittens => "5",
-              :"@xsi:type" => "tns:puppies"
+              :"@xsi:type" => "tns:Puppies"
             }
           ],
-          :"@xsi:type"=>"tns:rumbas"
+          :"@xsi:type"=>"tns:Rumbas"
         },
         {
           :zombies => "def",
           :puppies => {
             :kittens => "4",
-            :"@xsi:type" => "tns:puppies"
+            :"@xsi:type" => "tns:Puppies"
           },
-          :"@xsi:type"=>"tns:rumbas"
+          :"@xsi:type"=>"tns:Rumbas"
         }
       ]
     }

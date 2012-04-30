@@ -5,6 +5,7 @@
 * Better content-type for the response (#33) [@inossidabile][]
 * Date type support (#18) [@inossidabile][]
 * Avoid duplication of inner types [@inossidabile][]
+* Output camelization support [@inossidabile][]
 
 ## 0.3.7
 
