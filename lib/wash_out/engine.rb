@@ -19,7 +19,7 @@ module WashOut
       end
 
       unless self.class.snakecase.nil?
-        raise "Usage of wash_out.snakecase is deprecated. You should use wash_out.snakecase_inpur and wash_out.camelize_output"
+        raise "Usage of wash_out.snakecase is deprecated. You should use wash_out.snakecase_input and wash_out.camelize_output"
       end
     end
   end
