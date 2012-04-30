@@ -4,7 +4,8 @@ require 'spec_helper'
 
 describe WashOut do
   before(:each) do
-    WashOut::Engine.snakecase = true
+    WashOut::Engine.snakecase_args = true
+    WashOut::Engine.snakecase_return = true
     WashOut::Engine.namespace = false
   end
 
@@ -119,7 +120,8 @@ describe WashOut do
   end
 
   it "should handle snakecase option properly" do
-    WashOut::Engine.snakecase = false
+    WashOut::Engine.snakecase_args = false
+    WashOut::Engine.snakecase_return = false
 
     mock_controller do
       soap_action "rocknroll", :args => {:ZOMG => :string}, :return => nil
