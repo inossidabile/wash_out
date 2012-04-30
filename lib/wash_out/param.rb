@@ -14,7 +14,7 @@ module WashOut
 
       @name       = name.to_s
       @raw_name   = name.to_s
-      @name       = @name.camelize if WashOut::Engine.camelize_output
+      @name       = @name.camelize if WashOut::Engine.camelize_wsdl
       @map        = {}
       @multiplied = multiplied
 

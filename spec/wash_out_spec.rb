@@ -5,7 +5,7 @@ require 'spec_helper'
 describe WashOut do
   before(:each) do
     WashOut::Engine.snakecase_input = true
-    WashOut::Engine.camelize_output = true
+    WashOut::Engine.camelize_wsdl   = true
     WashOut::Engine.namespace = false
   end
 
@@ -121,7 +121,7 @@ describe WashOut do
 
   it "should handle snakecase option properly" do
     WashOut::Engine.snakecase_input = false
-    WashOut::Engine.camelize_output = false
+    WashOut::Engine.camelize_wsdl   = false
 
     mock_controller do
       soap_action "rocknroll", :args => {:ZOMG => :string}, :return => nil
