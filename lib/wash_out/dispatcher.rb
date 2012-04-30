@@ -16,7 +16,7 @@ module WashOut
       convert = Nori.convert_tags?
       Nori.strip_namespaces = true
 
-      if WashOut::Engine.snakecase_args
+      if WashOut::Engine.snakecase_input
         Nori.convert_tags_to { |tag| tag.snakecase.to_sym }
       else
         Nori.convert_tags_to { |tag| tag.to_sym }
