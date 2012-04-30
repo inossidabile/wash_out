@@ -135,7 +135,9 @@ Use `config.wash_out...` inside your environment configuration to setup WashOut.
 Available properties are:
 
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
-* **snakecase**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
+* **snakecase**: *(DEPRECATED SINCE 0.4.0)* Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
+* **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
+* **camelize_output**: Determinse if WashOut should camelize types within WSDL and responses.
 
 Credits
 -------
