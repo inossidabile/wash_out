@@ -14,9 +14,14 @@ module WashOut
 
       @name       = name.to_s
       @raw_name   = name.to_s
-      @name       = @name.camelize if WashOut::Engine.camelize_wsdl
       @map        = {}
       @multiplied = multiplied
+
+      if WashOut::Engine.camelize_wsdl.to_s == 'lower'
+        @name = @name.camelize(:lower)
+      elsif WashOut::Engine.camelize_wsdl
+        @name = @name.camelize
+      end
 
       if type.is_a?(Symbol)
         @type = type.to_s
