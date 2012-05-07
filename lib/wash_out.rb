@@ -8,8 +8,11 @@ module ActionDispatch::Routing
   class Mapper
     # Adds the routes for a SOAP endpoint at +controller+.
     def wash_out(controller_name, options={})
+      options.reverse_merge!(@scope) if @scope
+      controller_class_name = [options[:module], controller_name].compact.join("/")
+
       match "#{controller_name}/wsdl" => "#{controller_name}#_generate_wsdl", :via => :get
-      match "#{controller_name}/action" => WashOut::Router.new(controller_name), :defaults => { :action => '_action' }
+      match "#{controller_name}/action" => WashOut::Router.new(controller_class_name), :defaults => { :action => '_action' }
     end
   end
 end
