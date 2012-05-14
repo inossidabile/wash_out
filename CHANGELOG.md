@@ -6,6 +6,7 @@
 * Date type support (#18) [@inossidabile][]
 * Avoid duplication of inner types [@inossidabile][]
 * Output camelization support [@inossidabile][]
+* External types declaration support (#21, #41) [@inossidabile][]
 
 ## 0.3.7
 
