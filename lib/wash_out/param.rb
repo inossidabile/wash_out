@@ -55,11 +55,12 @@ module WashOut
         end
       else
         operation = case type
-          when 'string';  :to_s
-          when 'integer'; :to_i
-          when 'double';  :to_f
-          when 'boolean'; nil # Nori handles that for us
-          when 'date';    :to_date
+          when 'string';    :to_s
+          when 'integer';   :to_i
+          when 'double';    :to_f
+          when 'boolean';   nil # Nori handles that for us
+          when 'date';      :to_date
+          when 'datetime';  :to_datetime
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
 
