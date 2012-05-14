@@ -66,6 +66,7 @@ module WashOut
           when 'boolean';   nil # Nori handles that for us
           when 'date';      :to_date
           when 'datetime';  :to_datetime
+          when 'time';      :to_time
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
 

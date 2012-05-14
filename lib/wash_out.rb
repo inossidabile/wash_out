@@ -4,6 +4,7 @@ require 'wash_out/dispatcher'
 require 'wash_out/soap'
 require 'wash_out/router'
 require 'wash_out/type'
+require 'wash_out/model'
 
 module ActionDispatch::Routing
   class Mapper
@@ -19,6 +20,7 @@ module ActionDispatch::Routing
 end
 
 Mime::Type.register "application/soap+xml", :soap
+ActiveRecord::Base.send :extend, WashOut::Model
 
 ActionController::Renderers.add :soap do |what, options|
   _render_soap(what, options)
