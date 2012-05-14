@@ -1,7 +1,7 @@
 module WashOut
   class Type
-    def self.param_name(value)
-      @param_name = value
+    def self.type_name(value)
+      @param_type_name = value
     end
 
     def self.map(value)
@@ -14,8 +14,8 @@ module WashOut
     end
 
     def self.wash_out_param_name
-      return name.underscore unless @param_name
-      @param_name
+      return name.underscore unless @param_type_name
+      @param_type_name
     end
   end
 end

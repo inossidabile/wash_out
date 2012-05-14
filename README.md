@@ -122,6 +122,32 @@ result.to_hash # => {:value=>"123abc"}
 
 Take a look at [WashOut sample application](https://github.com/roundlake/wash_out-sample).
 
+Reusable types
+---------
+
+Basic inline types definition is fast and furious for the simple cases. You have an option to describe SOAP types
+inside separate classes for the complex ones. Here's the way to do that:
+
+```ruby
+class Fluffy extends WashOut::Type
+  map {
+    :universe => {
+      :name => :string,
+      :age  => :int
+    }
+  }
+end
+
+class FluffyContainer extends WashOut::Type
+  type_name 'fluffy_con'
+  map {
+    :fluffy => Fluffy
+  }
+end
+```
+
+To use defined type inside your inline declaration, pass the class instead of type symbol (`:fluffy => Fluffy`).
+
 .Net C# interoperability
 ---------
 

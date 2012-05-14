@@ -9,7 +9,7 @@ describe WashOut::Type do
       map :test => :string
     end
     class Abraka2 < WashOut::Type
-      param_name 'test'
+      type_name 'test'
       map :foo => Abraka1
     end
 
