@@ -129,20 +129,18 @@ Basic inline types definition is fast and furious for the simple cases. You have
 inside separate classes for the complex ones. Here's the way to do that:
 
 ```ruby
-class Fluffy extends WashOut::Type
-  map {
+class Fluffy < WashOut::Type
+  map(
     :universe => {
       :name => :string,
       :age  => :int
     }
-  }
+  )
 end
 
-class FluffyContainer extends WashOut::Type
+class FluffyContainer < WashOut::Type
   type_name 'fluffy_con'
-  map {
-    :fluffy => Fluffy
-  }
+  map :fluffy => Fluffy
 end
 ```
 

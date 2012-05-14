@@ -6,7 +6,9 @@ describe WashOut::Param do
 
   it "loads custom_types" do
     class Abraka1 < WashOut::Type
-      map :test => :string
+      map(
+        :test => :string
+      )
     end
     class Abraka2 < WashOut::Type
       type_name 'test'
