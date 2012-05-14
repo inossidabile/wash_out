@@ -10,11 +10,10 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
                 'targetNamespace' => @namespace do
   xml.types do
     xml.tag! "schema", :targetNamespace => @namespace, :xmlns => 'http://www.w3.org/2001/XMLSchema' do
-      types = {}
-
+      defined = []
       @map.each do |operation, formats|
         (formats[:in] + formats[:out]).each do |p|
-          wsdl_type xml, p, types
+          wsdl_type xml, p, defined
         end
       end
     end

@@ -6,6 +6,7 @@ module WashOut
     attr_accessor :type
     attr_accessor :multiplied
     attr_accessor :value
+    attr_accessor :source_class
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
@@ -25,6 +26,10 @@ module WashOut
 
       if type.is_a?(Symbol)
         @type = type.to_s
+      elsif type.is_a?(Class)
+        @type         = 'struct'
+        @map          = self.class.parse_def(type.wash_out_param_map)
+        @source_class = type
       else
         @type = 'struct'
         @map  = self.class.parse_def(type)
@@ -79,14 +84,23 @@ module WashOut
       type == 'struct'
     end
 
-    def xsd_type_name
+    def classified?
+      !source_class.nil?
+    end
+
+    def basic_type
+      return name unless classified?
+      return source_class.wash_out_param_name
+    end
+
+    def xsd_type
       return 'dateTime' if type.to_s == 'datetime'
       return type
     end
 
     # Returns a WSDL namespaced identifier for this type.
     def namespaced_type
-      struct? ? "tns:#{name}" : "xsd:#{xsd_type_name}"
+      struct? ? "tns:#{basic_type}" : "xsd:#{xsd_type}"
     end
 
     # Parses a +definition+. The format of the definition is best described
@@ -109,7 +123,7 @@ module WashOut
       raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
       return [] if definition == nil
 
-      if [Array, Symbol].include?(definition.class)
+      if [Array, Symbol, Class].include?(definition.class)
         definition = { :value => definition }
       end
 

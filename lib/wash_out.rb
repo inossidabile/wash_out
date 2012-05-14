@@ -3,6 +3,7 @@ require 'wash_out/param'
 require 'wash_out/dispatcher'
 require 'wash_out/soap'
 require 'wash_out/router'
+require 'wash_out/type'
 
 module ActionDispatch::Routing
   class Mapper

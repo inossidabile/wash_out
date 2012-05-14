@@ -40,8 +40,8 @@ describe WashOut do
                           :distance_from_o => Math.sqrt(circle[:center][:x] ** 2 + circle[:center][:y] ** 2) }
       end
 
-      soap_action "rocky", :args   => { :circle => { :x => :integer } },
-                             :return => { :circle => { :y => :integer } }
+      soap_action "rocky", :args   => { :circle1 => { :x => :integer } },
+                             :return => { :circle2 => { :y => :integer } }
       def rocky; end
     end
 

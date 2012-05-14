@@ -28,28 +28,28 @@ module WashOutHelper
     end
   end
 
-  def wsdl_type(xml, param, types={})
+  def wsdl_type(xml, param, defined=[])
     more = []
 
     if param.struct?
-      name       = param.name
-      param.name = param.name + types[param.name].to_s
-
-      xml.tag! "xsd:complexType", :name => param.name do
-        types[name] ||= 0
-        types[name]  += 1
-
-        xml.tag! "xsd:sequence" do
-          param.map.each do |value|
-            more << value if value.struct?
-            xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
+      if !defined.include?(param.basic_type)
+        xml.tag! "xsd:complexType", :name => param.basic_type do
+          xml.tag! "xsd:sequence" do
+            param.map.each do |value|
+              more << value if value.struct?
+              xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
+            end
           end
         end
+
+        defined << param.basic_type
+      elsif !param.classified?
+        raise RuntimeError, "Duplicate use of `#{param.basic_type}` type name. Consider using classified types."
       end
     end
 
     more.each do |p|
-      wsdl_type xml, p, types
+      wsdl_type xml, p, defined
     end
   end
 
