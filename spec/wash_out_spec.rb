@@ -507,4 +507,115 @@ describe WashOut do
       }
     end
   end
+
+  describe "ws-security" do
+
+    it "should append username_token to params, if present" do
+      mock_controller do
+        soap_action "checkToken", :args => :integer, :return => nil, :to => 'check_token'
+        def check_token
+          params["username_token"]["username"].should == "gorilla"
+          params["username_token"]["password"].should == "secret"
+          render :soap => nil
+        end
+      end
+
+      client.request(:check_token) do
+        wsse.username = "gorilla"
+        wsse.password = "secret"
+        soap.body = { :value => 42 }
+      end
+    end
+
+    it "should report SOAP error if wsse auth is wrong or missing" do
+      WashOut::Engine.wsse_required = true
+      WashOut::Engine.wsse_username = "gorilla"
+      WashOut::Engine.wsse_password = "secret"
+
+      mock_controller do
+        soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
+        def check_auth
+          render :soap => (params[:value] == 42)
+        end
+      end
+
+      # correct auth
+      lambda {
+        client.request(:check_auth) do
+        wsse.username = "gorilla"
+        wsse.password = "secret"
+        soap.body = { :value => 42 }
+        end
+      }.should_not raise_exception
+      # wrong auth
+      lambda {
+        client.request(:check_auth) do
+        wsse.username = "chimpanzee"
+        wsse.password = "secret"
+        soap.body = { :value => 42 }
+        end
+      }.should raise_exception(Savon::SOAP::Fault)
+      # no auth
+      lambda {
+        client.request(:check_auth) do
+        soap.body = { :value => 42 }
+        end
+      }.should raise_exception(Savon::SOAP::Fault)
+    end
+
+    it "should handle wsse digest auth" do
+      WashOut::Engine.wsse_required = true
+      WashOut::Engine.wsse_username = "gorilla"
+      WashOut::Engine.wsse_password = "secret"
+
+      mock_controller do
+        soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
+        def check_auth
+          render :soap => (params[:value] == 42)
+        end
+      end
+
+      # correct auth
+      lambda {
+        client.request(:check_auth) do
+        wsse.credentials "gorilla", "secret", :digest
+        soap.body = { :value => 42 }
+        end
+      }.should_not raise_exception
+      # wrong auth
+      lambda {
+        client.request(:check_auth) do
+        wsse.credentials "chimpanzee", "secret", :digest
+        soap.body = { :value => 42 }
+        end
+      }.should raise_exception(Savon::SOAP::Fault)
+      # no auth
+      lambda {
+        client.request(:check_auth) do
+        soap.body = { :value => 42 }
+        end
+      }.should raise_exception(Savon::SOAP::Fault)
+    end
+
+    it "should not report SOAP error if wsse auth is not required" do
+      WashOut::Engine.wsse_required = false
+
+      mock_controller do
+        soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
+        def check_auth
+          render :soap => (params[:value] == 42)
+        end
+      end
+
+      lambda {
+        client.request(:check_auth) do
+        wsse.username = "chimpanzee"
+        wsse.password = "secret"
+        soap.body = { :value => 42 }
+        end
+      }.should_not raise_exception
+    end
+
+  end
+
 end

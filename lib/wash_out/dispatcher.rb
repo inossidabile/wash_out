@@ -34,6 +34,8 @@ module WashOut
       # Do not interfere with project-space Nori setup
       strip   = Nori.strip_namespaces?
       convert = Nori.convert_tags?
+      typecasting = Nori.advanced_typecasting?
+
       Nori.strip_namespaces = true
 
       if WashOut::Engine.snakecase_input
@@ -42,7 +44,11 @@ module WashOut
         Nori.convert_tags_to { |tag| tag.to_sym }
       end
 
-      @_params = Nori.parse(request.body.read)
+      request_body = request.body.read
+      Nori.advanced_typecasting = true
+      @_params = Nori.parse(request_body)
+      Nori.advanced_typecasting = false
+      @_params_without_adv_typecasting = Nori.parse(request_body)
 
       references = deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
 
@@ -54,15 +60,33 @@ module WashOut
       # Reset Nori setup to project-space
       Nori.strip_namespaces = strip
       Nori.convert_tags_to convert
+      Nori.advanced_typecasting = typecasting
     end
 
     def _map_soap_parameters
       soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action]
 
+      # parse the soap header
+      begin
+        xml_security = @_params_without_adv_typecasting.
+                       values_at(:envelope, :Envelope).compact.first
+        xml_security = xml_security.values_at(:header, :Header).compact.first
+        xml_security = xml_security.values_at(:security, :Security).compact.first
+        username_token = xml_security.values_at(:username_token, :UsernameToken).
+                         compact.first
+      rescue
+        # If the username_token is not found, well I don't really care
+      end
+
+      # The Wsse class will make sense of the security stuff in the header
+      wsse = WashOut::Wsse.new username_token
+
+      # parse the soap body
       xml_data = @_params.values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
-      xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym).compact.first || {}
+      xml_data = xml_data.values_at(soap_action.underscore.to_sym,
+                                    soap_action.to_sym).compact.first || {}
 
       strip_empty_nodes = lambda{|hash|
         hash.each do |key, value|
@@ -91,6 +115,16 @@ module WashOut
           @_params[param.raw_name] = param.load(xml_data, key)
         end
       end
+
+      # Adds the username_token to the params, just in case you want to
+      # inspect it inside your controller
+      if username_token
+        @_params[:username_token] = Hash.new
+        username_token.each do |param, value|
+          @_params[:username_token].store param, value
+        end
+      end
+
     end
 
     # This action generates the WSDL for defined SOAP methods.

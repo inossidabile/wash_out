@@ -3,6 +3,7 @@ module WashOut
     class << self
       attr_accessor :namespace
       attr_accessor :snakecase, :snakecase_input, :camelize_wsdl
+      attr_accessor :wsse_required, :wsse_username, :wsse_password
     end
 
     self.namespace = 'urn:WashOut'
