@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+* .NET-compliant :integer type WSDL [@inossidabile][]
+
 ## 0.4.0
 
 * Better content-type for the response (#33) [@inossidabile][]
