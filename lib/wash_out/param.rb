@@ -95,6 +95,7 @@ module WashOut
     end
 
     def xsd_type
+      return 'int' if type.to_s == 'integer'
       return 'dateTime' if type.to_s == 'datetime'
       return type
     end
