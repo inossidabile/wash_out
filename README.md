@@ -1,12 +1,10 @@
-WashOut
-========
+# WashOut
 
 WashOut is a gem that greatly simplifies creation of SOAP service providers.
 
 But if you have a chance, please [http://stopsoap.com/](http://stopsoap.com/).
 
-Compatibility
---------------
+## Compatibility
 
 Rails >3.0 only.
 
@@ -21,15 +19,13 @@ version and give us enough issues and pull-requests to make it work.
 All dependencies are JRuby-compatible so again it will work well in --1.9 mode but it can fail with
 fresh releases if you go --1.8.
 
-Installation
-------------
+## Installation
 
 In your Gemfile, add this line:
 
     gem 'wash_out'
 
-Usage
------
+## Usage
 
 A SOAP endpoint in WashOut is simply a Rails controller which includes the module WashOut::SOAP. Each SOAP
 action corresponds to a certain controller method; this mapping, as well as the argument definition, is defined
@@ -122,8 +118,7 @@ result.to_hash # => {:value=>"123abc"}
 
 Take a look at [WashOut sample application](https://github.com/roundlake/wash_out-sample).
 
-Reusable types
----------
+## Reusable types
 
 Basic inline types definition is fast and furious for the simple cases. You have an option to describe SOAP types
 inside separate classes for the complex ones. Here's the way to do that:
@@ -149,8 +144,7 @@ To use defined type inside your inline declaration, pass the class instead of ty
 Note that WashOut extends the `ActiveRecord` so every model you use is already a WashOut::Type and can be used
 inside your interface declarations.
 
-Configuration
----------
+## Configuration
 
 Use `config.wash_out...` inside your environment configuration to setup WashOut.
 
@@ -161,21 +155,27 @@ Available properties are:
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **camelize_wsdl**: Determinse if WashOut should camelize types within WSDL and responses. Default is `false`.
 
-Credits
--------
+### Camelization
+
+Note that WSDL camelization will affect method names but only if they were given as a symbol:
+
+```ruby
+soap_action :foo  # this will be affected
+soap_action "foo" # this will be passed as is
+```
+
+## Credits
 
 <img src="http://roundlake.ru/assets/logo.png" align="right" />
 
 * Boris Staal ([@_inossidabile](http://twitter.com/#!/_inossidabile))
 * Peter Zotov ([@whitequark](http://twitter.com/#!/whitequark))
 
-Contributors
-------------
+## Contributors
 
 * Björn Nilsson ([@Bjorn-Nilsson](https://github.com/Bjorn-Nilsson))
 * Tobias Bielohlawek ([@rngtng](https://github.com/rngtng))
 
-LICENSE
--------
+## LICENSE
 
 It is free software, and may be redistributed under the terms of MIT license.

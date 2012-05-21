@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+* Better camelization: reusable types and methods are now supported [@inossidabile][]
+
 ## 0.4.1
 
 * .NET-compliant :integer type WSDL [@inossidabile][]
