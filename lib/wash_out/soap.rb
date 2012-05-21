@@ -16,12 +16,12 @@ module WashOut
       def soap_action(action, options={})
         if action.is_a?(Symbol)
           if WashOut::Engine.camelize_wsdl.to_s == 'lower'
-            action = action.to_s.camelize(:lower)
+            options[:to] ||= action.to_s
+            action         = action.to_s.camelize(:lower)
           elsif WashOut::Engine.camelize_wsdl
-            action = action.to_s.camelize
+            options[:to] ||= action.to_s
+            action         = action.to_s.camelize
           end
-        else
-          action = action.to_s
         end
 
         self.soap_actions[action] = {
