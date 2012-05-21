@@ -125,12 +125,10 @@ inside separate classes for the complex ones. Here's the way to do that:
 
 ```ruby
 class Fluffy < WashOut::Type
-  map(
-    :universe => {
-      :name => :string,
-      :age  => :int
-    }
-  )
+  map :universe => {
+        :name => :string,
+        :age  => :int
+      }
 end
 
 class FluffyContainer < WashOut::Type
