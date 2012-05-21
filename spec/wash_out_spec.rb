@@ -23,7 +23,7 @@ describe WashOut do
 
   it "should generate WSDL" do
     mock_controller do
-      soap_action "answer", :args => nil, :return => :int
+      soap_action :result, :args => nil, :return => :int
       def answer
         render :soap => "42"
       end
@@ -49,13 +49,13 @@ describe WashOut do
 
     # Savon underscores method names so we
     # get back just what we have at controller
-    client.wsdl.soap_actions.should == [:answer, :get_area, :rocky]
+    client.wsdl.soap_actions.should == [:result, :get_area, :rocky]
 
     x = xml[:definitions][:types][:schema][:complex_type].find{|x| x[:'@name'] == 'Center'}[:sequence][:element].find{|x| x[:'@name'] == 'X'}
     x[:'@min_occurs'].should == "0"
     x[:'@max_occurs'].should == "unbounded"
 
-    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['answer', 'getArea', 'rocky']
+    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['Result', 'getArea', 'rocky']
 
     client.wsdl.xml.include?('<xsd:complexType name="Circle1">').should == true
   end
