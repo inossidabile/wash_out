@@ -9,6 +9,26 @@ module WashOut
     # response.
     class SOAPError < Exception; end
 
+    def deep_select(hash, result=[], &blk)
+      result += hash.select(&blk).values
+
+      hash.each do |key, value|
+        result = deep_select(value, result, &blk) if value.is_a? Hash
+      end
+
+      result
+    end
+
+    def deep_replace_href(hash, replace)
+      return replace[hash[:@href]] if hash.has_key?(:@href)
+
+      hash.keys.each do |key, value|
+        hash[key] = deep_replace_href(hash[key], replace) if hash[key].is_a?(Hash)
+      end
+
+      hash
+    end
+
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
       # Do not interfere with project-space Nori setup
@@ -23,6 +43,13 @@ module WashOut
       end
 
       @_params = Nori.parse(request.body.read)
+
+      references = deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
+
+      unless references.blank?
+        replaces = {}; references.each{|r| replaces['#'+r[:@id]] = r}
+        @_params = deep_replace_href(@_params, replaces)
+      end
 
       # Reset Nori setup to project-space
       Nori.strip_namespaces = strip

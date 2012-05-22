@@ -2,6 +2,7 @@
 
 ## 0.4.2
 
+* SOAP hrefs are now supported [@inossidabile][]
 * Better camelization: reusable types and methods are now supported [@inossidabile][]
 
 ## 0.4.1
