@@ -14,7 +14,7 @@ describe WashOut::Dispatcher do
     def initialize(body); @body = body; end
   end
 
-  Object.send :const_set, :Dispatcher, Class.new(ApplicationController) {
+  class Dispatcher < ApplicationController
     include WashOut::SOAP
 
     def self.mock(text="")
@@ -26,7 +26,7 @@ describe WashOut::Dispatcher do
     def params
       @_params
     end
-  }
+  end
 
   it "finds nested hashes" do
     dispatcher = Dispatcher.mock
@@ -56,10 +56,14 @@ describe WashOut::Dispatcher do
       </request>
       <entity id="id1">
         <foo><bar>1</bar></foo>
+        <sub href="#id2" />
       </entity>
+      <ololo id="id2">
+        <foo>1</foo>
+      </ololo>
     XML
     dispatcher._parse_soap_parameters
-    dispatcher.params.should == {:request => {:entities=>{:foo=>{:bar=>"1"}, :@id=>"id1"}, :entity=>{:foo=>{:bar=>"1"}, :@id=>"id1"}}}
+    dispatcher.params[:request][:entities].should == {:foo=>{:bar=>"1"}, :sub=>{:foo=>"1", :@id=>"id2"}, :@id=>"id1"}
   end
 
 end
