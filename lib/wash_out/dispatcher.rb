@@ -10,7 +10,7 @@ module WashOut
     class SOAPError < Exception; end
 
     def deep_select(hash, result=[], &blk)
-      result += hash.select(&blk).values
+      result += Hash[hash.select(&blk)].values
 
       hash.each do |key, value|
         result = deep_select(value, result, &blk) if value.is_a? Hash
