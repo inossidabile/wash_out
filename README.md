@@ -173,6 +173,7 @@ soap_action "foo" # this will be passed as is
 
 * Björn Nilsson ([@Bjorn-Nilsson](https://github.com/Bjorn-Nilsson))
 * Tobias Bielohlawek ([@rngtng](https://github.com/rngtng))
+* Francesco Negri ([@dhinus](https://github.com/dhinus))
 
 ## LICENSE
 
