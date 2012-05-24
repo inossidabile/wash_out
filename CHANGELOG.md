@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+
+* WSSE password authentication [@dhinus][]
+* Ruby 1.8 compatibility restores [@dhinus][]
+
 ## 0.4.2
 
 * SOAP hrefs are now supported [@inossidabile][]
@@ -61,3 +66,4 @@
 
 [@inossidabile]: https://twitter.com/#!/_inossidabile
 [@rngtng]: https://github.com/rngtng
+[@dhinus]: https://github.com/dhinus
