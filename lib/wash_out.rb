@@ -5,6 +5,7 @@ require 'wash_out/soap'
 require 'wash_out/router'
 require 'wash_out/type'
 require 'wash_out/model'
+require 'wash_out/wsse'
 
 module ActionDispatch::Routing
   class Mapper

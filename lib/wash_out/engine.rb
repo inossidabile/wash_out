@@ -3,6 +3,7 @@ module WashOut
     class << self
       attr_accessor :namespace
       attr_accessor :snakecase, :snakecase_input, :camelize_wsdl
+      attr_accessor :wsse_username, :wsse_password
     end
 
     self.namespace = 'urn:WashOut'
@@ -10,6 +11,9 @@ module WashOut
 
     self.snakecase_input = false
     self.camelize_wsdl   = false
+
+    self.wsse_username = nil
+    self.wsse_password = nil
 
     config.wash_out = ActiveSupport::OrderedOptions.new
 
