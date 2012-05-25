@@ -3,14 +3,14 @@ module WashOut
 
     def initialize token
       if token.nil? && required?
-        raise WashOut::Dispatcher::SOAPError, "Unauthorized"
+        raise WashOut::Dispatcher::SOAPError, "Missing required UsernameToken"
       end
       @username_token = token
       check_auth if required?
     end
 
     def required?
-      WashOut::Engine.wsse_required
+      !WashOut::Engine.wsse_username.blank?
     end
 
     def expected_user
@@ -24,6 +24,8 @@ module WashOut
     def matches_expected_digest?(password)
       nonce = @username_token.values_at(:nonce, :Nonce).compact.first
       timestamp = @username_token.values_at(:created, :Created).compact.first
+
+      if nonce.nil? || timestamp.nil? then return false end
 
       # Token should not be accepted if timestamp is older than 5 minutes ago
       # http://www.oasis-open.org/committees/download.php/16782/wss-v1.1-spec-os-UsernameTokenProfile.pdf
