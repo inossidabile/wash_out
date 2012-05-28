@@ -517,8 +517,8 @@ describe WashOut do
       mock_controller do
         soap_action "checkToken", :args => :integer, :return => nil, :to => 'check_token'
         def check_token
-          params["username_token"]["username"].should == "gorilla"
-          params["username_token"]["password"].should == "secret"
+          request.env['WSSE_TOKEN']['username'].should == "gorilla"
+          request.env['WSSE_TOKEN']['password'].should == "secret"
           render :soap => nil
         end
       end

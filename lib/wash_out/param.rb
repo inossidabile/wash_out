@@ -63,7 +63,7 @@ module WashOut
           when 'string';    :to_s
           when 'integer';   :to_i
           when 'double';    :to_f
-          when 'boolean';   nil # Nori handles that for us
+          when 'boolean';   ->(v){ v == 'true' }
           when 'date';      :to_date
           when 'datetime';  :to_datetime
           when 'time';      :to_time
@@ -74,8 +74,10 @@ module WashOut
           data
         elsif @multiplied
           data.map{|x| x.send(operation)}
-        else
+        elsif operation.is_a? Symbol
           data.send(operation)
+        else
+          operation.call(data)
         end
       end
     end

@@ -9,34 +9,15 @@ module WashOut
     # response.
     class SOAPError < Exception; end
 
-    def deep_select(hash, result=[], &blk)
-      result += Hash[hash.select(&blk)].values
-
-      hash.each do |key, value|
-        result = deep_select(value, result, &blk) if value.is_a? Hash
-      end
-
-      result
-    end
-
-    def deep_replace_href(hash, replace)
-      return replace[hash[:@href]] if hash.has_key?(:@href)
-
-      hash.keys.each do |key, value|
-        hash[key] = deep_replace_href(hash[key], replace) if hash[key].is_a?(Hash)
-      end
-
-      hash
-    end
-
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
       # Do not interfere with project-space Nori setup
-      strip   = Nori.strip_namespaces?
-      convert = Nori.convert_tags?
-      typecasting = Nori.advanced_typecasting?
+      strip    = Nori.strip_namespaces?
+      convert  = Nori.convert_tags?
+      typecast = Nori.advanced_typecasting?
 
       Nori.strip_namespaces = true
+      Nori.advanced_typecasting = false
 
       if WashOut::Engine.snakecase_input
         Nori.convert_tags_to { |tag| tag.snakecase.to_sym }
@@ -45,44 +26,40 @@ module WashOut
       end
 
       request_body = request.body.read
-      Nori.advanced_typecasting = true
       @_params = Nori.parse(request_body)
-      Nori.advanced_typecasting = false
-      @_params_without_adv_typecasting = Nori.parse(request_body)
 
-      references = deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
+      references = WashOut::Dispatcher.deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
 
       unless references.blank?
         replaces = {}; references.each{|r| replaces['#'+r[:@id]] = r}
-        @_params = deep_replace_href(@_params, replaces)
+        @_params = WashOut::Dispatcher.deep_replace_href(@_params, replaces)
       end
 
       # Reset Nori setup to project-space
       Nori.strip_namespaces = strip
+      Nori.advanced_typecasting = typecast
       Nori.convert_tags_to convert
-      Nori.advanced_typecasting = typecasting
+    end
+
+    def _authenticate_wsse
+      begin
+        xml_security   = @_params.values_at(:envelope, :Envelope).compact.first
+        xml_security   = xml_security.values_at(:header, :Header).compact.first
+        xml_security   = xml_security.values_at(:security, :Security).compact.first
+        username_token = xml_security.values_at(:username_token, :UsernameToken).compact.first
+      rescue
+        username_token = nil
+      end
+
+      WashOut::Wsse.authenticate username_token
+
+      request.env['WSSE_TOKEN'] = username_token.with_indifferent_access unless username_token.blank?
     end
 
     def _map_soap_parameters
       soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action]
 
-      # parse the soap header
-      begin
-        xml_security = @_params_without_adv_typecasting.
-                       values_at(:envelope, :Envelope).compact.first
-        xml_security = xml_security.values_at(:header, :Header).compact.first
-        xml_security = xml_security.values_at(:security, :Security).compact.first
-        username_token = xml_security.values_at(:username_token, :UsernameToken).
-                         compact.first
-      rescue
-        # If the username_token is not found, well I don't really care
-      end
-
-      # The Wsse class will make sense of the security stuff in the header
-      wsse = WashOut::Wsse.new username_token
-
-      # parse the soap body
       xml_data = @_params.values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
       xml_data = xml_data.values_at(soap_action.underscore.to_sym,
@@ -103,9 +80,7 @@ module WashOut
 
         hash
       }
-
       xml_data = strip_empty_nodes.call(xml_data)
-
       @_params = HashWithIndifferentAccess.new
 
       action_spec[:in].each do |param|
@@ -115,16 +90,6 @@ module WashOut
           @_params[param.raw_name] = param.load(xml_data, key)
         end
       end
-
-      # Adds the username_token to the params, just in case you want to
-      # inspect it inside your controller
-      if username_token
-        @_params[:username_token] = Hash.new
-        username_token.each do |param, value|
-          @_params[:username_token].store param, value
-        end
-      end
-
     end
 
     # This action generates the WSDL for defined SOAP methods.
@@ -179,6 +144,10 @@ module WashOut
       render_soap_error("Cannot find SOAP action mapping for #{request.env['wash_out.soap_action']}")
     end
 
+    def _render_soap_exception(error)
+      render_soap_error(error.message)
+    end
+
     # Render a SOAP error response.
     #
     # Rails do not support sequental rescue_from handling, that is, rescuing an
@@ -189,17 +158,34 @@ module WashOut
              :content_type => 'text/xml'
     end
 
-    private
+  private
 
     def self.included(controller)
       controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
       controller.send :helper, :wash_out
       controller.send :before_filter, :_parse_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
-      controller.send :before_filter, :_map_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
+      controller.send :before_filter, :_authenticate_wsse,     :except => [ :_generate_wsdl, :_invalid_action ]
+      controller.send :before_filter, :_map_soap_parameters,   :except => [ :_generate_wsdl, :_invalid_action ]
     end
 
-    def _render_soap_exception(error)
-      render_soap_error(error.message)
+    def self.deep_select(hash, result=[], &blk)
+      result += Hash[hash.select(&blk)].values
+
+      hash.each do |key, value|
+        result = deep_select(value, result, &blk) if value.is_a? Hash
+      end
+
+      result
+    end
+
+    def self.deep_replace_href(hash, replace)
+      return replace[hash[:@href]] if hash.has_key?(:@href)
+
+      hash.keys.each do |key, value|
+        hash[key] = deep_replace_href(hash[key], replace) if hash[key].is_a?(Hash)
+      end
+
+      hash
     end
   end
 end
