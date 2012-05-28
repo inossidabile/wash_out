@@ -158,8 +158,6 @@ module WashOut
              :content_type => 'text/xml'
     end
 
-  private
-
     def self.included(controller)
       controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
       controller.send :helper, :wash_out

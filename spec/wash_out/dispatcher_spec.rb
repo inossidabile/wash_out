@@ -29,17 +29,13 @@ describe WashOut::Dispatcher do
   end
 
   it "finds nested hashes" do
-    dispatcher = Dispatcher.mock
-
-    dispatcher.deep_select(:foo => 1){|k,v| k == :foo}.should == [1]
-    dispatcher.deep_select({:foo => {:foo => 1}}){|k,v| k == :foo}.should == [{:foo => 1}, 1]
+    WashOut::Dispatcher.deep_select(:foo => 1){|k,v| k == :foo}.should == [1]
+    WashOut::Dispatcher.deep_select({:foo => {:foo => 1}}){|k,v| k == :foo}.should == [{:foo => 1}, 1]
   end
 
   it "replaces nested hashed" do
-    dispatcher = Dispatcher.mock
-
-    dispatcher.deep_replace_href({:foo => {:@href => 1}}, {1 => 2}).should == {:foo => 2}
-    dispatcher.deep_replace_href({:bar => {:foo => {:@href => 1}}}, {1 => 2}).should == {:bar => {:foo => 2}}
+    WashOut::Dispatcher.deep_replace_href({:foo => {:@href => 1}}, {1 => 2}).should == {:foo => 2}
+    WashOut::Dispatcher.deep_replace_href({:bar => {:foo => {:@href => 1}}}, {1 => 2}).should == {:bar => {:foo => 2}}
   end
 
   it "parses typical request" do
