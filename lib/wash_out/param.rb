@@ -63,7 +63,7 @@ module WashOut
           when 'string';    :to_s
           when 'integer';   :to_i
           when 'double';    :to_f
-          when 'boolean';   ->(v){ v == 'true' }
+          when 'boolean';   lambda { |v| v == 'true' }
           when 'date';      :to_date
           when 'datetime';  :to_datetime
           when 'time';      :to_time
