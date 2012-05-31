@@ -24,6 +24,7 @@ module WashOut
           end
         end
 
+        self.soap_actions ||= {}
         self.soap_actions[action] = {
           :in     => WashOut::Param.parse_def(options[:args]),
           :out    => WashOut::Param.parse_def(options[:return]),
