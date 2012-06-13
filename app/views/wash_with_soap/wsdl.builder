@@ -32,7 +32,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
     xml.tag! "soap:binding", :style => 'rpc', :transport => 'http://schemas.xmlsoap.org/soap/http'
     @map.keys.each do |operation|
       xml.operation :name => operation do
-        xml.tag! "soap:operation", :soapAction => operation
+        xml.tag! "soap:operation", :soapAction => "#{@namespace}/#{operation}"
         xml.input do
           xml.tag! "soap:body",
             :use => "encoded", :encodingStyle => 'http://schemas.xmlsoap.org/soap/encoding/'
