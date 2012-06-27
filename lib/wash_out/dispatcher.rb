@@ -135,6 +135,7 @@ module WashOut
       }
 
       render :template => 'wash_with_soap/response',
+             :layout => false,
              :locals => { :result => inject.call(result, action_spec) },
              :content_type => 'text/xml'
     end
