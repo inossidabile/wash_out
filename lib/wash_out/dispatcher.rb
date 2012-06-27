@@ -98,7 +98,7 @@ module WashOut
       @namespace = WashOut::Engine.namespace
       @name      = controller_path.gsub('/', '_')
 
-      render :template => 'wash_with_soap/wsdl'
+      render :template => 'wash_with_soap/wsdl', :layout => false
     end
 
     # Render a SOAP response.
