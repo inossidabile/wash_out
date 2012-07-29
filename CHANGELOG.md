@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+* Better routing points [@inossidabile][]
+
 ## 0.5.0
 
 * WSSE password authentication [@dhinus][]
