@@ -1,7 +1,7 @@
 module WashOutHelper
   def wsdl_data(xml, params)
     params.each do |param|
-      tag_name = "tns:#{param.name}"
+      tag_name = "#{param.name}"
 
       if !param.struct?
         if !param.multiplied
