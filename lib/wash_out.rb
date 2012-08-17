@@ -15,7 +15,7 @@ module ActionDispatch::Routing
       controller_class_name = [options[:module], controller_name].compact.join("/")
 
       match "#{controller_name}/wsdl"   => "#{controller_name}#_generate_wsdl", :via => :get, :format => false
-      match "#{controller_name}/action" => WashOut::Router.new(controller_class_name), :defaults => { :controller => controller_name.to_s, :action => '_action' }, :format => false
+      match "#{controller_name}/action" => WashOut::Router.new(controller_class_name), :defaults => { :controller => controller_class_name, :action => '_action' }, :format => false
     end
   end
 end
