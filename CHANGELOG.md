@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.2
+
+* .NET-compliant response tags [@ebeigarts][]
+* Tiny fixes [@ebeigarts][]
+
 ## 0.5.1
 
 * Better routing points [@inossidabile][]
@@ -71,3 +76,4 @@
 [@inossidabile]: https://twitter.com/#!/_inossidabile
 [@rngtng]: https://github.com/rngtng
 [@dhinus]: https://github.com/dhinus
+[@ebeigarts]: https://github.com/ebeigarts
