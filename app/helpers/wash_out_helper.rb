@@ -33,13 +33,14 @@ module WashOutHelper
 
     if param.struct?
       if !defined.include?(param.basic_type)
-        xml.tag! "xsd:complexType", :name => param.basic_type do
-          xml.tag! "xsd:sequence" do
-            param.map.each do |value|
-              more << value if value.struct?
-              xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
-            end
-          end
+       param.map.each do |value|
+             xml.tag! "xsd:complexType", :name => value.name do            
+               xml.tag! "xsd:sequence" do
+               value.map.each do |reuse|
+                   xml.tag! "xsd:element", wsdl_occurence(reuse, false, :name => reuse.name, :type => reuse.namespaced_type)
+               end 
+             end
+           end
         end
 
         defined << param.basic_type
