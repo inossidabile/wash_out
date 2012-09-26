@@ -70,7 +70,7 @@ module WashOut
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
 
-        if operation.nil?
+        if operation.nil? || data.nil?
           data
         elsif @multiplied
           data.map{|x| x.send(operation)}

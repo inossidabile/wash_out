@@ -496,7 +496,7 @@ describe WashOut do
         :args   => :date,
         :return => :nil
       def date
-        params[:value].should == Date.parse('2000-12-30')
+        params[:value].should == Date.parse('2000-12-30') unless params[:value].blank?
         render :soap => nil
       end
     end
@@ -506,6 +506,14 @@ describe WashOut do
         :value => '2000-12-30'
       }
     end
+
+    lambda {
+      client.request(:date) do
+        soap.body = {
+          :value => nil
+        }
+      end
+    }.should_not raise_exception
   end
 
   describe "ws-security" do
