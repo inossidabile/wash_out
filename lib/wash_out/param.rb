@@ -156,6 +156,10 @@ module WashOut
 
     # Used to load an entire structure.
     def map_struct(data)
+      unless data.is_a?(Hash)
+        raise WashOut::Dispatcher::SOAPError, "SOAP message structure is broken"
+      end
+
       data   = data.with_indifferent_access
       struct = {}.with_indifferent_access
 
