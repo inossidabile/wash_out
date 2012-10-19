@@ -55,7 +55,7 @@ describe WashOut do
     x[:'@min_occurs'].should == "0"
     x[:'@max_occurs'].should == "unbounded"
 
-    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['Result', 'getArea', 'rocky']
+    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.sort.should == ['Result', 'getArea', 'rocky'].sort
 
     client.wsdl.xml.include?('<xsd:complexType name="Circle1">').should == true
   end
