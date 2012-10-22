@@ -634,4 +634,31 @@ describe WashOut do
 
   end
 
+  it 'should help with programmer errors' do
+    mock_controller do
+      soap_action 'bad', :args => :integer, :return => {
+        :basic => :string,
+        :stallions => {
+          :stallion => [
+            :name => :string,
+            :wyldness => :integer,
+          ]
+        },
+      }
+      def bad
+        render :soap => {
+          :basic => 'hi',
+          :stallions => [{:name => 'ted', :wyldness => 11}]
+        }
+      end
+    end
+
+    lambda {
+      client.request(:bad).to_hash(:bad_response)
+    }.should raise_exception(
+      WashOut::Dispatcher::ProgrammerError,
+      /SOAP response .*wyldness.*Array.*Hash.*stallion/
+    )
+  end
+
 end

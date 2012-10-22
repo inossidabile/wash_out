@@ -8,6 +8,7 @@ module WashOut
     # A SOAPError exception can be raised to return a correct SOAP error
     # response.
     class SOAPError < Exception; end
+    class ProgrammerError < Exception; end
 
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
@@ -122,7 +123,12 @@ module WashOut
 
           # Inline array of complex structures
           elsif param.struct? && param.multiplied
-            data ||= {} #fallback in case no data is given
+            if data.nil?
+              data = {} # when no data is given
+            elsif data.is_a?(Array)
+              raise ProgrammerError,
+                "SOAP response used #{data.inspect} (which is an Array), in the context where a Hash with key of '#{param.raw_name}' was expected."
+            end
             data[param.raw_name] = [] unless data[param.raw_name].is_a?(Array)
             result_spec[i].map = data[param.raw_name].map{|e| inject.call(e, param.map)}
 
