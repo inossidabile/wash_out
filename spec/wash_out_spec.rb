@@ -55,7 +55,7 @@ describe WashOut do
     x[:'@min_occurs'].should == "0"
     x[:'@max_occurs'].should == "unbounded"
 
-    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['Result', 'getArea', 'rocky']
+    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.sort.should == ['Result', 'getArea', 'rocky'].sort
 
     client.wsdl.xml.include?('<xsd:complexType name="Circle1">').should == true
   end
@@ -632,6 +632,33 @@ describe WashOut do
       }.should raise_exception(Savon::SOAP::Fault)
     end
 
+  end
+
+  it 'should help with programmer errors' do
+    mock_controller do
+      soap_action 'bad', :args => :integer, :return => {
+        :basic => :string,
+        :stallions => {
+          :stallion => [
+            :name => :string,
+            :wyldness => :integer,
+          ]
+        },
+      }
+      def bad
+        render :soap => {
+          :basic => 'hi',
+          :stallions => [{:name => 'ted', :wyldness => 11}]
+        }
+      end
+    end
+
+    lambda {
+      client.request(:bad).to_hash(:bad_response)
+    }.should raise_exception(
+      WashOut::Dispatcher::ProgrammerError,
+      /SOAP response .*wyldness.*Array.*Hash.*stallion/
+    )
   end
 
 end
