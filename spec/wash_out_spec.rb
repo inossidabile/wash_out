@@ -55,7 +55,7 @@ describe WashOut do
     x[:'@min_occurs'].should == "0"
     x[:'@max_occurs'].should == "unbounded"
 
-    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.sort.should == ['Result', 'getArea', 'rocky'].sort
+    xml[:definitions][:binding][:operation].map{|e| e[:'@name']}.should == ['Result', 'getArea', 'rocky']
 
     client.wsdl.xml.include?('<xsd:complexType name="Circle1">').should == true
   end
@@ -117,23 +117,6 @@ describe WashOut do
     client.request(:check_answer) do
       soap.body = { :value => 13 }
     end.to_hash[:check_answer_response][:value].should == false
-  end
-
-  it "handles incorrect requests" do
-    mock_controller do
-      soap_action "duty", 
-        :args => {:bad => {:a => :string, :b => :string}, :good => {:a => :string, :b => :string}},
-        :return => nil
-      def duty
-        render :soap => nil
-      end
-    end
-
-    lambda {
-      client.request(:duty) do
-        soap.body = { :bad => 42, :good => nil }
-      end
-    }.should raise_exception(Savon::SOAP::Fault)
   end
 
   it "should handle snakecase option properly" do
@@ -634,7 +617,7 @@ describe WashOut do
 
   end
 
-  it 'should help with programmer errors' do
+  it 'will not let you pass an Array in the place of a Hash' do
     mock_controller do
       soap_action 'bad', :args => :integer, :return => {
         :basic => :string,
@@ -658,6 +641,28 @@ describe WashOut do
     }.should raise_exception(
       WashOut::Dispatcher::ProgrammerError,
       /SOAP response .*wyldness.*Array.*Hash.*stallion/
+    )
+  end
+
+  it 'loudly fails if you return a string in place of an Array' do
+    mock_controller do
+      soap_action 'bad2', :args => :integer, :return => {
+        :basic => :string,
+        :telephone_booths => [:string]
+      }
+      def bad2
+        render :soap => {
+          :basic => 'hihi',
+          :telephone_booths => 'oops'
+        }
+      end
+    end
+
+    lambda {
+      client.request(:bad2).to_hash[:bad_response]
+    }.should raise_exception(
+      WashOut::Dispatcher::ProgrammerError,
+      /SOAP response .*oops.*String.*telephone_booths.*Array/
     )
   end
 

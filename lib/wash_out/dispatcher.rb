@@ -127,13 +127,22 @@ module WashOut
               data = {} # when no data is given
             elsif data.is_a?(Array)
               raise ProgrammerError,
-                "SOAP response used #{data.inspect} (which is an Array), in the context where a Hash with key of '#{param.raw_name}' was expected."
+                "SOAP response used #{data.inspect} (which is an Array), " +
+                "in the context where a Hash with key of '#{param.raw_name}' " +
+                "was expected."
             end
             data[param.raw_name] = [] unless data[param.raw_name].is_a?(Array)
             result_spec[i].map = data[param.raw_name].map{|e| inject.call(e, param.map)}
 
           else
-            result_spec[i].value = data[param.raw_name]
+            val = data[param.raw_name]
+            if param.multiplied and val and not val.is_a?(Array)
+              raise ProgrammerError,
+                "SOAP response tried to use '#{val.inspect}' " +
+                "(which is of type #{val.class}), as the value for " +
+                "'#{param.raw_name}' (which expects an Array)."
+            end
+            result_spec[i].value = val
           end
         end
 
