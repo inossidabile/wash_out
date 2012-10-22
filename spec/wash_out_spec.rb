@@ -49,7 +49,7 @@ describe WashOut do
 
     # Savon underscores method names so we
     # get back just what we have at controller
-    client.wsdl.soap_actions.should == [:result, :get_area, :rocky]
+    client.wsdl.soap_actions.map{|x| x.to_s}.sort.should == [:result, :get_area, :rocky].map{|x| x.to_s}.sort
 
     x = xml[:definitions][:types][:schema][:complex_type].find{|x| x[:'@name'] == 'Center'}[:sequence][:element].find{|x| x[:'@name'] == 'X'}
     x[:'@min_occurs'].should == "0"
