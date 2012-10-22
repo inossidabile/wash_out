@@ -617,4 +617,53 @@ describe WashOut do
 
   end
 
+  it 'will not let you pass an Array in the place of a Hash' do
+    mock_controller do
+      soap_action 'bad', :args => :integer, :return => {
+        :basic => :string,
+        :stallions => {
+          :stallion => [
+            :name => :string,
+            :wyldness => :integer,
+          ]
+        },
+      }
+      def bad
+        render :soap => {
+          :basic => 'hi',
+          :stallions => [{:name => 'ted', :wyldness => 11}]
+        }
+      end
+    end
+
+    lambda {
+      client.request(:bad).to_hash(:bad_response)
+    }.should raise_exception(
+      WashOut::Dispatcher::ProgrammerError,
+      /SOAP response .*wyldness.*Array.*Hash.*stallion/
+    )
+  end
+
+  it 'loudly fails if you return a string in place of an Array' do
+    mock_controller do
+      soap_action 'bad2', :args => :integer, :return => {
+        :basic => :string,
+        :telephone_booths => [:string]
+      }
+      def bad2
+        render :soap => {
+          :basic => 'hihi',
+          :telephone_booths => 'oops'
+        }
+      end
+    end
+
+    lambda {
+      client.request(:bad2).to_hash[:bad_response]
+    }.should raise_exception(
+      WashOut::Dispatcher::ProgrammerError,
+      /SOAP response .*oops.*String.*telephone_booths.*Array/
+    )
+  end
+
 end
