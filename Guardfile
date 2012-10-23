@@ -6,9 +6,6 @@ notification :off
 
 guard 'rspec' do
   watch %r{^spec/.+_spec\.rb$}
-  watch %r{lib/wash_out/(dispatcher|param|type).rb} do |m|
-    "spec/wash_out/#{m[1]}_spec.rb"
-  end
   watch %r{lib/} do 'spec' end
 end
 
