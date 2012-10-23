@@ -282,6 +282,41 @@ describe WashOut do
     }.should raise_exception(Savon::SOAP::Fault)
   end
 
+  it "should properly error on bad request XML" do
+    # TODO: once the dev version of savon goes up to a newer version, you can
+    # use its new(ish) hooks API instead of directly monkeysmashing
+    # HTTP::Request#body
+    HTTPI::Request.class_eval do
+      alias_method :original_body, :body
+      define_method :body do
+        ok = original_body
+        ok.gsub! '</position>', '-oops!-' if ok
+        ok
+      end
+    end
+
+    mock_controller do
+      soap_action 'party', :args => { :position => :string },
+        :return => { :value => :string }
+      def party
+        render :soap => { :value => 'ok' }
+      end
+    end
+
+    begin
+      lambda {
+        client.request('party') do
+          soap.body = { :position => 'on' }
+        end
+      }.should raise_exception(Savon::SOAP::Fault, /Missing end tag.*position/)
+
+    ensure
+      HTTPI::Request.class_eval do
+        define_method :body do original_body end
+      end
+    end
+  end
+
   it "should handle nested returns" do
     mock_controller do
       soap_action "gogogo",

@@ -40,6 +40,8 @@ module WashOut
       Nori.strip_namespaces = strip
       Nori.advanced_typecasting = typecast
       Nori.convert_tags_to convert
+    rescue REXML::ParseException => e
+      render_soap_error e
     end
 
     def _authenticate_wsse
