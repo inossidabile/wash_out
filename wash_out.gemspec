@@ -14,8 +14,13 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency("nori")
-  s.add_development_dependency("rspec-rails")
-  s.add_development_dependency("appraisal")
-  s.add_development_dependency("tzinfo")
-  s.add_development_dependency("savon")
+  %w(
+    savon
+    rspec-rails guard guard-rspec rb-inotify rb-fsevent
+    appraisal
+    tzinfo
+    pry-de
+  ).each do |dep|
+    s.add_development_dependency(dep)
+  end
 end
