@@ -6,20 +6,15 @@ class WashOut::Exceptions
   def call env
     begin
       @app.call env
-    rescue Exception => e
+    rescue REXML::ParseException => e
       raise e unless env.has_key? 'HTTP_SOAPACTION'
-      log = proc {|msg| env['rack.errors'].puts 'WashOut::Exception: ' + msg}
       input = env['rack.input'].string
-      case e
-      when REXML::ParseException
-        log[e.continued_exception.to_s + " for: " + input]
-        [400, {'Content-Type' => 'text/xml'},
-          [self.class.render_rexml_parse_error(e)]]
-      else
-        log["The request:\n#{input}\n\nCaused: #{e}\n#{e.backtrace.join "\n"}"]
-        [500, {'Content-Type' => 'text/xml'},
-          [self.class.render_soap_fault('Server', e)]]
-      end
+      env['rack.errors'].puts <<-EOERR
+WashOut::Exception: #{e.continued_exception} for:
+#{input}
+      EOERR
+      [400, {'Content-Type' => 'text/xml'},
+        [self.class.render_rexml_parse_error(e)]]
     end
   end
 
