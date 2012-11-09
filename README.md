@@ -187,6 +187,7 @@ soap_action "foo" # this will be passed as is
 * Tobias Bielohlawek ([@rngtng](https://github.com/rngtng))
 * Francesco Negri ([@dhinus](https://github.com/dhinus))
 * Edgars Beigarts ([@ebeigarts](https://github.com/ebeigarts))
+* [Exad](https://github.com/exad) ([@wknechtel](https://github.com/wknechtel) and [@☈king](https://github.com/rking))
 
 ## LICENSE
 
