@@ -18,6 +18,12 @@ RSpec.configure do |config|
 
   # == Mock Framework
   config.mock_with :rspec
+
+  config.before(:all) do
+    WashOut::Engine.snakecase_input = false
+    WashOut::Engine.camelize_wsdl   = false
+    WashOut::Engine.namespace       = false
+  end
 end
 
 require 'savon'
