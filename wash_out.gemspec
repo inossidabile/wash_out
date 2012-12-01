@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
     rspec-rails guard guard-rspec rb-inotify rb-fsevent
     appraisal
     tzinfo
-    pry-de
+    pry
   ).each do |dep|
     s.add_development_dependency(dep)
   end
