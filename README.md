@@ -6,18 +6,11 @@ But if you have a chance, please [http://stopsoap.com/](http://stopsoap.com/).
 
 ## Compatibility
 
-Rails >3.0 only.
+Rails >3.0 only. MRI 1.9, JRuby (--1.9), Rubinius (--1.9).
 
-WashOut should work like a charm on CRuby 1.9.x.
+Ruby 1.8 is not officially supported since 0.5.3. We will accept further compatibilty pull-requests but no upcoming versions will be tested against it.
 
 ![Travis CI](https://secure.travis-ci.org/roundlake/wash_out.png)
-
-We do support CRuby 1.8.7. However it is not a goal and it is not well supported by our specs. According to
-this fact it maybe sometimes broken from the start on major releases. You are welcome to hold on an old
-version and give us enough issues and pull-requests to make it work.
-
-All dependencies are JRuby-compatible so again it will work well in --1.9 mode but it can fail with
-fresh releases if you go --1.8.
 
 ## Installation
 
