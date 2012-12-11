@@ -95,7 +95,7 @@ HTML responses:
 ```ruby
 # config/environment.rb
 WashOutSample::Application.configure do
-  config.middleware.insert_after 'ActionDispatch::DebugExceptions', WashOut::Exceptions
+  config.middleware.insert_after 'ActionDispatch::DebugExceptions', WashOut::Middleware
   …
 end
 ```

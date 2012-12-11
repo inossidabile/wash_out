@@ -1,4 +1,4 @@
-class WashOut::Exceptions
+class WashOut::Middleware
   def initialize app
     @app = app
   end
