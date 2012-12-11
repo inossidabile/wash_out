@@ -6,7 +6,7 @@ require 'wash_out/router'
 require 'wash_out/type'
 require 'wash_out/model'
 require 'wash_out/wsse'
-require 'wash_out/exceptions'
+require 'wash_out/middleware'
 
 module ActionDispatch::Routing
   class Mapper

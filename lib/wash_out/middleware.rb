@@ -23,7 +23,7 @@ WashOut::Exception: #{e.continued_exception} for:
 #{req}
     EOERR
     [400, {'Content-Type' => 'text/xml'},
-      [render_client_soap_fault(e.continued_exception.to_s)]]
+      [render_client_soap_fault("Error parsing SOAP Request XML")]]
   end
 
   def self.render_client_soap_fault msg

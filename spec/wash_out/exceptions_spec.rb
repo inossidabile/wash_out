@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'wash_out/exceptions'
+require 'wash_out/middleware'
 require 'rexml/document'
 
 describe WashOut::Middleware do

@@ -88,18 +88,6 @@ WashOutSample::Application.routes.draw do
 end
 ```
 
-The following is optional, but it will cause request errors (such as completely
-malformed XML) to return SOAP:Fault XML responses instead of Rails' default
-HTML responses:
-
-```ruby
-# config/environment.rb
-WashOutSample::Application.configure do
-  config.middleware.insert_after 'ActionDispatch::DebugExceptions', WashOut::Middleware
-  …
-end
-```
-
 In such a setup, the generated WSDL may be queried at path `/api/wsdl`. So, with a
 gem like Savon, a request can be done using this path:
 
@@ -153,6 +141,7 @@ Use `config.wash_out...` inside your environment configuration to setup WashOut.
 
 Available properties are:
 
+* **catch_xml_errors**: intercept Rails parsing exceptions to return correct XML response for corrupt XML input. Default is `false`.
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
 * **snakecase**: *(DEPRECATED SINCE 0.4.0)* Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
