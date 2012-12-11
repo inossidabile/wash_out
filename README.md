@@ -88,6 +88,18 @@ WashOutSample::Application.routes.draw do
 end
 ```
 
+The following is optional, but it will cause request errors (such as completely
+malformed XML) to return SOAP:Fault XML responses instead of Rails' default
+HTML responses:
+
+```ruby
+# config/environment.rb
+WashOutSample::Application.configure do
+  config.middleware.insert_after 'ActionDispatch::DebugExceptions', WashOut::Exceptions
+  …
+end
+```
+
 In such a setup, the generated WSDL may be queried at path `/api/wsdl`. So, with a
 gem like Savon, a request can be done using this path:
 
@@ -168,6 +180,7 @@ soap_action "foo" # this will be passed as is
 * Tobias Bielohlawek ([@rngtng](https://github.com/rngtng))
 * Francesco Negri ([@dhinus](https://github.com/dhinus))
 * Edgars Beigarts ([@ebeigarts](https://github.com/ebeigarts))
+* [Exad](https://github.com/exad) ([@wknechtel](https://github.com/wknechtel) and [@☈king](https://github.com/rking))
 
 ## LICENSE
 
