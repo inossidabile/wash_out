@@ -104,9 +104,9 @@ module WashOut
 
     # Render a SOAP response.
     def _render_soap(result, options)
-      @namespace  = WashOut::Engine.namespace
-      @operation  = soap_action = request.env['wash_out.soap_action']
-      action_spec = self.class.soap_actions[soap_action][:out]
+      @namespace   = WashOut::Engine.namespace
+      @operation   = soap_action = request.env['wash_out.soap_action']
+      @action_spec = self.class.soap_actions[soap_action]
 
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
@@ -151,7 +151,7 @@ module WashOut
 
       render :template => 'wash_with_soap/response',
              :layout => false,
-             :locals => { :result => inject.call(result, action_spec) },
+             :locals => { :result => inject.call(result, @action_spec[:out]) },
              :content_type => 'text/xml'
     end
 

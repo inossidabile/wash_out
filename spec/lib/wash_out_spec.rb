@@ -136,6 +136,17 @@ describe WashOut do
     }.should raise_exception(Savon::SOAP::Fault)
   end
 
+  it "respects :response_tag option" do
+    mock_controller do
+      soap_action "specific", :response_tag => "test", :return => :string
+      def specific
+        render :soap => "test"
+      end
+    end
+
+    client.request(:specific).to_hash.should == {:test => {:value=>"test"}}
+  end
+
   it "should handle snakecase option properly" do
     WashOut::Engine.snakecase_input = false
     WashOut::Engine.camelize_wsdl   = false

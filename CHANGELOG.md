@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.4
+
+* Ability to manually specify `response_tag` for `soap_action` [@inossidabile][]
+
 ## 0.5.2
 
 * .NET-compliant response tags [@ebeigarts][]
