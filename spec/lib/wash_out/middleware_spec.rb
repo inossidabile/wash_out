@@ -9,11 +9,11 @@ describe WashOut::Middleware do
     rescue REXML::ParseException => e
       e
     end
-    
+
     env = {}
-    lambda do
+    lambda {
       WashOut::Middleware.raise_or_render_rexml_parse_error err, env
-    end.should raise_error err
+    }.should raise_exception
 
     env['HTTP_SOAPACTION'] = 'pretend_action'
     env['rack.errors'] = double 'logger', {:puts => true} 
@@ -22,7 +22,7 @@ describe WashOut::Middleware do
     result[0].should == 400
     result[1]['Content-Type'].should == 'text/xml'
     msg = result[2][0]
-    msg.should include 'No close tag'
+    msg.should include 'Error parsing SOAP Request XML'
     msg.should include 'soap:Fault'
     msg.should_not include __FILE__
     
