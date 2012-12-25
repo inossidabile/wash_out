@@ -10,7 +10,7 @@ Rails >3.0 only. MRI 1.9, JRuby (--1.9), Rubinius (--1.9).
 
 Ruby 1.8 is not officially supported since 0.5.3. We will accept further compatibilty pull-requests but no upcoming versions will be tested against it.
 
-![Travis CI](https://secure.travis-ci.org/roundlake/wash_out.png)
+![Travis CI](https://secure.travis-ci.org/inossidabile/wash_out.png)
 
 ## Installation
 
@@ -108,8 +108,6 @@ result.to_hash # => {:concat_reponse => {:value=>"123abc"}}
 # wash_out below 0.3.0 (and this is malformed response so please update)
 result.to_hash # => {:value=>"123abc"}
 ```
-
-Take a look at [WashOut sample application](https://github.com/roundlake/wash_out-sample).
 
 ## Reusable types
 
