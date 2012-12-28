@@ -4,6 +4,8 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path("../dummy/config/environment.rb",  __FILE__)
 require "rails/test_help"
 require "rspec/rails"
+require "pry"
+require "savon"
 
 Rails.backtrace_cleaner.remove_silencers!
 
@@ -25,8 +27,6 @@ RSpec.configure do |config|
     WashOut::Engine.namespace       = false
   end
 end
-
-require 'savon'
 
 Savon.configure do |config|
   config.log = false            # disable logging
