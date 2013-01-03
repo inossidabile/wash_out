@@ -40,6 +40,11 @@ def mock_controller(&block)
     class_exec &block if block
   }
 
-  Rails.application.routes.routes.named_routes['api_wsdl'].app.
-    instance_variable_get("@controllers")['api'].try(:'clear!')
+  if Rails.application.routes.routes.is_a?(Array)
+    Rails.application.routes.named_routes['api_wsdl'].app.
+      instance_variable_get("@controllers")['api'].try(:'clear!')
+  else
+    Rails.application.routes.routes.named_routes['api_wsdl'].app.
+      instance_variable_get("@controllers")['api'].try(:'clear!')
+  end
 end
