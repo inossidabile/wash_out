@@ -36,7 +36,7 @@ module WashOut
 
       # Token should not be accepted if timestamp is older than 5 minutes ago
       # http://www.oasis-open.org/committees/download.php/16782/wss-v1.1-spec-os-UsernameTokenProfile.pdf
-      offset_in_minutes = ((DateTime.now - DateTime.parse(timestamp))* 24 * 60).to_i
+      offset_in_minutes = ((DateTime.now - timestamp)* 24 * 60).to_i
       return false if offset_in_minutes >= 5
 
       # There are a few different implementations of the digest calculation
@@ -44,11 +44,11 @@ module WashOut
       flavors = Array.new
 
       # Ruby / Savon
-      token = nonce + timestamp + expected_password
+      token = nonce + timestamp.to_s + expected_password
       flavors << Base64.encode64(Digest::SHA1.hexdigest(token)).chomp!
 
       # Java
-      token = Base64.decode64(nonce) + timestamp + expected_password
+      token = Base64.decode64(nonce) + timestamp.to_s + expected_password
       flavors << Base64.encode64(Digest::SHA1.digest(token)).chomp!
 
       flavors.each do |f|

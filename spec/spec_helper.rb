@@ -13,14 +13,10 @@ Rails.backtrace_cleaner.remove_silencers!
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
 RSpec.configure do |config|
-  # Remove this line if you don't want RSpec's should and should_not
-  # methods or matchers
   require 'rspec/expectations'
   config.include RSpec::Matchers
 
-  # == Mock Framework
   config.mock_with :rspec
-
   config.before(:all) do
     WashOut::Engine.snakecase_input = false
     WashOut::Engine.camelize_wsdl   = false
@@ -28,23 +24,12 @@ RSpec.configure do |config|
   end
 end
 
-Savon.configure do |config|
-  config.log = false            # disable logging
-end
-
 HTTPI.logger = Logger.new(open("/dev/null", 'w'))
 HTTPI.adapter = :rack
 
-HTTPI::Adapters::Rack.mount 'app', Dummy::Application
-
+HTTPI::Adapter::Rack.mount 'app', Dummy::Application
 Dummy::Application.routes.draw do
   wash_out :api
-end
-
-def client
-  Savon::Client.new do
-    wsdl.document = 'http://app/api/wsdl'
-  end
 end
 
 def mock_controller(&block)
@@ -54,4 +39,7 @@ def mock_controller(&block)
 
     class_exec &block if block
   }
+
+  Rails.application.routes.routes.named_routes['api_wsdl'].app.
+    instance_variable_get("@controllers")['api'].try(:'clear!')
 end

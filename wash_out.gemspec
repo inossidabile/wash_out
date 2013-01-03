@@ -13,15 +13,5 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.require_paths = ["lib"]
 
-  s.add_dependency("nori", "~> 1.1.0")
-  s.add_development_dependency("wasabi", "= 2.1.0")
-  s.add_development_dependency("savon", "= 0.9.9")
-  %w(
-    rspec-rails guard guard-rspec rb-inotify rb-fsevent
-    appraisal
-    tzinfo
-    pry
-  ).each do |dep|
-    s.add_development_dependency(dep)
-  end
+  s.add_dependency("nori", "~> 2.0.0")
 end

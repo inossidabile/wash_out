@@ -12,34 +12,22 @@ module WashOut
 
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
-      # Do not interfere with project-space Nori setup
-      strip    = Nori.strip_namespaces?
-      convert  = Nori.convert_tags?
-      typecast = Nori.advanced_typecasting?
+      parser = Nori.new(
+        :strip_namespaces => true,
+        :advanced_typecasting => true,
+        :convert_tags_to => (
+          WashOut::Engine.snakecase_input ? lambda { |tag| tag.snakecase.to_sym }
+                                          : lambda { |tag| tag.to_sym }
+        )
+      )
 
-      Nori.strip_namespaces = true
-      Nori.advanced_typecasting = false
-
-      if WashOut::Engine.snakecase_input
-        Nori.convert_tags_to { |tag| tag.snakecase.to_sym }
-      else
-        Nori.convert_tags_to { |tag| tag.to_sym }
-      end
-
-      request_body = request.body.read
-      @_params = Nori.parse(request_body)
-
+      @_params = parser.parse(request.body.read)
       references = WashOut::Dispatcher.deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
 
       unless references.blank?
         replaces = {}; references.each{|r| replaces['#'+r[:@id]] = r}
         @_params = WashOut::Dispatcher.deep_replace_href(@_params, replaces)
       end
-
-      # Reset Nori setup to project-space
-      Nori.strip_namespaces = strip
-      Nori.advanced_typecasting = typecast
-      Nori.convert_tags_to convert
     end
 
     def _authenticate_wsse

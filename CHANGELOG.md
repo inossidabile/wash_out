@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0
+
+* Switched to Savon2 family
+* Main spec refactored greatly
+
 ## 0.5.4
 
 * Ability to manually specify `response_tag` for `soap_action` [@inossidabile][]

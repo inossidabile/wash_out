@@ -4,22 +4,12 @@ require 'spec_helper'
 
 describe WashOut::Dispatcher do
 
-  class TestBody
-    attr_accessor :read
-    def initialize(read); @read = read; end
-  end
-
-  class TestRequest
-    attr_accessor :body
-    def initialize(body); @body = body; end
-  end
-
   class Dispatcher < ApplicationController
     include WashOut::SOAP
 
     def self.mock(text="")
       dispatcher = self.new
-      dispatcher.request = TestRequest.new(TestBody.new(text))
+      dispatcher.request = OpenStruct.new(:body => OpenStruct.new(:read => text))
       dispatcher
     end
 
@@ -46,20 +36,26 @@ describe WashOut::Dispatcher do
 
   it "parses href request" do
     dispatcher = Dispatcher.mock <<-XML
-      <request>
-        <entities href="#id1">
-        </entities>
-      </request>
-      <entity id="id1">
-        <foo><bar>1</bar></foo>
-        <sub href="#id2" />
-      </entity>
-      <ololo id="id2">
-        <foo>1</foo>
-      </ololo>
+      <root>
+        <request>
+          <entities href="#id1">
+          </entities>
+        </request>
+        <entity id="id1">
+          <foo><bar>1</bar></foo>
+          <sub href="#id2" />
+        </entity>
+        <ololo id="id2">
+          <foo>1</foo>
+        </ololo>
+      </root>
     XML
     dispatcher._parse_soap_parameters
-    dispatcher.params[:request][:entities].should == {:foo=>{:bar=>"1"}, :sub=>{:foo=>"1", :@id=>"id2"}, :@id=>"id1"}
+    dispatcher.params[:root][:request][:entities].should == {
+      :foo => {:bar=>"1"},
+      :sub => {:foo=>"1", :@id=>"id2"},
+      :@id => "id1"
+    }
   end
 
 end
