@@ -391,6 +391,18 @@ describe WashOut do
         }.should raise_exception(Savon::SOAPFault)
       end
 
+      it "raise for date in incorrect format" do
+        mock_controller do
+          soap_action "date", :args => :date, :return => :nil
+          def date
+            render :soap => nil
+          end
+        end
+        lambda {
+          savon(:date, :value  => 'incorrect format')
+        }.should raise_exception(Savon::SOAPFault)
+      end
+
       it "raise to report SOAP errors" do
         mock_controller do
           soap_action "error", :args => { :need_error => :boolean }, :return => nil
