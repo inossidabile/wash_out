@@ -74,7 +74,6 @@ module WashOut
 
       action_spec[:in].each do |param|
         key = param.raw_name.to_sym
-
         if xml_data.has_key? key
           @_params[param.raw_name] = param.load(xml_data, key)
         end
@@ -157,7 +156,7 @@ module WashOut
     # Rails do not support sequental rescue_from handling, that is, rescuing an
     # exception from a rescue_from handler. Hence this function is a public API.
     def render_soap_error(message)
-      render :template => 'wash_with_soap/error', :status => 500,
+      render :template => 'wash_with_soap/error', :status => 422,
              :layout => false,
              :locals => { :error_message => message },
              :content_type => 'text/xml'

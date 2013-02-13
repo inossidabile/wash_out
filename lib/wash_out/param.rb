@@ -70,14 +70,18 @@ module WashOut
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
 
-        if operation.nil? || data.nil?
-          data
-        elsif @multiplied
-          data.map{|x| x.send(operation)}
-        elsif operation.is_a? Symbol
-          data.send(operation)
-        else
-          operation.call(data)
+        begin
+          if operation.nil? || data.nil?
+            data
+          elsif @multiplied
+            data.map{|x| x.send(operation)}
+          elsif operation.is_a? Symbol
+            data.send(operation)
+          else
+            operation.call(data)
+          end
+        rescue
+          raise WashOut::Dispatcher::SOAPError, "Invalid SOAP parameter '#{key}' format"
         end
       end
     end
