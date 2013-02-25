@@ -156,8 +156,6 @@ soap_action "foo" # this will be passed as is
 
 ## Credits
 
-<img src="http://roundlake.ru/assets/logo.png" align="right" />
-
 * Boris Staal ([@_inossidabile](http://twitter.com/#!/_inossidabile))
 * Peter Zotov ([@whitequark](http://twitter.com/#!/whitequark))
 
