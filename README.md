@@ -157,7 +157,7 @@ soap_action "foo" # this will be passed as is
 
 ## Credits
 
-* Boris Staal ([@_inossidabile](http://twitter.com/#!/_inossidabile))
+* Boris Staal ([@_inossidabile](http://twitter.com/#!/_inossidabile)) [![endorse](http://api.coderwall.com/inossidabile/endorsecount.png)](http://coderwall.com/inossidabile)
 * Peter Zotov ([@whitequark](http://twitter.com/#!/whitequark))
 
 ## Contributors
