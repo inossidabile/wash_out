@@ -10,7 +10,8 @@ Rails >3.0 only. MRI 1.9, 2.0, JRuby (--1.9), Rubinius (--1.9).
 
 Ruby 1.8 is not officially supported since 0.5.3. We will accept further compatibilty pull-requests but no upcoming versions will be tested against it.
 
-![Travis CI](https://secure.travis-ci.org/inossidabile/wash_out.png)
+[![Travis CI](https://secure.travis-ci.org/inossidabile/wash_out.png)](https://travis-ci.org/inossidabile/wash_out)
+[![Code Climate](https://codeclimate.com/github/inossidabile/wash_out.png)](https://codeclimate.com/github/inossidabile/wash_out)
 
 ## Installation
 
