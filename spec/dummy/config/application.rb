@@ -3,6 +3,15 @@ require File.expand_path('../boot', __FILE__)
 require "action_controller/railtie"
 require "rails/test_unit/railtie"
 
+if Rails::VERSION::MAJOR > 4
+  # Ugly hack to make Rails 4 JRuby-compatible to escape Travis errors
+  Rails::Engine.class_eval do
+    def railties
+      @railties ||= self.class.const_get(:Railties).new
+    end
+  end
+end
+
 Bundler.require
 require "wash_out"
 
