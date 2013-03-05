@@ -6,6 +6,7 @@ gem 'wasabi'
 gem 'savon'
 gem 'httpi', :git => 'git://github.com/savonrb/httpi.git'
 
+gem 'bundler', '~> 1.3.0'
 gem 'rspec-rails'
 gem 'guard'
 gem 'guard-rspec'
