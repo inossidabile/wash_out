@@ -5,3 +5,11 @@ end
 appraise "rails-3.1.3" do
   gem "rails", "3.1.3"
 end
+
+appraise "rails-3.2.12" do
+  gem "rails", "3.2.12"
+end
+
+appraise "rails-4.0.0.beta1" do
+  gem "rails", "4.0.0.beta1"
+end

@@ -12,6 +12,8 @@ gem "rb-fsevent"
 gem "appraisal"
 gem "tzinfo"
 gem "pry"
+gem "simplecov"
+gem "simplecov-summary"
 gem "rails", "3.2.8"
 
 gemspec :path=>"../"

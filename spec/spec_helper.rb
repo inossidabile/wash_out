@@ -40,11 +40,15 @@ def mock_controller(&block)
     class_exec &block if block
   }
 
-  if Rails.application.routes.routes.is_a?(Array)
-    Rails.application.routes.named_routes['api_wsdl'].app.
-      instance_variable_get("@controllers")['api'].try(:'clear!')
+  if Rails::VERSION::MAJOR < 4
+    if Rails.application.routes.routes.is_a?(Array)
+      Rails.application.routes.named_routes['api_wsdl'].app.
+        instance_variable_get("@controllers")['api'].try(:'clear!')
+    else
+      Rails.application.routes.routes.named_routes['api_wsdl'].app.
+        instance_variable_get("@controllers")['api'].try(:'clear!')
+    end
   else
-    Rails.application.routes.routes.named_routes['api_wsdl'].app.
-      instance_variable_get("@controllers")['api'].try(:'clear!')
+    ActiveSupport::Dependencies::Reference.instance_variable_get(:'@store').delete('ApiController')
   end
 end
