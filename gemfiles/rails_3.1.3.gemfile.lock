@@ -8,7 +8,7 @@ GIT
 PATH
   remote: /Users/inossidabile/Repos/wash_out
   specs:
-    wash_out (0.6.0)
+    wash_out (0.6.1)
       nori (~> 2.0.0)
 
 GEM
