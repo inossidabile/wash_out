@@ -185,6 +185,36 @@ describe WashOut do
         savon(:rumba, :rumbas => [1, 2, 3])
       end
 
+      it "accept empty arrays" do
+        mock_controller do
+          soap_action "rumba",
+                      :args   => {
+                        :my_array => [:integer]
+                      },
+                      :return => nil
+          def rumba
+            params.should == {}
+            render :soap => nil
+          end
+        end
+        savon(:rumba, :empty => [])
+      end
+
+      it "accept nested empty arrays" do
+        mock_controller do
+          soap_action "rumba",
+                      :args   => {
+                        :nested => {my_array: [:integer] }
+                      },
+                      :return => nil
+          def rumba
+            params.should == {"nested" => {}}
+            render :soap => nil
+          end
+        end
+        savon(:rumba, :nested => {my_array: []})
+      end
+
       it "accept nested structures inside arrays" do
         mock_controller do
           soap_action "rumba",

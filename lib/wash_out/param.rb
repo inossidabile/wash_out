@@ -47,6 +47,7 @@ module WashOut
       data = [data] if @multiplied && !data.is_a?(Array)
 
       if struct?
+        data ||= {}
         if @multiplied
           data.map do |x|
             map_struct x do |param, data, elem|
