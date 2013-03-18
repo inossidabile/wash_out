@@ -72,8 +72,10 @@ module WashOut
         end
 
         begin
-          if operation.nil? || data.nil?
+          if data.nil?
             data
+          elsif type == 'boolean'
+            parse_boolean(data)
           elsif @multiplied
             data.map{|x| x.send(operation)}
           elsif operation.is_a? Symbol
@@ -84,6 +86,15 @@ module WashOut
         rescue
           raise WashOut::Dispatcher::SOAPError, "Invalid SOAP parameter '#{key}' format"
         end
+      end
+    end
+
+    def parse_boolean(data)
+      return data if data === true || data === false
+      case data
+        when "1"; true
+        when "0"; false
+        else raise Error
       end
     end
 
