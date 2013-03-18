@@ -385,10 +385,17 @@ describe WashOut do
             params[:value].should == false
             render :soap => nil
           end
+
+          soap_action "nil", :args => :boolean, :return => :nil
+          def nil
+            params[:value].should === nil
+            render :soap => nil
+          end
         end
 
         savon(:true, :value => true)
         savon(:false, :value => false)
+        savon(:nil, {})
       end
 
       it "recognize dates" do
@@ -418,6 +425,21 @@ describe WashOut do
 
         lambda {
           savon(:duty, :bad => 42, :good => nil)
+        }.should raise_exception(Savon::SOAPFault)
+      end
+
+      it "raise for incorrect boolean" do
+        mock_controller do
+          soap_action "invalid_boolean", 
+            :args => :boolean,
+            :return => nil
+          def check_boolean
+            render :soap => nil
+          end
+        end
+
+        lambda {
+          savon(:invalid_boolean, :value => "wrong")
         }.should raise_exception(Savon::SOAPFault)
       end
 
