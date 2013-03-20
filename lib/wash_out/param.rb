@@ -75,8 +75,8 @@ module WashOut
           if data.nil?
             data
           elsif @multiplied
-            operation.is_a?(Symbol) ? data.map{|x| x.send(operation)}
-                                    : data.map{|x| operation.call(x)}
+            return data.map{|x| x.send(operation)} if operation.is_a?(Symbol)
+            return data.map{|x| operation.call(x)} if operation.is_a?(Proc)
           elsif operation.is_a? Symbol
             data.send(operation)
           else
