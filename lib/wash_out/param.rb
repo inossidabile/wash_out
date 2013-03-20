@@ -64,7 +64,7 @@ module WashOut
           when 'string';    :to_s
           when 'integer';   :to_i
           when 'double';    :to_f
-          when 'boolean';   nil
+          when 'boolean';   lambda{|data| data === "0" ? false : !!data}
           when 'date';      :to_date
           when 'datetime';  :to_datetime
           when 'time';      :to_time
@@ -74,10 +74,9 @@ module WashOut
         begin
           if data.nil?
             data
-          elsif type == 'boolean'
-            parse_boolean(data)
           elsif @multiplied
-            data.map{|x| x.send(operation)}
+            operation.is_a?(Symbol) ? data.map{|x| x.send(operation)}
+                                    : data.map{|x| operation.call(x)}
           elsif operation.is_a? Symbol
             data.send(operation)
           else
@@ -86,15 +85,6 @@ module WashOut
         rescue
           raise WashOut::Dispatcher::SOAPError, "Invalid SOAP parameter '#{key}' format"
         end
-      end
-    end
-
-    def parse_boolean(data)
-      return data if data === true || data === false
-      case data
-        when "1"; true
-        when "0"; false
-        else raise Error
       end
     end
 

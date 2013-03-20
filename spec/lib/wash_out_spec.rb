@@ -423,25 +423,6 @@ describe WashOut do
         }.should raise_exception(Savon::SOAPFault)
       end
 
-      it "raise for incorrect boolean" do
-        mock_controller do
-          soap_action "invalid_boolean", 
-            :args => :boolean,
-            :return => nil
-          def invalid_boolean
-            render :soap => nil
-          end
-        end
-
-        lambda {
-          savon(:invalid_boolean, :value => "wrong")
-        }.should raise_exception(Savon::SOAPFault)
-
-        lambda {
-          savon(:invalid_boolean, :value => "TRUE")
-        }.should raise_exception(Savon::SOAPFault)
-      end
-
       it "raise for date in incorrect format" do
         mock_controller do
           soap_action "date", :args => :date, :return => :nil

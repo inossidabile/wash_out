@@ -55,11 +55,5 @@ describe WashOut::Param do
       map[0].load({value: false}, :value).should be_false
       map[0].load({value: "0"}, :value).should be_false
     end
-
-    it "should raise an error for invalid strings" do
-      lambda { map[0].load({value: "some value"}, :value) }.should raise_error(WashOut::Dispatcher::SOAPError, /Invalid SOAP parameter/)
-      lambda { map[0].load({value: "TRUE"}, :value) }.should raise_error(WashOut::Dispatcher::SOAPError, /Invalid SOAP parameter/)
-    end
-
   end
 end
