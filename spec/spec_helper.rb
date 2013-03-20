@@ -1,6 +1,13 @@
 # Configure Rails Envinronment
 ENV["RAILS_ENV"] = "test"
 
+require "simplecov"
+SimpleCov.start do
+  add_filter 'spec'
+  add_group 'Library', 'lib'
+  add_group 'App', 'app'
+end
+
 require File.expand_path("../dummy/config/environment.rb",  __FILE__)
 require "rails/test_help"
 require "rspec/rails"

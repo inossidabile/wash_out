@@ -70,14 +70,19 @@ module WashOut
         hash
       }
       xml_data = strip_empty_nodes.call(xml_data)
-      @_params = HashWithIndifferentAccess.new
+      @_params = _load_params(action_spec[:in], xml_data)
+    end
 
-      action_spec[:in].each do |param|
+    # Creates the final parameter hash based on the request spec and xml_data from the request
+    def _load_params(spec, xml_data)
+      params = HashWithIndifferentAccess.new
+      spec.each do |param|
         key = param.raw_name.to_sym
         if xml_data.has_key? key
-          @_params[param.raw_name] = param.load(xml_data, key)
+          params[param.raw_name] = param.load(xml_data, key)
         end
       end
+      params
     end
 
     # This action generates the WSDL for defined SOAP methods.
