@@ -8,7 +8,7 @@ GIT
 PATH
   remote: .
   specs:
-    wash_out (0.6.1)
+    wash_out (0.6.2)
       nori (~> 2.0.0)
 
 GEM

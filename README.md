@@ -9,9 +9,11 @@ But if you have a chance, please [http://stopsoap.com/](http://stopsoap.com/).
 
 ## Compatibility
 
-Rails >3.0 only. MRI 1.9, 2.0, JRuby (--1.9), Rubinius (--1.9).
+Rails >3.0 only. MRI 1.9, 2.0, JRuby (--1.9).
 
 Ruby 1.8 is not officially supported since 0.5.3. We will accept further compatibilty pull-requests but no upcoming versions will be tested against it.
+
+Rubinius support temporarily dropped since 0.6.2 due to Rails 4 incompatibility.
 
 ## Installation
 
