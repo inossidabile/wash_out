@@ -15,11 +15,8 @@ module WashOut
       parser = Nori.new(
         :strip_namespaces => true,
         :advanced_typecasting => true,
-        :convert_tags_to => (
-          WashOut::Engine.snakecase_input ? lambda { |tag| tag.snakecase.to_sym }
-                                          : lambda { |tag| tag.to_sym }
-        )
-      )
+        :convert_tags_to => ( WashOut::Engine.snakecase_input ? lambda { |tag| tag.snakecase.to_sym } \
+                                : lambda { |tag| tag.to_sym } ))
 
       @_params = parser.parse(request.body.read)
       references = WashOut::Dispatcher.deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
