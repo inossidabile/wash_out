@@ -1,25 +1,36 @@
 module WashOutHelper
+
+  def wsdl_data_options(param)
+    case WashOut::Engine.style
+    when 'rpc'
+      { :"xsi:type" => param.namespaced_type }
+    when 'document'
+      { }
+    end
+  end
+
   def wsdl_data(xml, params)
     params.each do |param|
       tag_name = param.name
+      param_options = wsdl_data_options(param)
 
       if !param.struct?
         if !param.multiplied
-          xml.tag! tag_name, param.value, "xsi:type" => param.namespaced_type
+          xml.tag! tag_name, param.value, param_options
         else
           param.value = [] unless param.value.is_a?(Array)
           param.value.each do |v|
-            xml.tag! tag_name, v, "xsi:type" => param.namespaced_type
+            xml.tag! tag_name, v, param_options
           end
         end
       else
         if !param.multiplied
-          xml.tag! tag_name, "xsi:type" => param.namespaced_type do
+          xml.tag! tag_name,  param_options do
             wsdl_data(xml, param.map)
           end
         else
           param.map.each do |p|
-            xml.tag! tag_name, "xsi:type" => param.namespaced_type do
+            xml.tag! tag_name, param_options do
               wsdl_data(xml, p.map)
             end
           end

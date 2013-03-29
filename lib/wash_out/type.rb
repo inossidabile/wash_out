@@ -21,7 +21,7 @@ module WashOut
       elsif WashOut::Engine.camelize_wsdl
         @param_type_name = @param_type_name.camelize
       end
-      
+
       @param_type_name
     end
   end
