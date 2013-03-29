@@ -9,6 +9,7 @@ module WashOut
       attr_accessor :catch_xml_errors
     end
 
+    self.namespace = 'urn:WashOut'
     self.style     = 'rpc'
     self.snakecase = nil
 
