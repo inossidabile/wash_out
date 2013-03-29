@@ -88,7 +88,7 @@ module WashOut
       @namespace = WashOut::Engine.namespace
       @name      = controller_path.gsub('/', '_')
 
-      render :template => 'wash_with_soap/wsdl', :layout => false
+      render :template => "wash_with_soap/#{WashOut::Engine.style}/wsdl", :layout => false
     end
 
     # Render a SOAP response.
@@ -138,7 +138,7 @@ module WashOut
         return result_spec
       }
 
-      render :template => 'wash_with_soap/response',
+      render :template => "wash_with_soap/#{WashOut::Engine.style}/response",
              :layout => false,
              :locals => { :result => inject.call(result, @action_spec[:out]) },
              :content_type => 'text/xml'
@@ -158,7 +158,7 @@ module WashOut
     # Rails do not support sequental rescue_from handling, that is, rescuing an
     # exception from a rescue_from handler. Hence this function is a public API.
     def render_soap_error(message)
-      render :template => 'wash_with_soap/error', :status => 500,
+      render :template => "wash_with_soap/#{WashOut::Engine.style}/error", :status => 500,
              :layout => false,
              :locals => { :error_message => message },
              :content_type => 'text/xml'
