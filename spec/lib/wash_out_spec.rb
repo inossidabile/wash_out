@@ -204,7 +204,7 @@ describe WashOut do
         mock_controller do
           soap_action "rumba",
                       :args   => {
-                        :nested => {my_array: [:integer] }
+                        :nested => {:my_array => [:integer] }
                       },
                       :return => nil
           def rumba
@@ -212,7 +212,7 @@ describe WashOut do
             render :soap => nil
           end
         end
-        savon(:rumba, :nested => {my_array: []})
+        savon(:rumba, :nested => {:my_array => []})
       end
 
       it "accept nested structures inside arrays" do
