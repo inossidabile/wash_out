@@ -2,6 +2,7 @@
 .bundle/
 *.gem
 .idea/
+.rvmrc
 *.swp
 log/*.log
 pkg/
