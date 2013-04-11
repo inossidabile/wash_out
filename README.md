@@ -142,6 +142,7 @@ Use `config.wash_out...` inside your environment configuration to setup WashOut.
 
 Available properties are:
 
+* **style**: sets WSDL style. Supported values are: 'document' and 'rpc'.
 * **catch_xml_errors**: intercept Rails parsing exceptions to return correct XML response for corrupt XML input. Default is `false`.
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
 * **snakecase**: *(DEPRECATED SINCE 0.4.0)* Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
@@ -159,7 +160,7 @@ soap_action "foo" # this will be passed as is
 
 ## Credits
 
-* Boris Staal ([@_inossidabile](http://twitter.com/#!/_inossidabile)) [![endorse](http://api.coderwall.com/inossidabile/endorsecount.png)](http://coderwall.com/inossidabile)
+* Boris Staal ([@inossidabile](http://staal.io)) [![endorse](http://api.coderwall.com/inossidabile/endorsecount.png)](http://coderwall.com/inossidabile)
 * Peter Zotov ([@whitequark](http://twitter.com/#!/whitequark)) [![endorse](http://api.coderwall.com/whitequark/endorsecount.png)](http://coderwall.com/inossidabile)
 
 ## Contributors
@@ -169,6 +170,7 @@ soap_action "foo" # this will be passed as is
 * Francesco Negri ([@dhinus](https://github.com/dhinus))
 * Edgars Beigarts ([@ebeigarts](https://github.com/ebeigarts))
 * [Exad](https://github.com/exad) ([@wknechtel](https://github.com/wknechtel) and [@☈king](https://github.com/rking))
+* Mark Goris ([@gorism](https://github.com/gorism))
 
 ## LICENSE
 
