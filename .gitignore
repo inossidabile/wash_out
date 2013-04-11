@@ -1,6 +1,9 @@
 .rbx/
 .bundle/
+*.gem
 .idea/
+.rvmrc
+*.swp
 log/*.log
 pkg/
 spec/dummy/db/*.sqlite3
@@ -9,3 +12,4 @@ spec/dummy/tmp/
 gemfiles/rails-3.1.0.gemfile.lock b/gemfiles/rails-3.1.0.gemfile.lock
 gemfiles/rails-3.1.0.gemfile.lock b/gemfiles/rails-3.0.10.gemfile.lock
 coverage
+tags

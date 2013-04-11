@@ -2,6 +2,7 @@ module WashOut
   class Engine < ::Rails::Engine
     class << self
       attr_accessor :namespace
+      attr_accessor :style
       attr_accessor :snakecase, :camelize_output
       attr_accessor :snakecase_input, :camelize_wsdl
       attr_accessor :wsse_username, :wsse_password
@@ -9,6 +10,7 @@ module WashOut
     end
 
     self.namespace = 'urn:WashOut'
+    self.style     = 'rpc'
     self.snakecase = nil
 
     self.snakecase_input = false
@@ -34,9 +36,14 @@ module WashOut
         raise "Usage of wash_out.camelize_output is deprecated. You should use wash_out.camelize_wsdl option instead"
       end
 
+      unless ['rpc','document'].include? self.class.style
+        raise "Invalid binding.  Style must be one of #{['rpc','document'].join(',')}"
+      end
+
       if self.class.catch_xml_errors
         app.config.middleware.insert_after 'ActionDispatch::ShowExceptions', WashOut::Middleware
       end
     end
+
   end
 end
