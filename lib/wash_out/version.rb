@@ -1,3 +1,3 @@
 module WashOut
-  VERSION = "0.6.2.doxo"
+  VERSION = "0.7.0"
 end

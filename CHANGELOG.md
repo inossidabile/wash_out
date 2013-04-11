@@ -1,9 +1,13 @@
 # Changelog
 
+## 0.7.0
+
+* WSDL Document mode support [@gorism][]
+
 ## 0.6.0
 
-* Switched to Savon2 family
-* Main spec refactored greatly
+* Switched to Savon2 family [@inossidabile][]
+* Main spec refactored greatly [@inossidabile][]
 
 ## 0.5.4
 
@@ -82,7 +86,8 @@
 * SOAP response format improved. All results are now wrapped into tns:messages instead of soap:Body.
 * Arrays (minOccurs/maxOccurs) are now supported with `:foo => [:integer]` syntax.
 
-[@inossidabile]: https://twitter.com/#!/_inossidabile
+[@inossidabile]: http://staal.io
 [@rngtng]: https://github.com/rngtng
 [@dhinus]: https://github.com/dhinus
 [@ebeigarts]: https://github.com/ebeigarts
+[@gorism]: https://github.com/gorism
