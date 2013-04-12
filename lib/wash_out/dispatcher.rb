@@ -52,9 +52,9 @@ module WashOut
                                     soap_action.to_sym).compact.first || {}
 
       strip_empty_nodes = lambda{|hash|
-        hash.each do |key, value|
-          if value.is_a? Hash
-            value = value.delete_if{|key, value| key.to_s[0] == '@'}
+        hash.keys.each do |key|
+          if hash[key].is_a? Hash
+            value = hash[key].delete_if{|key, value| key.to_s[0] == '@'}
 
             if value.length > 0
               hash[key] = strip_empty_nodes.call(value)
