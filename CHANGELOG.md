@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1
+
+* Parser switcher [@inossidabile][]
+* Namespaces support patched [@inossidabile][]
+
 ## 0.7.0
 
 * WSDL Document mode support [@gorism][]

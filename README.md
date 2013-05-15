@@ -142,6 +142,7 @@ Use `config.wash_out...` inside your environment configuration to setup WashOut.
 
 Available properties are:
 
+* **parser**: XML parser to use – `:rexml` or `:nokogiri`. The first one is default but the latter is much faster. Be sure to add `gem nokogiri` if you want to use it.
 * **style**: sets WSDL style. Supported values are: 'document' and 'rpc'.
 * **catch_xml_errors**: intercept Rails parsing exceptions to return correct XML response for corrupt XML input. Default is `false`.
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.

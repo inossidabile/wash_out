@@ -13,5 +13,5 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.require_paths = ["lib"]
 
-  s.add_dependency("nori", "~> 2.0.0")
+  s.add_dependency("nori", ">= 2.0.0")
 end

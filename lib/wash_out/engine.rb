@@ -1,6 +1,7 @@
 module WashOut
   class Engine < ::Rails::Engine
     class << self
+      attr_accessor :parser
       attr_accessor :namespace
       attr_accessor :style
       attr_accessor :snakecase, :camelize_output
@@ -8,6 +9,8 @@ module WashOut
       attr_accessor :wsse_username, :wsse_password
       attr_accessor :catch_xml_errors
     end
+
+    self.parser    = :rexml
 
     self.namespace = 'urn:WashOut'
     self.style     = 'rpc'

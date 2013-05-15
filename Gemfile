@@ -3,7 +3,7 @@ source "http://rubygems.org"
 gemspec
 
 gem 'wasabi'
-gem 'savon'
+gem 'savon', '>= 2.0.0'
 gem 'httpi', :git => 'git://github.com/savonrb/httpi.git'
 
 gem 'bundler', '~> 1.3.0'

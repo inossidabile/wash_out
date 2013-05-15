@@ -13,6 +13,7 @@ module WashOut
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
       parser = Nori.new(
+        :parser => WashOut::Engine.parser,
         :strip_namespaces => true,
         :advanced_typecasting => true,
         :convert_tags_to => ( WashOut::Engine.snakecase_input ? lambda { |tag| tag.snakecase.to_sym } \
