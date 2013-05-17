@@ -61,8 +61,8 @@ module WashOut
     def eligible?
       return true unless required?
 
-      user     = @username_token.values_at(:username, :Username).compact.first
-      password = @username_token.values_at(:password, :Password).compact.first
+      user     = @username_token.values_at(:username, :Username).compact.first.to_s.strip
+      password = @username_token.values_at(:password, :Password).compact.first.to_s.strip
 
       if (expected_user == user && expected_password == password)
         return true
