@@ -19,9 +19,8 @@ describe WashOut::Param do
       map = WashOut::Param.parse_def Abraka2
 
       map.should be_a_kind_of(Array)
-      map[0].name.should == 'value'
-      map[0].map[0].name.should == 'foo'
-      map[0].map[0].map[0].name.should == 'test'
+      map[0].name.should == 'foo'
+      map[0].map[0].name.should == 'test'
     end
 
     it "respects camelization setting" do
@@ -30,9 +29,8 @@ describe WashOut::Param do
       map = WashOut::Param.parse_def Abraka2
 
       map.should be_a_kind_of(Array)
-      map[0].name.should == 'Value'
-      map[0].map[0].name.should == 'Foo'
-      map[0].map[0].map[0].name.should == 'Test'
+      map[0].name.should == 'Foo'
+      map[0].map[0].name.should == 'Test'
     end
   end
 

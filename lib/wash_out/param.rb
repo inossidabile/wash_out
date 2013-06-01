@@ -133,7 +133,11 @@ module WashOut
       raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
       return [] if definition == nil
 
-      if [Array, Symbol, Class].include?(definition.class)
+      if definition.is_a?(Class) && definition.ancestors.include?(WashOut::Type)
+        definition = definition.wash_out_param_map
+      end
+
+      if [Array, Symbol].include?(definition.class)
         definition = { :value => definition }
       end
 
