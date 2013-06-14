@@ -97,7 +97,7 @@ gem like Savon, a request can be done using this path:
 ```ruby
 require 'savon'
 
-client = Savon::Client.new("http://localhost:3000/rumbas/wsdl")
+client = Savon::Client.new(wsdl: "http://localhost:3000/rumbas/wsdl")
 
 client.wsdl.soap_actions # => [:integer_to_string, :concat, :add_circle]
 
