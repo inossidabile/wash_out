@@ -2,6 +2,7 @@
 
 WashOut is a gem that greatly simplifies creation of SOAP service providers.
 
+[![Gem Version](https://badge.fury.io/rb/wash_out.png)](http://badge.fury.io/rb/wash_out)
 [![Travis CI](https://secure.travis-ci.org/inossidabile/wash_out.png)](https://travis-ci.org/inossidabile/wash_out)
 [![Code Climate](https://codeclimate.com/github/inossidabile/wash_out.png)](https://codeclimate.com/github/inossidabile/wash_out)
 
