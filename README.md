@@ -160,20 +160,10 @@ soap_action :foo  # this will be affected
 soap_action "foo" # this will be passed as is
 ```
 
-## Credits
+## Maintainers
 
-* Boris Staal ([@inossidabile](http://staal.io)) [![endorse](http://api.coderwall.com/inossidabile/endorsecount.png)](http://coderwall.com/inossidabile)
-* Peter Zotov ([@whitequark](http://twitter.com/#!/whitequark)) [![endorse](http://api.coderwall.com/whitequark/endorsecount.png)](http://coderwall.com/inossidabile)
+* Boris Staal, [@inossidabile](http://staal.io)
 
-## Contributors
-
-* Björn Nilsson ([@Bjorn-Nilsson](https://github.com/Bjorn-Nilsson))
-* Tobias Bielohlawek ([@rngtng](https://github.com/rngtng))
-* Francesco Negri ([@dhinus](https://github.com/dhinus))
-* Edgars Beigarts ([@ebeigarts](https://github.com/ebeigarts))
-* [Exad](https://github.com/exad) ([@wknechtel](https://github.com/wknechtel) and [@☈king](https://github.com/rking))
-* Mark Goris ([@gorism](https://github.com/gorism))
-
-## LICENSE
+## License
 
 It is free software, and may be redistributed under the terms of MIT license.
