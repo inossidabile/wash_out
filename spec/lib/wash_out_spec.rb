@@ -299,7 +299,7 @@ describe WashOut do
           end
         end
 
-        savon!(:rumba)[:rumba_response].should == {
+        savon(:rumba)[:rumba_response].should == {
           :rumbas => [
             {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:Rumbas"},
             {:zombies => "suck2", :puppies => "rock2", :"@xsi:type"=>"tns:Rumbas" }
