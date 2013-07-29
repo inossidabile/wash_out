@@ -24,6 +24,13 @@ describe WashOut do
     savon.call(method, :message => message).to_hash
   end
 
+  def savon!(method, message={}, &block)
+    message = {:value => message} unless message.is_a?(Hash)
+
+    savon = Savon::Client.new(:log => true, :wsdl => 'http://app/api/wsdl', &block)
+    savon.call(method, :message => message).to_hash
+  end
+
   describe "Module" do
     it "includes" do
       lambda {
@@ -47,9 +54,9 @@ describe WashOut do
       mock_controller do
         soap_action :result, :args => nil, :return => :int
 
-        soap_action "getArea", :args   => { :circle => { :center => { :x => [:integer],
+        soap_action "getArea", :args   => { :circle => [{ :center => { :x => [:integer],
                                                                       :y => :integer },
-                                                         :radius => :double } },
+                                                         :radius => :double }] },
                                :return => { :area => :double }
 
         soap_action "rocky", :args   => { :circle1 => { :x => :integer } },
@@ -292,7 +299,7 @@ describe WashOut do
           end
         end
 
-        savon(:rumba)[:rumba_response].should == {
+        savon!(:rumba)[:rumba_response].should == {
           :rumbas => [
             {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:Rumbas"},
             {:zombies => "suck2", :puppies => "rock2", :"@xsi:type"=>"tns:Rumbas" }
@@ -446,13 +453,6 @@ describe WashOut do
 
         lambda { savon(:error, :need_error => false) }.should_not raise_exception
         lambda { savon(:error, :need_error => true) }.should raise_exception(Savon::SOAPFault)
-      end
-
-      # TODO: New Savon doesn't allow you to call methods that are not available among WSDL
-      xit "raise for nonexistent method" do
-        mock_controller
-
-        lambda { savon(:nonexistent) }.should raise_exception(Savon::SOAPFault)
       end
 
       it "raise for manual throws" do

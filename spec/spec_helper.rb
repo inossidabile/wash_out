@@ -6,6 +6,8 @@ SimpleCov.start do
   add_filter 'spec'
   add_group 'Library', 'lib'
   add_group 'App', 'app'
+
+  at_exit do; end
 end
 
 require File.expand_path("../dummy/config/environment.rb",  __FILE__)
@@ -28,6 +30,16 @@ RSpec.configure do |config|
     WashOut::Engine.snakecase_input = false
     WashOut::Engine.camelize_wsdl   = false
     WashOut::Engine.namespace       = false
+  end
+
+  config.after(:suite) do
+    if SimpleCov.running
+      silence_stream(STDOUT) do
+        SimpleCov::Formatter::HTMLFormatter.new.format(SimpleCov.result)
+      end
+
+      SimpleCov::Formatter::SummaryFormatter.new.format(SimpleCov.result)
+    end
   end
 end
 
