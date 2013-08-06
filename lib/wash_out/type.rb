@@ -14,7 +14,7 @@ module WashOut
     end
 
     def self.wash_out_param_name
-      @param_type_name ||= name.underscore
+      @param_type_name ||= name.underscore.gsub '/', '.'
 
       if WashOut::Engine.camelize_wsdl.to_s == 'lower'
         @param_type_name = @param_type_name.camelize(:lower)
