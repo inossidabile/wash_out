@@ -126,14 +126,16 @@ module WashOut
             result_spec[i].map = data[param.raw_name].map{|e| inject.call(e, param.map)}
 
           else
-            val = data[param.raw_name]
-            if param.multiplied and val and not val.is_a?(Array)
-              raise ProgrammerError,
-                "SOAP response tried to use '#{val.inspect}' " +
-                "(which is of type #{val.class}), as the value for " +
-                "'#{param.raw_name}' (which expects an Array)."
+            if data.present?
+              val = data[param.raw_name]
+              if param.multiplied and val and not val.is_a?(Array)
+                raise ProgrammerError,
+                  "SOAP response tried to use '#{val.inspect}' " +
+                  "(which is of type #{val.class}), as the value for " +
+                  "'#{param.raw_name}' (which expects an Array)."
+              end
+              result_spec[i].value = val
             end
-            result_spec[i].value = val
           end
         end
 
