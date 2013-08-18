@@ -104,36 +104,40 @@ module WashOut
 
       inject = lambda {|data, map|
         result_spec = []
+        return result_spec if data.nil?
 
         map.each_with_index do |param, i|
           result_spec[i] = param.flat_copy
 
-          # Inline complex structure
-          if param.struct? && !param.multiplied
-            result_spec[i].map = inject.call(data[param.raw_name], param.map)
+          unless data.is_a?(Hash)
+            raise ProgrammerError,
+              "SOAP response used #{data.inspect} (which is #{data.class.name}), " +
+              "in the context where a Hash with key of '#{param.raw_name}' " +
+              "was expected."
+          end
 
-          # Inline array of complex structures
-          elsif param.struct? && param.multiplied
-            if data.nil?
-              data = {} # when no data is given
-            elsif data.is_a?(Array)
-              raise ProgrammerError,
-                "SOAP response used #{data.inspect} (which is an Array), " +
-                "in the context where a Hash with key of '#{param.raw_name}' " +
-                "was expected."
-            end
-            data[param.raw_name] = [] unless data[param.raw_name].is_a?(Array)
-            result_spec[i].map = data[param.raw_name].map{|e| inject.call(e, param.map)}
+          value = data[param.raw_name]
 
-          else
-            val = data[param.raw_name]
-            if param.multiplied and val and not val.is_a?(Array)
+          unless value.nil?
+            if param.multiplied && !value.is_a?(Array)
               raise ProgrammerError,
-                "SOAP response tried to use '#{val.inspect}' " +
-                "(which is of type #{val.class}), as the value for " +
+                "SOAP response tried to use '#{value.inspect}' " +
+                "(which is of type #{value.class.name}), as the value for " +
                 "'#{param.raw_name}' (which expects an Array)."
             end
-            result_spec[i].value = val
+
+            # Inline complex structure              {:foo => {bar: ...}}
+            if param.struct? && !param.multiplied
+              result_spec[i].map = inject.call(value, param.map)
+
+            # Inline array of complex structures    {:foo => [{bar: ...}]}
+            elsif param.struct? && param.multiplied
+              result_spec[i].map = value.map{|e| inject.call(e, param.map)}
+
+            # Inline scalar                         {:foo => :string}
+            else
+              result_spec[i].value = value
+            end
           end
         end
 

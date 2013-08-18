@@ -354,7 +354,7 @@ describe WashOut do
         it "respond with complext definition" do
           mock_controller do
             soap_action "rocknroll",
-                        :args => nil, :return => { :my_value => [{ :value => :integer}] }
+                        :args => nil, :return => { :my_value => [{ :value => :integer }] }
             def rocknroll
               render :soap => {}
             end
@@ -366,7 +366,7 @@ describe WashOut do
         it "respond with nested simple definition" do
           mock_controller do
             soap_action "rocknroll",
-                        :args => nil, :return => { :my_value => { :my_array => [{ :value => :integer}] } }
+                        :args => nil, :return => { :my_value => { :my_array => [{ :value => :integer }] } }
             def rocknroll
               render :soap => {}
             end
@@ -374,6 +374,18 @@ describe WashOut do
 
           savon(:rocknroll)[:rocknroll_response][:my_value].
             should == { :"@xsi:type" => "tns:MyValue" }
+        end
+
+        it "handles incomplete array response" do
+          mock_controller do
+            soap_action "rocknroll",
+                        :args => nil, :return => { :my_value => [{ :value => :string }] }
+            def rocknroll
+              render :soap => { :my_value => [nil] }
+            end
+          end
+
+          expect{savon(:rocknroll)}.not_to raise_error
         end
       end
     end
