@@ -176,6 +176,7 @@ module WashOut
       controller.send :before_filter, :_parse_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
       controller.send :before_filter, :_authenticate_wsse,     :except => [ :_generate_wsdl, :_invalid_action ]
       controller.send :before_filter, :_map_soap_parameters,   :except => [ :_generate_wsdl, :_invalid_action ]
+      controller.send :skip_before_filter, :verify_authenticity_token
     end
 
     def self.deep_select(hash, result=[], &blk)
