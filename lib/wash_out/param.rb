@@ -10,17 +10,17 @@ module WashOut
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
-    def initialize(name, type, multiplied = false)
+    def initialize(soap_config, name, type, multiplied = false)
       type ||= {}
-
+      @soap_config = soap_config
       @name       = name.to_s
       @raw_name   = name.to_s
       @map        = {}
       @multiplied = multiplied
 
-      if WashOut::Engine.camelize_wsdl.to_s == 'lower'
+      if soap_config.camelize_wsdl.to_s == 'lower'
         @name = @name.camelize(:lower)
-      elsif WashOut::Engine.camelize_wsdl
+      elsif soap_config.camelize_wsdl
         @name = @name.camelize
       end
 
@@ -28,11 +28,11 @@ module WashOut
         @type = type.to_s
       elsif type.is_a?(Class)
         @type         = 'struct'
-        @map          = self.class.parse_def(type.wash_out_param_map)
+        @map          = self.class.parse_def(soap_config, type.wash_out_param_map)
         @source_class = type
       else
         @type = 'struct'
-        @map  = self.class.parse_def(type)
+        @map  = self.class.parse_def(soap_config, type)
       end
     end
 
@@ -50,13 +50,13 @@ module WashOut
         data ||= {}
         if @multiplied
           data.map do |x|
-            map_struct x do |param, data, elem|
-              param.load(data, elem)
+            map_struct x do |param, dat, elem|
+              param.load(dat, elem)
             end
           end
         else
-          map_struct data do |param, data, elem|
-            param.load(data, elem)
+          map_struct data do |param, dat, elem|
+            param.load(dat, elem)
           end
         end
       else
@@ -64,7 +64,7 @@ module WashOut
           when 'string';    :to_s
           when 'integer';   :to_i
           when 'double';    :to_f
-          when 'boolean';   lambda{|data| data === "0" ? false : !!data}
+          when 'boolean';   lambda{|dat| dat === "0" ? false : !!dat}
           when 'date';      :to_date
           when 'datetime';  :to_datetime
           when 'time';      :to_time
@@ -99,7 +99,7 @@ module WashOut
 
     def basic_type
       return name unless classified?
-      return source_class.wash_out_param_name
+      return source_class.wash_out_param_name(@soap_config)
     end
 
     def xsd_type
@@ -129,7 +129,7 @@ module WashOut
     # +:parameter_name+ is ignored.
     #
     # This function returns an array of WashOut::Param objects.
-    def self.parse_def(definition)
+    def self.parse_def(soap_config, definition)
       raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
       return [] if definition == nil
 
@@ -146,9 +146,9 @@ module WashOut
           if opt.is_a? WashOut::Param
             opt
           elsif opt.is_a? Array
-            WashOut::Param.new(name, opt[0], true)
+            WashOut::Param.new(soap_config, name, opt[0], true)
           else
-            WashOut::Param.new(name, opt)
+            WashOut::Param.new(soap_config, name, opt)
           end
         end
       else
@@ -157,7 +157,7 @@ module WashOut
     end
 
     def flat_copy
-      copy = self.class.new(@name, @type.to_sym, @multiplied)
+      copy = self.class.new(@soap_config, @name, @type.to_sym, @multiplied)
       copy.raw_name = raw_name
       copy
     end

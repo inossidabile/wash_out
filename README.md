@@ -22,6 +22,10 @@ In your Gemfile, add this line:
 
     gem 'wash_out'
 
+## Upgrading from version < 0.8.5
+
+Replace `include WashOut::Soap` with `soap_service` at the controller level.
+
 ## Usage
 
 A SOAP endpoint in WashOut is simply a Rails controller which includes the module WashOut::SOAP. Each SOAP
@@ -34,7 +38,7 @@ demonstrated.
 ```ruby
 # app/controllers/rumbas_controller.rb
 class RumbasController < ApplicationController
-  include WashOut::SOAP
+  soap_service namespace: 'urn:WashOut'
 
   # Simple case
   soap_action "integer_to_string",
@@ -139,7 +143,8 @@ inside your interface declarations.
 
 ## Configuration
 
-Use `config.wash_out...` inside your environment configuration to setup WashOut.
+Use `config.wash_out...` inside your environment configuration to setup WashOut globally.
+To override the values on a specific controller just add an override as part of the arguments to the `soap_service` method.
 
 Available properties are:
 
@@ -149,7 +154,7 @@ Available properties are:
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
 * **snakecase**: *(DEPRECATED SINCE 0.4.0)* Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
-* **camelize_wsdl**: Determines if WashOut should camelize types within WSDL and responses. Default is `false`.
+* **camelize_wsdl**: Determines if WashOut should camelize types within WSDL and responses. Supports `true` for CamelCase and `:lower` for camelCase. Default is `false`.
 
 ### Camelization
 
@@ -163,6 +168,9 @@ soap_action "foo" # this will be passed as is
 ## Maintainers
 
 * Boris Staal, [@inossidabile](http://staal.io)
+
+## Contributors
+* Mikael Henriksson, [@mhenrixon](http://twitter.com/mhenrixon)
 
 ## License
 
