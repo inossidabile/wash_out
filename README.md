@@ -149,7 +149,7 @@ Available properties are:
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
 * **snakecase**: *(DEPRECATED SINCE 0.4.0)* Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
-* **camelize_wsdl**: Determines if WashOut should camelize types within WSDL and responses. Default is `false`.
+* **camelize_wsdl**: Determines if WashOut should camelize types within WSDL and responses. Supports `true` for CamelCase and `:lower` for camelCase. Default is `false`.
 
 ### Camelization
 
