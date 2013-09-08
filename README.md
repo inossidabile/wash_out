@@ -22,9 +22,7 @@ In your Gemfile, add this line:
 
     gem 'wash_out'
 
-## Upgrading from version < 0.8.5
-
-Replace `include WashOut::Soap` with `soap_service` at the controller level.
+If you are upgrading from version < 0.8.5, replace `include WashOut::Soap` with `soap_service` at the controller level.
 
 ## Usage
 
@@ -169,8 +167,16 @@ soap_action "foo" # this will be passed as is
 
 * Boris Staal, [@inossidabile](http://staal.io)
 
-## Contributors
+## Contributors (in random order)
+
 * Mikael Henriksson, [@mhenrixon](http://twitter.com/mhenrixon)
+* Björn Nilsson [@Bjorn-Nilsson](https://github.com/Bjorn-Nilsson)
+* Tobias Bielohlawek [@rngtng](https://github.com/rngtng)
+* Francesco Negri [@dhinus](https://github.com/dhinus)
+* Edgars Beigarts [@ebeigarts](https://github.com/ebeigarts)
+* [Exad](https://github.com/exad) [@wknechtel](https://github.com/wknechtel) and [@☈king](https://github.com/rking)
+* Mark Goris [@gorism](https://github.com/gorism)
+* ... and [others](https://github.com/inossidabile/wash_out/graphs/contributors)
 
 ## License
 
