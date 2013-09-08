@@ -3,11 +3,6 @@
 require 'spec_helper'
 
 describe WashOut do
-  before :each do
-    WashOut::Engine.snakecase_input = true
-    WashOut::Engine.camelize_wsdl   = true
-    WashOut::Engine.namespace       = false
-  end
 
   let :nori do
     Nori.new(
@@ -54,11 +49,12 @@ describe WashOut do
       mock_controller do
         soap_action :result, :args => nil, :return => :int
 
-        soap_action "getArea", :args   => { :circle => [{ :center => { :x => [:integer],
-                                                                      :y => :integer },
-                                                         :radius => :double }] },
-                               :return => { :area => :double }
-
+        soap_action "getArea", :args => {
+          :circle => [{
+            :center => { :x => [:integer], :y => :integer },
+            :radius => :double
+          }]},
+          :return => { :area => :double }
         soap_action "rocky", :args   => { :circle1 => { :x => :integer } },
                              :return => { :circle2 => { :y => :integer } }
       end
@@ -429,7 +425,7 @@ describe WashOut do
     context "errors" do
       it "raise for incorrect requests" do
         mock_controller do
-          soap_action "duty", 
+          soap_action "duty",
             :args => {:bad => {:a => :string, :b => :string}, :good => {:a => :string, :b => :string}},
             :return => nil
           def duty
@@ -564,10 +560,7 @@ describe WashOut do
     end
 
     it "handles snakecase option properly" do
-      WashOut::Engine.snakecase_input = false
-      WashOut::Engine.camelize_wsdl   = false
-
-      mock_controller do
+      mock_controller(snakecase_input: false, camelize_wsdl: false) do
         soap_action "rocknroll", :args => {:ZOMG => :string}, :return => nil
         def rocknroll
           params["ZOMG"].should == "yam!"
@@ -583,10 +576,7 @@ describe WashOut do
   describe "WS Security" do
 
     it "appends username_token to params" do
-      WashOut::Engine.wsse_username = nil
-      WashOut::Engine.wsse_password = nil
-
-      mock_controller do
+      mock_controller(wsse_username: "gorilla", wsse_password: "secret") do
         soap_action "checkToken", :args => :integer, :return => nil, :to => 'check_token'
         def check_token
           request.env['WSSE_TOKEN']['username'].should == "gorilla"
@@ -601,10 +591,7 @@ describe WashOut do
     end
 
     it "handles PasswordText auth" do
-      WashOut::Engine.wsse_username = "gorilla"
-      WashOut::Engine.wsse_password = "secret"
-
-      mock_controller do
+      mock_controller(wsse_username: "gorilla", wsse_password: "secret") do
         soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
         def check_auth
           render :soap => (params[:value] == 42)
@@ -629,10 +616,7 @@ describe WashOut do
     end
 
     it "handles PasswordDigest auth" do
-      WashOut::Engine.wsse_username = "gorilla"
-      WashOut::Engine.wsse_password = "secret"
-
-      mock_controller do
+      mock_controller(wsse_username: "gorilla", wsse_password: "secret") do
         soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
         def check_auth
           render :soap => (params[:value] == 42)

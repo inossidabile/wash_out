@@ -5,9 +5,11 @@ require 'spec_helper'
 describe WashOut::Type do
 
   it "defines custom type" do
+
     class Abraka1 < WashOut::Type
       map :test => :string
     end
+
     class Abraka2 < WashOut::Type
       type_name 'test'
       map :foo => Abraka1

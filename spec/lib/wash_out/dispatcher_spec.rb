@@ -5,7 +5,7 @@ require 'spec_helper'
 describe WashOut::Dispatcher do
 
   class Dispatcher < ApplicationController
-    include WashOut::SOAP
+    soap_service
 
     def self.mock(text="")
       dispatcher = self.new
@@ -60,27 +60,27 @@ describe WashOut::Dispatcher do
 
   describe "#_load_params" do
     let(:dispatcher) { Dispatcher.new }
-
+    let(:soap_config) { WashOut::SoapConfig.new({ camelize_wsdl: false }) }
     it "should load params for an array" do
-      spec = WashOut::Param.parse_def( {:my_array => [:integer] } )
+      spec = WashOut::Param.parse_def(soap_config, {:my_array => [:integer] } )
       xml_data = {:my_array => [1, 2, 3]}
       dispatcher._load_params(spec, xml_data).should == {"my_array" => [1, 2, 3]}
     end
 
     it "should load params for an empty array" do
-      spec = WashOut::Param.parse_def( {:my_array => [:integer] } )
+      spec = WashOut::Param.parse_def(soap_config, {:my_array => [:integer] } )
       xml_data = {}
       dispatcher._load_params(spec, xml_data).should == {}
     end
 
     it "should load params for a nested array" do
-      spec = WashOut::Param.parse_def( {:nested => {:my_array => [:integer]}} )
+      spec = WashOut::Param.parse_def(soap_config, {:nested => {:my_array => [:integer]}} )
       xml_data = {:nested => {:my_array => [1, 2, 3]}}
       dispatcher._load_params(spec, xml_data).should == {"nested" => {"my_array" => [1, 2, 3]}}
     end
 
     it "should load params for an empty nested array" do
-      spec = WashOut::Param.parse_def( {:nested => {:empty => [:integer] }} )
+      spec = WashOut::Param.parse_def(soap_config, {:nested => {:empty => [:integer] }} )
       xml_data = {:nested => nil}
       dispatcher._load_params(spec, xml_data).should == {"nested" => {}}
     end

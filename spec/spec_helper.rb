@@ -27,9 +27,11 @@ RSpec.configure do |config|
 
   config.mock_with :rspec
   config.before(:all) do
-    WashOut::Engine.snakecase_input = false
-    WashOut::Engine.camelize_wsdl   = false
-    WashOut::Engine.namespace       = false
+    WashOut::Engine.config.wash_out = {
+      snakecase_input: false,
+      camelize_wsdl: false,
+      namespace: false
+    }
   end
 
   config.after(:suite) do
@@ -51,11 +53,14 @@ Dummy::Application.routes.draw do
   wash_out :api
 end
 
-def mock_controller(&block)
+def mock_controller(options = {}, &block)
   Object.send :remove_const, :ApiController if defined?(ApiController)
   Object.send :const_set, :ApiController, Class.new(ApplicationController) {
-    include WashOut::SOAP
-
+    soap_service options.reverse_merge({
+      snakecase_input: true,
+      camelize_wsdl: true,
+      namespace: false
+    })
     class_exec &block if block
   }
 
