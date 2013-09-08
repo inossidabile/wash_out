@@ -150,7 +150,6 @@ Available properties are:
 * **style**: sets WSDL style. Supported values are: 'document' and 'rpc'.
 * **catch_xml_errors**: intercept Rails parsing exceptions to return correct XML response for corrupt XML input. Default is `false`.
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
-* **snakecase**: *(DEPRECATED SINCE 0.4.0)* Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **camelize_wsdl**: Determines if WashOut should camelize types within WSDL and responses. Supports `true` for CamelCase and `:lower` for camelCase. Default is `false`.
 
