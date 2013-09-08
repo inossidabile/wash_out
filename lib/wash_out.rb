@@ -1,3 +1,6 @@
+require 'wash_out/configurable'
+require 'wash_out/soap_config'
+require 'wash_out/soap'
 require 'wash_out/engine'
 require 'wash_out/param'
 require 'wash_out/dispatcher'
@@ -28,9 +31,17 @@ ActionController::Renderers.add :soap do |what, options|
   _render_soap(what, options)
 end
 
-module ActionView
-  class Base
-    cattr_accessor :washout_namespace
-    @@washout_namespace = false
+ActionController::Base.class_eval do
+
+  # Define a SOAP service. The function has no required +options+:
+  # but allow any of :parser, :namespace, :wsdl_style, :snakecase_input,
+  # :camelize_wsdl, :wsse_username, :wsse_password and :catch_xml_errors.
+  #
+  # Any of the the params provided allows for overriding the defaults
+  # (like supporting multiple namespaces instead of application wide such)
+  #
+  def self.soap_service(options={})
+    include WashOut::SOAP
+    self.soap_config = options
   end
 end

@@ -1,15 +1,16 @@
 module WashOut
   class Wsse
-
-    def self.authenticate(token)
-      wsse = self.new(token)
+    attr_reader :soap_config
+    def self.authenticate(soap_config, token)
+      wsse = self.new(soap_config, token)
 
       unless wsse.eligible?
         raise WashOut::Dispatcher::SOAPError, "Unauthorized"
       end
     end
 
-    def initialize(token)
+    def initialize(soap_config, token)
+      @soap_config = soap_config
       if token.blank? && required?
         raise WashOut::Dispatcher::SOAPError, "Missing required UsernameToken"
       end
@@ -17,15 +18,15 @@ module WashOut
     end
 
     def required?
-      !WashOut::Engine.wsse_username.blank?
+      !soap_config.wsse_username.blank?
     end
 
     def expected_user
-      WashOut::Engine.wsse_username
+      soap_config.wsse_username
     end
 
     def expected_password
-      WashOut::Engine.wsse_password
+      soap_config.wsse_password
     end
 
     def matches_expected_digest?(password)

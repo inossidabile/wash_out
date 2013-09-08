@@ -1,7 +1,7 @@
 module WashOutHelper
 
   def wsdl_data_options(param)
-    case WashOut::Engine.style
+    case controller.soap_config.wsdl_style
     when 'rpc'
       { :"xsi:type" => param.namespaced_type }
     when 'document'

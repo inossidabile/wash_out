@@ -23,7 +23,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
     @map.keys.each do |operation|
       xml.operation :name => operation do
         xml.input :message => "tns:#{operation}"
-        xml.output :message => "tns:#{operation}#{WashOut::Engine.camelize_wsdl ? 'Response' : '_response'}"
+        xml.output :message => "tns:#{operation}#{controller.soap_config.camelize_wsdl ? 'Response' : '_response'}"
       end
     end
   end
@@ -59,7 +59,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
         xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
       end
     end
-    xml.message :name => "#{operation}#{WashOut::Engine.camelize_wsdl ? 'Response' : '_response'}" do
+    xml.message :name => "#{operation}#{controller.soap_config.camelize_wsdl ? 'Response' : '_response'}" do
       formats[:out].each do |p|
         xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
       end

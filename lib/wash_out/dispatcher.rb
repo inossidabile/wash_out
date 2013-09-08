@@ -12,14 +12,14 @@ module WashOut
 
     # This filter parses the SOAP request and puts it into +params+ array.
     def _parse_soap_parameters
-      parser = Nori.new(
-        :parser => WashOut::Engine.parser,
+
+      nori_parser = Nori.new(
+        :parser => soap_config.parser,
         :strip_namespaces => true,
         :advanced_typecasting => true,
-        :convert_tags_to => ( WashOut::Engine.snakecase_input ? lambda { |tag| tag.snakecase.to_sym } \
-                                : lambda { |tag| tag.to_sym } ))
+        :convert_tags_to => ( soap_config.snakecase_input ? lambda { |tag| tag.snakecase.to_sym } : lambda { |tag| tag.to_sym } ))
 
-      @_params = parser.parse(request.body.read)
+      @_params = nori_parser.parse(request.body.read)
       references = WashOut::Dispatcher.deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
 
       unless references.blank?
@@ -29,6 +29,7 @@ module WashOut
     end
 
     def _authenticate_wsse
+
       begin
         xml_security   = @_params.values_at(:envelope, :Envelope).compact.first
         xml_security   = xml_security.values_at(:header, :Header).compact.first
@@ -38,12 +39,13 @@ module WashOut
         username_token = nil
       end
 
-      WashOut::Wsse.authenticate username_token
+      WashOut::Wsse.authenticate soap_config, username_token
 
       request.env['WSSE_TOKEN'] = username_token.with_indifferent_access unless username_token.blank?
     end
 
     def _map_soap_parameters
+
       soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action]
 
@@ -55,7 +57,7 @@ module WashOut
       strip_empty_nodes = lambda{|hash|
         hash.keys.each do |key|
           if hash[key].is_a? Hash
-            value = hash[key].delete_if{|key, value| key.to_s[0] == '@'}
+            value = hash[key].delete_if{|k, v| key.to_s[0] == '@'}
 
             if value.length > 0
               hash[key] = strip_empty_nodes.call(value)
@@ -85,17 +87,18 @@ module WashOut
 
     # This action generates the WSDL for defined SOAP methods.
     def _generate_wsdl
+
       @map       = self.class.soap_actions
-      @namespace = WashOut::Engine.namespace
+      @namespace = soap_config.namespace
       @name      = controller_path.gsub('/', '_')
 
-      render :template => "wash_with_soap/#{WashOut::Engine.style}/wsdl", :layout => false,
+      render :template => "wash_with_soap/#{soap_config.wsdl_style}/wsdl", :layout => false,
              :content_type => 'text/xml'
     end
 
     # Render a SOAP response.
     def _render_soap(result, options)
-      @namespace   = WashOut::Engine.namespace
+      @namespace   = soap_config.namespace
       @operation   = soap_action = request.env['wash_out.soap_action']
       @action_spec = self.class.soap_actions[soap_action]
 
@@ -144,7 +147,7 @@ module WashOut
         return result_spec
       }
 
-      render :template => "wash_with_soap/#{WashOut::Engine.style}/response",
+      render :template => "wash_with_soap/#{soap_config.wsdl_style}/response",
              :layout => false,
              :locals => { :result => inject.call(result, @action_spec[:out]) },
              :content_type => 'text/xml'
@@ -164,7 +167,7 @@ module WashOut
     # Rails do not support sequental rescue_from handling, that is, rescuing an
     # exception from a rescue_from handler. Hence this function is a public API.
     def render_soap_error(message)
-      render :template => "wash_with_soap/#{WashOut::Engine.style}/error", :status => 500,
+      render :template => "wash_with_soap/#{soap_config.wsdl_style}/error", :status => 500,
              :layout => false,
              :locals => { :error_message => message },
              :content_type => 'text/xml'
@@ -173,9 +176,12 @@ module WashOut
     def self.included(controller)
       controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
       controller.send :helper, :wash_out
-      controller.send :before_filter, :_parse_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
-      controller.send :before_filter, :_authenticate_wsse,     :except => [ :_generate_wsdl, :_invalid_action ]
-      controller.send :before_filter, :_map_soap_parameters,   :except => [ :_generate_wsdl, :_invalid_action ]
+      controller.send :before_filter, :_parse_soap_parameters, :except => [
+        :_generate_wsdl, :_invalid_action ]
+      controller.send :before_filter, :_authenticate_wsse,     :except => [
+        :_generate_wsdl, :_invalid_action ]
+      controller.send :before_filter, :_map_soap_parameters,   :except => [
+        :_generate_wsdl, :_invalid_action ]
       controller.send :skip_before_filter, :verify_authenticity_token
     end
 

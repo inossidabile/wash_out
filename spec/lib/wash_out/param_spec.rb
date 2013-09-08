@@ -5,18 +5,21 @@ require 'spec_helper'
 describe WashOut::Param do
 
   context "custom types" do
+
     class Abraka1 < WashOut::Type
       map(
         :test => :string
       )
     end
+
     class Abraka2 < WashOut::Type
       type_name 'test'
       map :foo => Abraka1
     end
 
     it "loads custom_types" do
-      map = WashOut::Param.parse_def Abraka2
+      soap_config = WashOut::SoapConfig.new({ camelize_wsdl: false })
+      map = WashOut::Param.parse_def soap_config, Abraka2
 
       map.should be_a_kind_of(Array)
       map[0].name.should == 'foo'
@@ -24,9 +27,9 @@ describe WashOut::Param do
     end
 
     it "respects camelization setting" do
-      WashOut::Engine.camelize_wsdl = true
+      soap_config = WashOut::SoapConfig.new({ camelize_wsdl: true })
 
-      map = WashOut::Param.parse_def Abraka2
+      map = WashOut::Param.parse_def soap_config, Abraka2
 
       map.should be_a_kind_of(Array)
       map[0].name.should == 'Foo'
@@ -35,14 +38,16 @@ describe WashOut::Param do
   end
 
   it "should accept nested empty arrays" do
-    map = WashOut::Param.parse_def( {:nested => {:some_attr => :string, :empty => [:integer] }} )
+    soap_config = WashOut::SoapConfig.new({ camelize_wsdl: false })
+    map = WashOut::Param.parse_def(soap_config, {:nested => {:some_attr => :string, :empty => [:integer] }} )
     map[0].load( {:nested => nil}, :nested).should == {}
   end
 
   describe "booleans" do
+    let(:soap_config) { WashOut::SoapConfig.new({ camelize_wsdl: false }) }
     # following http://www.w3.org/TR/xmlschema-2/#boolean, only true, false, 0 and 1 are allowed.
     # Nori maps the strings true and false to TrueClass and FalseClass, but not 0 and 1.
-    let(:map) { WashOut::Param.parse_def(:value => :boolean) }
+    let(:map) { WashOut::Param.parse_def(soap_config, :value => :boolean) }
 
     it "should accept 'true' and '1'" do
       map[0].load({:value => true}, :value).should be_true
