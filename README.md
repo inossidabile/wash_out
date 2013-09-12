@@ -22,7 +22,7 @@ In your Gemfile, add this line:
 
     gem 'wash_out'
 
-If you are upgrading from version < 0.8.5, replace `include WashOut::Soap` with `soap_service` at the controller level.
+Please read [release details](https://github.com/inossidabile/wash_out/releases) if you are upgrading. We break backward compatibility between large ticks but you can expect it to be specified at release notes.
 
 ## Usage
 
