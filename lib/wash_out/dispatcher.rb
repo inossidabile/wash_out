@@ -19,7 +19,7 @@ module WashOut
         :advanced_typecasting => true,
         :convert_tags_to => ( soap_config.snakecase_input ? lambda { |tag| tag.snakecase.to_sym } : lambda { |tag| tag.to_sym } ))
 
-      @_params = nori_parser.parse(request.body.read)
+      @_params = nori_parser.parse(request.raw_post)
       references = WashOut::Dispatcher.deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
 
       unless references.blank?

@@ -9,7 +9,7 @@ describe WashOut::Dispatcher do
 
     def self.mock(text="")
       dispatcher = self.new
-      dispatcher.request = OpenStruct.new(:body => OpenStruct.new(:read => text))
+      dispatcher.request = OpenStruct.new(:raw_post => text)
       dispatcher
     end
 
