@@ -2,8 +2,9 @@ module WashOut
   # This class is a Rack middleware used to route SOAP requests to a proper
   # action of a given SOAP controller.
   class Router
-    def initialize(controller_name)
+    def initialize(controller_name, default_action)
       @controller_name = "#{controller_name.to_s}_controller".camelize
+      @default_action = default_action
     end
 
     def call(env)
@@ -19,6 +20,8 @@ module WashOut
         else
           soap_action = soap_action[1...-1]
         end
+
+        soap_action = soap_action.length > 0 ? soap_action : @default_action
 
         env['wash_out.soap_action'] = soap_action
       end
