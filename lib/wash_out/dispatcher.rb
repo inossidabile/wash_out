@@ -1,5 +1,3 @@
-require 'nori'
-
 module WashOut
   # The WashOut::Dispatcher module should be included in a controller acting
   # as a SOAP endpoint. It includes actions for generating WSDL and handling
@@ -10,28 +8,10 @@ module WashOut
     class SOAPError < Exception; end
     class ProgrammerError < Exception; end
 
-    # This filter parses the SOAP request and puts it into +params+ array.
-    def _parse_soap_parameters
-
-      nori_parser = Nori.new(
-        :parser => soap_config.parser,
-        :strip_namespaces => true,
-        :advanced_typecasting => true,
-        :convert_tags_to => ( soap_config.snakecase_input ? lambda { |tag| tag.snakecase.to_sym } : lambda { |tag| tag.to_sym } ))
-
-      @_params = nori_parser.parse(request.raw_post)
-      references = WashOut::Dispatcher.deep_select(@_params){|k,v| v.is_a?(Hash) && v.has_key?(:@id)}
-
-      unless references.blank?
-        replaces = {}; references.each{|r| replaces['#'+r[:@id]] = r}
-        @_params = WashOut::Dispatcher.deep_replace_href(@_params, replaces)
-      end
-    end
-
     def _authenticate_wsse
 
       begin
-        xml_security   = @_params.values_at(:envelope, :Envelope).compact.first
+        xml_security   = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
         xml_security   = xml_security.values_at(:header, :Header).compact.first
         xml_security   = xml_security.values_at(:security, :Security).compact.first
         username_token = xml_security.values_at(:username_token, :UsernameToken).compact.first
@@ -49,7 +29,7 @@ module WashOut
       soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action]
 
-      xml_data = @_params.values_at(:envelope, :Envelope).compact.first
+      xml_data = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
       xml_data = xml_data.values_at(soap_action.underscore.to_sym,
                                     soap_action.to_sym).compact.first || {}
@@ -176,8 +156,6 @@ module WashOut
     def self.included(controller)
       controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
       controller.send :helper, :wash_out
-      controller.send :before_filter, :_parse_soap_parameters, :except => [
-        :_generate_wsdl, :_invalid_action ]
       controller.send :before_filter, :_authenticate_wsse,     :except => [
         :_generate_wsdl, :_invalid_action ]
       controller.send :before_filter, :_map_soap_parameters,   :except => [

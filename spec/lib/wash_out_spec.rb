@@ -90,6 +90,37 @@ describe WashOut do
   describe "Dispatcher" do
 
     context "simple actions" do
+      it "accepts requests with no HTTP header" do
+        mock_controller do
+          soap_action "answer", :args => nil, :return => :int
+          def answer
+            render :soap => "42"
+          end
+        end
+
+        request = <<-XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Body>
+            <tns:answer>
+              <value>42</value>
+            </tns:answer>
+          </env:Body>
+          </env:Envelope>
+        XML
+
+        HTTPI.post("http://app/api/action", request).body.should == <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
+  <soap:Body>
+    <tns:answerResponse>
+      <Value xsi:type="xsd:int">42</Value>
+    </tns:answerResponse>
+  </soap:Body>
+</soap:Envelope>
+        XML
+      end
+
       it "accept no parameters" do
         mock_controller do
           soap_action "answer", :args => nil, :return => :int
