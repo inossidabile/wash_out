@@ -102,11 +102,9 @@ require 'savon'
 
 client = Savon::Client.new(wsdl: "http://localhost:3000/rumbas/wsdl")
 
-client.wsdl.soap_actions # => [:integer_to_string, :concat, :add_circle]
+client.operations # => [:integer_to_string, :concat, :add_circle]
 
-result = client.request(:concat) do
-  soap.body = { :a => "123", :b => "abc" }
-end
+result = client.call(:concat, message: { :a => "123", :b => "abc" })
 
 # actual wash_out
 result.to_hash # => {:concat_reponse => {:value=>"123abc"}}
