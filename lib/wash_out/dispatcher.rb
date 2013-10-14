@@ -27,7 +27,7 @@ module WashOut
     def _map_soap_parameters
 
       soap_action = request.env['wash_out.soap_action']
-      action_spec = self.class.soap_actions[soap_action]
+      action_spec = self.class.soap_actions.fetch(soap_action)
 
       xml_data = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
@@ -80,7 +80,7 @@ module WashOut
     def _render_soap(result, options)
       @namespace   = soap_config.namespace
       @operation   = soap_action = request.env['wash_out.soap_action']
-      @action_spec = self.class.soap_actions[soap_action]
+      @action_spec = self.class.soap_actions.fetch(soap_action)
 
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
