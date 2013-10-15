@@ -15,7 +15,7 @@ module WashOut
     def parse_soap_action(env)
       return env['wash_out.soap_action'] if env['wash_out.soap_action']
 
-      soap_action = env['HTTP_SOAPACTION']
+      soap_action = env['HTTP_SOAPACTION'].gsub('"', '')
 
       if soap_action.blank?
         soap_action = parse_soap_parameters(env)
