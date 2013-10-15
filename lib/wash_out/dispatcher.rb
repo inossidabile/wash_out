@@ -29,6 +29,8 @@ module WashOut
       soap_action = request.env['wash_out.soap_action']
       action_spec = self.class.soap_actions[soap_action]
 
+      soap_action = action_spec[:request_tag] if action_spec[:request_tag]
+
       xml_data = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
       xml_data = xml_data.values_at(soap_action.underscore.to_sym,

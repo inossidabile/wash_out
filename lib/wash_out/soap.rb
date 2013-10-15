@@ -32,6 +32,7 @@ module WashOut
           :in           => WashOut::Param.parse_def(soap_config, options[:args]),
           :out          => WashOut::Param.parse_def(soap_config, options[:return]),
           :to           => options[:to] || action,
+          :request_tag  => options[:request_tag] || nil,
           :response_tag => options[:response_tag] || default_response_tag
         }
       end
