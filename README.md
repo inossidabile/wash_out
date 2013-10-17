@@ -178,3 +178,7 @@ soap_action "foo" # this will be passed as is
 ## License
 
 It is free software, and may be redistributed under the terms of MIT license.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/inossidabile/wash_out/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
