@@ -2,7 +2,7 @@ module WashOut
   class Type
 
     def self.type_name(value)
-      @param_type_name = value
+      @param_type_name = value.to_s
     end
 
     def self.map(value)
