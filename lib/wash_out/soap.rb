@@ -15,9 +15,12 @@ module WashOut
       # which are not valid Ruby function names.
       def soap_action(action, options={})
         if action.is_a?(Symbol)
+
+          raw_action = action.to_s
+
           if soap_config.camelize_wsdl.to_s == 'lower'
-            options[:to] ||= action.to_s
-            action         = action.to_s.camelize(:lower)
+            options[:to]      ||= action.to_s
+            action              = action.to_s.camelize(:lower)
           elsif soap_config.camelize_wsdl
             options[:to] ||= action.to_s
             action         = action.to_s.camelize
@@ -32,7 +35,8 @@ module WashOut
           :in           => WashOut::Param.parse_def(soap_config, options[:args]),
           :out          => WashOut::Param.parse_def(soap_config, options[:return]),
           :to           => options[:to] || action,
-          :response_tag => options[:response_tag] || default_response_tag
+          :response_tag => options[:response_tag] || default_response_tag,
+          :raw_action   => raw_action
         }
       end
     end
@@ -40,7 +44,7 @@ module WashOut
     included do
       include WashOut::Configurable
       include WashOut::Dispatcher
-      self.soap_actions = {}
+      self.soap_actions = SoapActions.new({})
     end
   end
 end

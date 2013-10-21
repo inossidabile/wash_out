@@ -1,4 +1,5 @@
 require 'wash_out/configurable'
+require 'wash_out/soap_actions'
 require 'wash_out/soap_config'
 require 'wash_out/soap'
 require 'wash_out/engine'

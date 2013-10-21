@@ -16,6 +16,7 @@ module WashOut
       return env['wash_out.soap_action'] if env['wash_out.soap_action']
 
       soap_action = env['HTTP_SOAPACTION']
+      soap_action.gsub!('"', '') unless soap_action.blank?
 
       if soap_action.blank?
         soap_action = parse_soap_parameters(env)
@@ -64,7 +65,7 @@ module WashOut
       soap_action     = parse_soap_action(env)
       soap_parameters = parse_soap_parameters(env)
 
-      action_spec = controller.soap_actions[soap_action]
+      action_spec = controller.soap_actions.fetch(soap_action)
 
       if action_spec
         action = action_spec[:to]
