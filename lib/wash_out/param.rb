@@ -61,13 +61,14 @@ module WashOut
         end
       else
         operation = case type
-          when 'string';    :to_s
-          when 'integer';   :to_i
-          when 'double';    :to_f
-          when 'boolean';   lambda{|dat| dat === "0" ? false : !!dat}
-          when 'date';      :to_date
-          when 'datetime';  :to_datetime
-          when 'time';      :to_time
+          when 'string';       :to_s
+          when 'integer';      :to_i
+          when 'double';       :to_f
+          when 'boolean';      lambda{|dat| dat === "0" ? false : !!dat}
+          when 'date';         :to_date
+          when 'datetime';     :to_datetime
+          when 'time';         :to_time
+          when 'base64Binary'; lambda{|dat| Base64.decode64(dat)}
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
 

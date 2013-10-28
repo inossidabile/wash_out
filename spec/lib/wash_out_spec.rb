@@ -451,6 +451,19 @@ describe WashOut do
         savon(:date, :value => '2000-12-30')
         lambda { savon(:date) }.should_not raise_exception
       end
+
+      it "recognize base64Binary" do
+        mock_controller do
+          soap_action "base64", :args => :base64Binary, :return => :nil
+          def base64
+            params[:value].should == 'test' unless params[:value].blank?
+            render :soap => nil
+          end
+        end
+
+        savon(:base64, :value => Base64.encode64('test'))
+        lambda { savon(:base64) }.should_not raise_exception
+      end
     end
 
     context "errors" do
