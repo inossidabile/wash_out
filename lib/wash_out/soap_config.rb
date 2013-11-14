@@ -16,6 +16,7 @@ module WashOut
     }
 
     attr_reader :config
+    attr_accessor :complex_types
     def_delegators :@config, :[], :[]=, :sort
 
 

@@ -72,4 +72,38 @@ module WashOutHelper
 
     extend_with.merge(data)
   end
+
+  def get_complex_types_names(a_complex_types)
+    defined = []
+    unless a_complex_types.blank?
+      a_complex_types.each do |hash|
+        defined << hash[:class].to_s.classify
+      end
+    end
+    defined.sort_by { |name| name.downcase }.uniq
+  end
+
+  def get_fault_types_names(map)
+    defined = []
+    map.each do |operation, formats|
+      faults = formats[:raises]
+      unless faults.blank?
+        faults = [formats[:raises]] if !faults.is_a?(Array) 
+         faults.each do |p|
+          defined << p.to_s.classify
+        end
+      end
+    end
+    defined.sort_by { |name| name.downcase }.uniq
+  end
+
+  def get_soap_action_names(map)
+    defined = []
+    unless map.blank?
+      map.each do |operation, formats|
+        defined << operation.to_s
+      end
+    end
+    defined.sort_by { |name| name.downcase }.uniq
+  end
 end

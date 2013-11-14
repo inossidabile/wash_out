@@ -10,7 +10,7 @@ module WashOut
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
-    def initialize(soap_config, name, type, multiplied = false)
+    def initialize(soap_config, name, type, class_name, multiplied = false)
       type ||= {}
       @soap_config = soap_config
       @name       = name.to_s
@@ -34,6 +34,8 @@ module WashOut
         @type = 'struct'
         @map  = self.class.parse_def(soap_config, type)
       end
+       soap_config.complex_types = [] if soap_config.complex_types.nil?
+      soap_config.complex_types << {:obj => @map, :class =>  class_name } unless class_name.nil?
     end
 
     # Converts a generic externally derived Ruby value, such as String or
@@ -61,14 +63,14 @@ module WashOut
         end
       else
         operation = case type
-          when 'string';    :to_s
-          when 'integer';   :to_i
-          when 'double';    :to_f
-          when 'boolean';   lambda{|dat| dat === "0" ? false : !!dat}
-          when 'date';      :to_date
-          when 'datetime';  :to_datetime
-          when 'time';      :to_time
-          else raise RuntimeError, "Invalid WashOut simple type: #{type}"
+        when 'string';    :to_s
+        when 'integer';   :to_i
+        when 'double';    :to_f
+        when 'boolean';   lambda{|dat| dat === "0" ? false : !!dat}
+        when 'date';      :to_date
+        when 'datetime';  :to_datetime
+        when 'time';      :to_time
+        else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
 
         begin
@@ -133,7 +135,9 @@ module WashOut
       raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
       return [] if definition == nil
 
+      definition_class_name = nil
       if definition.is_a?(Class) && definition.ancestors.include?(WashOut::Type)
+        definition_class_name = definition.to_s.demodulize.classify
         definition = definition.wash_out_param_map
       end
 
@@ -144,11 +148,11 @@ module WashOut
       if definition.is_a? Hash
         definition.map do |name, opt|
           if opt.is_a? WashOut::Param
-            opt
+             opt
           elsif opt.is_a? Array
-            WashOut::Param.new(soap_config, name, opt[0], true)
+            WashOut::Param.new(soap_config, name, opt[0],definition_class_name,  true)
           else
-            WashOut::Param.new(soap_config, name, opt)
+            WashOut::Param.new(soap_config, name, opt, definition_class_name)
           end
         end
       else

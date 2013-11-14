@@ -96,6 +96,21 @@ module WashOut
              :content_type => 'text/xml'
     end
 
+    def _generate_doc
+
+      @map       = self.class.soap_actions
+      @namespace = soap_config.namespace
+      @name      = controller_path.gsub('/', '_')
+      @service = self.class.name.demodulize
+      @endpoint  = @namespace.gsub("/wsdl", "/action")
+      @complex_types =  soap_config.complex_types
+
+
+
+      render :template => "wash_with_html/doc", :layout => false,
+             :content_type => 'text/html'
+    end
+
     # Render a SOAP response.
     def _render_soap(result, options)
       @namespace   = soap_config.namespace
@@ -177,11 +192,11 @@ module WashOut
       controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
       controller.send :helper, :wash_out
       controller.send :before_filter, :_parse_soap_parameters, :except => [
-        :_generate_wsdl, :_invalid_action ]
+        :_generate_wsdl, :_generate_doc, :_invalid_action ]
       controller.send :before_filter, :_authenticate_wsse,     :except => [
-        :_generate_wsdl, :_invalid_action ]
+        :_generate_wsdl,:_generate_doc,:_invalid_action ]
       controller.send :before_filter, :_map_soap_parameters,   :except => [
-        :_generate_wsdl, :_invalid_action ]
+        :_generate_wsdl, :_generate_doc,:_invalid_action ]
       controller.send :skip_before_filter, :verify_authenticity_token
     end
 
