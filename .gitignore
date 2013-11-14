@@ -1,4 +1,4 @@
-.rbx/
+s.rbx/
 .bundle/
 *.gem
 .idea/
@@ -13,4 +13,4 @@ gemfiles
 coverage
 tags
 Gemfile.lock
-/nbproject/private/
+/nbproject/
