@@ -53,7 +53,7 @@ xml.p{ |y| y << "WSDL URI:";
  xml.p  "Complex Types: "
 
   xml.ul do
-      get_complex_types_names(@complex_types).each do |name|
+      get_complex_types_names(@map).each do |name|
         xml.li { |y| y <<"<a href='##{name}'><span class='pre'>#{name}</span></a>" }
       end
   end

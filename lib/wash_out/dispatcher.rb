@@ -103,7 +103,6 @@ module WashOut
       @name      = controller_path.gsub('/', '_')
       @service = self.class.name.demodulize
       @endpoint  = @namespace.gsub("/wsdl", "/action")
-      @complex_types =  soap_config.complex_types
 
 
 

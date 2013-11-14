@@ -7,6 +7,7 @@ module WashOut
     attr_accessor :multiplied
     attr_accessor :value
     attr_accessor :source_class
+    attr_accessor :source_class_name
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
@@ -17,6 +18,7 @@ module WashOut
       @raw_name   = name.to_s
       @map        = {}
       @multiplied = multiplied
+      @source_class_name = class_name
 
       if soap_config.camelize_wsdl.to_s == 'lower'
         @name = @name.camelize(:lower)
@@ -34,8 +36,6 @@ module WashOut
         @type = 'struct'
         @map  = self.class.parse_def(soap_config, type)
       end
-       soap_config.complex_types = [] if soap_config.complex_types.nil?
-      soap_config.complex_types << {:obj => @map, :class =>  class_name } unless class_name.nil?
     end
 
     # Converts a generic externally derived Ruby value, such as String or
