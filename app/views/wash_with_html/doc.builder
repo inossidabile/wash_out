@@ -47,6 +47,11 @@ xml.p{ |y| y << "WSDL URI:";
    xml.a( "href" => "#{@namespace}") { |y| y << "#{@namespace}" }
   };}
 
+unless @service_description.blank?
+	xml.h1 "#{@service}"
+	xml.p "#{@service_description}"	
+end
+
  xml.div("class" => "noprint") {
 
  xml.h2 "Index "

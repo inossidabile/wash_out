@@ -106,4 +106,37 @@ module WashOutHelper
     end
     defined.sort_by { |name| name.downcase }.uniq
   end
+
+
+  def create_html_complex_types(xml, map)
+      map.each do |operation, formats|
+        (formats[:in] + formats[:out]).each do |p|
+           unless p.source_class_name.nil?  # it is a complex type
+              create_type_html(xml, p)
+           end
+        end
+      end
+  end
+
+  def create_element_html(xml, element)
+
+  end
+
+  def create_type_html(xml, param)
+    xml.a( "name" => "#{p.source_class_name}")  { } 
+    if param.is_a?(Array)
+      xml.p  { |y| 
+          y <<"This is an array type of <span class='pre'>"; 
+          if WashOut::Type::BASIC_TYPES.include?(param[0].class.to_s.downcase)
+            xml.span ("class" => "blue") {  "#{param[0].class.to_s}" }
+          else
+            xml.a ("href" => "##{param[0].source_class_name}") { |x| x <<"<span class='lightBlue'>#{param[0].source_class_name}</span>" }
+          end
+       }
+    elsif param.is_a?(Washout::Param)
+         
+    end
+
+  end
+
 end
