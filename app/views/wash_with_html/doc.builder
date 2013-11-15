@@ -58,8 +58,8 @@ xml.html( "xmlns" => "http://www.w3.org/1999/xhtml" ) {
       xml.p  "Complex Types: "
 
       xml.ul do
-        get_complex_types_names(@map).each do |name|
-          xml.li { |y| y << "<a href='##{name}'><span class='pre'>#{name}</span></a>" }
+        get_complex_types(@map).each do |hash|
+          xml.li { |y| y << "<a href='##{hash[:class]}'><span class='pre'>#{hash[:class]}</span></a>" }
         end
       end
 

@@ -84,9 +84,14 @@ module WashOutHelper
     elsif p.type == "struct" #TODO figure out a way to avoid collissions for hashes
       complex_class = p.name.classify
     end
-    unless complex_class.nil?
+    unless complex_class.nil? && defined.blank?
       timestamp = defined.blank? ? p.timestamp : Time.now.to_i 
-      if defined.include?(complex_class) && p.type =="struct"
+
+      found = false
+      defined.each do |hash|
+        found = true if hash[:class] == complex_class
+      end
+      if found == true && p.type =="struct"
        # found a nested hash or a class
         complex_class = complex_class+timestamp.to_s
         p.timestamp = timestamp
@@ -96,23 +101,23 @@ module WashOutHelper
   end
 
 
-  def get_complex_types_names(map)
+  def get_complex_types(map)
     defined = []
     map.each do |operation, formats|
       (formats[:in] + formats[:out]).each do |p|
         complex_class = get_complex_class_name(p, defined)
-        defined << complex_class unless complex_class.nil?
+        defined << {:class =>complex_class, :obj => p} unless complex_class.nil?
         if washout_param_is_complex?(p)
           c_names = []
           p.map.each do |obj|
             complex_class = get_complex_class_name(obj, defined)
-            c_names << complex_class unless complex_class.nil?
+            defined << {:class =>complex_class, :obj => obj} unless complex_class.nil?
           end
           defined.concat(c_names)
         end
       end
     end
-    defined.sort_by { |name| name.downcase }
+    defined.sort_by { |hash| hash[:class].downcase }
   end
 
   def get_fault_types_names(map)
