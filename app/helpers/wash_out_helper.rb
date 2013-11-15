@@ -117,7 +117,7 @@ module WashOutHelper
         end
       end
     end
-    defined.sort_by { |hash| hash[:class].downcase }
+    defined.sort_by { |hash| hash[:class].downcase }.uniq
   end
 
   def get_fault_types_names(map)
