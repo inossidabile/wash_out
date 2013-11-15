@@ -3,11 +3,11 @@ xml.declare! :DOCTYPE, :html, :PUBLIC, "-//W3C//DTD XHTML 1.0 Strict//EN", "http
 
 xml.html( "xmlns" => "http://www.w3.org/1999/xhtml" ) {
 
- xml.head {
+  xml.head {
 
-  xml.title "#{@service} interface description"
+    xml.title "#{@service} interface description"
 
-  xml.style( "type"=>"text/css" ,"media" => "all" ) { xml.text! "
+    xml.style( "type"=>"text/css" ,"media" => "all" ) { xml.text! "
     body{font-family:Calibri,Arial;background-color:#fefefe;}
     .pre{font-family:Courier;}
     .normal{font-family:Calibri,Arial;}
@@ -20,83 +20,95 @@ xml.html( "xmlns" => "http://www.w3.org/1999/xhtml" ) {
     a:hover{text-decoration:underline;}
     .blue{color:#3400FF;}
     .lightBlue{color:#5491AF;}
-    "
+      "
 
-  }
+    }
 
-  xml.style( "type"=>"text/css", "media" => "print" ) { xml.text! "
+    xml.style( "type"=>"text/css", "media" => "print" ) { xml.text! "
     .noprint{display:none;}
-    "
+      "
+
+    }
+
 
   }
 
-
- }
-
-xml.body {
+  xml.body {
 
 
-xml.h1 "#{ @service} Soap WebService interface description"
+    xml.h1 "#{ @service} Soap WebService interface description"
 
-xml.p{ |y| y << "Endpoint URI:";
- xml.span( "class" => "pre") { |y| y << "#{@endpoint}"};
-}
+    xml.p{ |y| y << "Endpoint URI:";
+      xml.span( "class" => "pre") { |y| y << "#{@endpoint}"};
+    }
 
-xml.p{ |y| y << "WSDL URI:";
-  xml.span( "class" => "pre") {
-   xml.a( "href" => "#{@namespace}") { |y| y << "#{@namespace}" }
-  };}
+    xml.p{ |y| y << "WSDL URI:";
+      xml.span( "class" => "pre") {
+        xml.a( "href" => "#{@namespace}") { |y| y << "#{@namespace}" }
+      };}
 
-unless @service_description.blank?
-	xml.h1 "#{@service}"
-	xml.p "#{@service_description}"	
-end
+    unless @service_description.blank?
+      xml.h1 "#{@service}"
+      xml.p "#{@service_description}"
+    end
 
- xml.div("class" => "noprint") {
+    xml.div("class" => "noprint") {
 
- xml.h2 "Index "
- xml.p  "Complex Types: "
+      xml.h2 "Index "
+      xml.p  "Complex Types: "
 
-  xml.ul do
-      get_complex_types_names(@map).each do |name|
-        xml.li { |y| y <<"<a href='##{name}'><span class='pre'>#{name}</span></a>" }
+      xml.ul do
+        get_complex_types_names(@map).each do |name|
+          xml.li { |y| y << "<a href='##{name}'><span class='pre'>#{name}</span></a>" }
+        end
       end
-  end
 
 
- fault_types = get_fault_types_names(@map)
- unless fault_types.blank?
- xml.p  "Fault Types: "
+      @fault_types = get_fault_types_names(@map)
+      unless @fault_types.blank?
+        xml.p  "Fault Types: "
 
-  xml.ul do
-      fault_types.each do |name|
-        xml.li { |y| y <<"<a href='##{name}'><span class='pre'>#{name}</span></a>" }
+        xml.ul do
+          @fault_types.each do |name|
+            xml.li { |y| y << "<a href='##{name}'><span class='pre'>#{name}</span></a>" }
+          end
+        end
       end
-  end
-end
 
 
-methods = get_soap_action_names(@map)
- unless methods.blank?
- xml.p  "Public Methods:"
+      methods = get_soap_action_names(@map)
+      unless methods.blank?
+        xml.p  "Public Methods:"
 
-  xml.ul do
-      methods.each do |name|
-        xml.li { |y| y <<"<a href='##{name}'><span class='pre'>#{name}</span></a>" }
+        xml.ul do
+          methods.each do |name|
+            xml.li { |y| y << "<a href='##{name}'><span class='pre'>#{name}</span></a>" }
+          end
+        end
       end
-  end
-end
 
 
 
- }
+    }
+
+
+    xml.h2 "Complex types:"
+
+    #create_html_complex_types(xml, @map)
+    unless @fault_types.blank?
+      xml.h2 "Fault types:"
+      create_html_fault_types_details(xml, @map)
+    end
+
+
+
+    xml.h2 "Public methods:"
+    create_html_public_methods(xml, @map)
 
 
 
 
 
-
-
-}
+  }
 
 }

@@ -1,6 +1,23 @@
 module WashOut
   class Type
 
+
+    BASIC_TYPES=[
+    "boolean",
+    "byte",
+    "date",
+    "decimal",
+    "double",
+    "duration",
+    "dateTime",
+    "float",
+    "int",
+    "integer",
+    "number",
+    "short",
+    "string",
+    "time"
+  ]
     def self.type_name(value)
       @param_type_name = value
     end

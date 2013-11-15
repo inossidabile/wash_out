@@ -73,13 +73,28 @@ module WashOutHelper
     extend_with.merge(data)
   end
 
+
+
+  def get_complex_class_name(p)
+    if !p.source_class_name.nil?  # it is a class and has ancestor WashOut::Type
+      p.source_class_name
+    elsif p.type == "struct" && !p.source_class.blank?    # it is a class
+      p.source_class
+    elsif p.type == "struct" #TODO figure out a way to avoid collissions for hashes
+      p.name.classify
+    else
+      nil
+    end
+  end
+
   def get_complex_types_names(map)
     defined = []
     map.each do |operation, formats|
-        (formats[:in] + formats[:out]).each do |p|
-          defined << p.source_class_name unless p.source_class_name.nil?
-        end
+      (formats[:in] + formats[:out]).each do |p|
+        complex_class = get_complex_class_name(p)
+        defined << complex_class unless complex_class.nil?
       end
+    end
     defined.sort_by { |name| name.downcase }.uniq
   end
 
@@ -89,7 +104,7 @@ module WashOutHelper
       faults = formats[:raises]
       unless faults.blank?
         faults = [formats[:raises]] if !faults.is_a?(Array)
-         faults.each do |p|
+        faults.each do |p|
           defined << p.to_s.classify
         end
       end
@@ -109,34 +124,168 @@ module WashOutHelper
 
 
   def create_html_complex_types(xml, map)
-      map.each do |operation, formats|
-        (formats[:in] + formats[:out]).each do |p|
-           unless p.source_class_name.nil?  # it is a complex type
-              create_type_html(xml, p)
-           end
+    map.each do |operation, formats|
+      (formats[:in] + formats[:out]).each do |p|
+        if !p.source_class_name.nil? || (p.type == "struct" && !p.source_class.blank?) || p.type =="struct" # it is a class and has ancestor WashOut::Type
+          create_type_html(xml, p)
         end
       end
-  end
-
-  def create_element_html(xml, element)
-
-  end
-
-  def create_type_html(xml, param)
-    xml.a( "name" => "#{p.source_class_name}")  { } 
-    if param.is_a?(Array)
-      xml.p  { |y| 
-          y <<"This is an array type of <span class='pre'>"; 
-          if WashOut::Type::BASIC_TYPES.include?(param[0].class.to_s.downcase)
-            xml.span ("class" => "blue") {  "#{param[0].class.to_s}" }
-          else
-            xml.a ("href" => "##{param[0].source_class_name}") { |x| x <<"<span class='lightBlue'>#{param[0].source_class_name}</span>" }
-          end
-       }
-    elsif param.is_a?(Washout::Param)
-         
     end
+  end
 
+  # def create_element_html(xml, element)
+
+  # end
+
+  # def create_type_html(xml, param)
+  #   xml.a( "name" => "#{p.source_class_name}")  { }
+  #   if param.is_a?(Array)
+  #     xml.p  { |y|
+  #         y <<"This is an array type of <span class='pre'>";
+  #         if WashOut::Type::BASIC_TYPES.include?(param[0].class.to_s.downcase)
+  #           xml.span ("class" => "blue") {  "#{param[0].class.to_s}" }
+  #         else
+  #           xml.a ("href" => "##{param[0].source_class_name}") { |x| x <<"<span class='lightBlue'>#{param[0].source_class_name}</span>" }
+  #         end
+  #      }
+  #   elsif param.is_a?(Washout::Param)
+
+  #   end
+
+  # end
+
+  def create_html_fault_types_details(xml, map)
+    unless map.blank?
+      map.sort_by { |operation, formats| formats[:raises].to_s.downcase }.uniq
+      map.each do |operation, formats|
+        faults = formats[:raises]
+        unless faults.blank?
+          faults = [formats[:raises]] if !faults.is_a?(Array)
+          faults.each do |p|
+            create_html_fault_type(xml, p)
+          end
+        end
+      end
+    end
+  end
+
+  def create_html_fault_type(xml, param)
+
+
+  end
+
+  def create_html_public_methods(xml, map)
+    unless map.blank?
+      map =map.sort_by { |operation, formats| operation.downcase }.uniq
+
+      map.each do |operation, formats|
+        create_html_public_method(xml, operation, formats)
+      end
+    end
+  end
+
+
+
+  def create_html_public_method(xml, operation, formats)
+    # raise YAML::dump(formats[:in])
+    xml.h3 "#{operation}"
+    xml.a("name" => "#{operation}") {}
+
+    xml.p("class" => "pre"){ |pre|
+      if !formats[:out].nil?
+        if WashOut::Type::BASIC_TYPES.include?(formats[:out][0].type)
+          xml.span("class" => "blue") { |y| y<<  "#{formats[:out][0].type}" }
+        else
+          xml.a("href" => "##{formats[:out][0].type}") { |xml| xml.span("class" => "lightBlue") { |y| y<<"#{formats[:out][0].type}" } }
+        end
+      else
+        pre << "void"
+      end
+
+      xml.span("class" => "bold") {|y|  y << "#{operation} (" }
+      mlen = formats[:in].size
+      xml.br if mlen > 1
+      spacer = "&nbsp;&nbsp;&nbsp;&nbsp;"
+      if mlen > 0
+        j=0
+        while j<mlen
+          param = formats[:in][j]
+          use_spacer =  mlen > 1 ? true : false
+          if WashOut::Type::BASIC_TYPES.include?(param.type)
+            pre << "#{use_spacer ? spacer: ''}<span class='blue'>#{param.type}</span>&nbsp;<span class='bold'>#{param.name}</span>"
+          else
+            complex_class = get_complex_class_name(param)
+            unless complex_class.nil?
+              pre << "#{use_spacer ? spacer: ''}<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+            end
+          end
+          if j< (mlen-1)
+            xml.span ", "
+          end
+          if mlen > 1
+            xml.br
+          end
+          if (j+1) == mlen
+             xml.span("class" => "bold") {|y|  y << ")" }
+          end
+          j+=1
+        end
+
+      end
+
+
+
+    }
+    xml.p "#{formats[:description]}" if !formats[:description].blank?
+    xml.p "Parameters:"
+
+    xml.ul {
+      j=0
+       mlen = formats[:in].size
+       while j<mlen
+        param = formats[:in][j]
+        xml.li("class" => "pre") { |pre|
+           if WashOut::Type::BASIC_TYPES.include?(param.type)
+            pre << "<span class='blue'>#{param.type}</span>&nbsp;<span class='bold'>#{param.name}</span>"
+          else
+            complex_class = get_complex_class_name(param)
+            unless complex_class.nil?
+              pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+            end
+          end
+          }
+         j+=1
+       end
+
+    }
+
+    xml.p "Return value:"
+    xml.ul {
+      xml.li {
+     if !formats[:out].nil?
+
+        if WashOut::Type::BASIC_TYPES.include?(formats[:out][0].type)
+          xml.span("class" => "pre") { |xml| xml.span("class" => "blue") { |sp| sp << "#{formats[:out][0].type}" } }
+        else
+          xml.span("class" => "pre") { xml.a("href" => "##{formats[:out][0].type}") { |xml| xml.span("class" => "lightBlue") { |y| y<<"#{formats[:out][0].type}" } } }
+        end
+      else
+         xml.span("class" => "pre") { |sp| sp << "void" }
+      end
+
+      }
+    }
+    unless formats[:raises].blank?
+      faults = formats[:raises]
+      faults = [formats[:raises]] if !faults.is_a?(Array)
+
+      xml.p "Exceptions:"
+      xml.ul {
+        faults.each do |p|
+          xml.li("class" => "pre"){ |y| y<< "<a href='##{p.to_s.classify}'><span class='lightBlue'> #{p.to_s.classify}</span></a>" }
+        end
+      }
+    end
   end
 
 end
