@@ -87,12 +87,30 @@ module WashOutHelper
     end
   end
 
+  def get_complex_types_names_nested_param(param, defined)
+    c_names = []
+    param.each do |p|
+      complex_class = get_complex_class_name(p)
+      timestamp = Time.now.to_i
+      if defined.include?(complex_class) && param.type =="struct" && p.source_class.blank? # found a nested hash
+        complex_class = compless_class+timestamp.to_s 
+        param.timestamp = timestamp
+      end
+      c_names << complex_class unless complex_class.nil?
+    end
+    return c_names
+  end
+
   def get_complex_types_names(map)
     defined = []
     map.each do |operation, formats|
       (formats[:in] + formats[:out]).each do |p|
         complex_class = get_complex_class_name(p)
         defined << complex_class unless complex_class.nil?
+        if washout_param_is_complex?(p)
+          c_names =  get_complex_types_names_nested_param(p.map, defined)
+          defined.concat(c_names)
+        end
       end
     end
     defined.sort_by { |name| name.downcase }.uniq
@@ -123,36 +141,42 @@ module WashOutHelper
   end
 
 
+  def washout_param_is_complex?(p)
+    !p.source_class_name.nil? || (p.type == "struct" && !p.source_class.blank?) || p.type =="struct" # it is a class and has ancestor WashOut::Type
+  end
+
   def create_html_complex_types(xml, map)
     map.each do |operation, formats|
       (formats[:in] + formats[:out]).each do |p|
-        if !p.source_class_name.nil? || (p.type == "struct" && !p.source_class.blank?) || p.type =="struct" # it is a class and has ancestor WashOut::Type
+        if  washout_param_is_complex?(p)
           create_type_html(xml, p)
         end
       end
     end
   end
 
-  # def create_element_html(xml, element)
+   def create_element_html(xml, element)
 
-  # end
+  end
 
-  # def create_type_html(xml, param)
-  #   xml.a( "name" => "#{p.source_class_name}")  { }
-  #   if param.is_a?(Array)
-  #     xml.p  { |y|
-  #         y <<"This is an array type of <span class='pre'>";
-  #         if WashOut::Type::BASIC_TYPES.include?(param[0].class.to_s.downcase)
-  #           xml.span ("class" => "blue") {  "#{param[0].class.to_s}" }
-  #         else
-  #           xml.a ("href" => "##{param[0].source_class_name}") { |x| x <<"<span class='lightBlue'>#{param[0].source_class_name}</span>" }
-  #         end
-  #      }
-  #   elsif param.is_a?(Washout::Param)
+   def create_type_html(xml, param)
+    complex_class = get_complex_class_name(param)
+     xml.a( "name" => "#{complex_class}")  { }
+     if param.is_a?(Array)
+       xml.p  { |y|
+           y << "This is an array type of <span class='pre'>";
+           if WashOut::Type::BASIC_TYPES.include?(param[0].class.to_s.downcase)
+             xml.span("class" => "blue") {  "#{param[0].class.to_s}" }
+           else
+             xml.a("href" => "##{param[0].source_class_name}") { |x| x << "<span class='lightBlue'>#{param[0].source_class_name}</span>" }
+           end
+        }
+     elsif param.is_a?(WashOut::Param)
+        raise YAML::dump(param)
 
-  #   end
+     end
 
-  # end
+   end
 
   def create_html_fault_types_details(xml, map)
     unless map.blank?
