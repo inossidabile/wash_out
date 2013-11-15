@@ -84,7 +84,7 @@ module WashOutHelper
     elsif p.type == "struct" #TODO figure out a way to avoid collissions for hashes
       complex_class = p.name.classify
     end
-    if !complex_class.nil? && defined.blank?
+    if !complex_class.nil? && !defined.blank?
       timestamp = Time.now.to_i
 
       found = false
@@ -94,10 +94,11 @@ module WashOutHelper
       if found == true && p.type =="struct"
        # found a nested hash or a class
         complex_class = complex_class+timestamp.to_s
-        p.timestamp = timestamp
+        p.timestamp = timestamp.to_s
       #  raise p.inspect
       end
-    elsif !complex_class.nil? && defined.blank?
+    elsif !complex_class.nil? && defined.blank? and p.timestamp
+        complex_class = complex_class+p.timestamp
     end
 
     return complex_class
@@ -114,7 +115,6 @@ module WashOutHelper
           c_names = []
           p.map.each do |obj|
             complex_class = get_complex_class_name(obj, defined)
-            raise p.inspect if p.timestamp
             defined << {:class =>complex_class, :obj => obj} unless complex_class.nil?
           end
           defined.concat(c_names)
