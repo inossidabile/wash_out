@@ -149,34 +149,42 @@ module WashOutHelper
     !p.source_class_name.nil? || (p.type == "struct" && !p.source_class.blank?) || p.type =="struct" # it is a class and has ancestor WashOut::Type
   end
 
-  def create_html_complex_types(xml, map)
-    map.each do |operation, formats|
-      (formats[:in] + formats[:out]).each do |p|
-        if  washout_param_is_complex?(p)
-          create_type_html(xml, p)
-        end
-      end
+  def create_html_complex_types(xml, types)
+    types.each do |hash|
+      create_complex_type_html(xml, hash[:obj], hash[:class])
     end
   end
 
-  def create_element_html(xml, element)
 
-  end
 
-  def create_type_html(xml, param)
+  def create_complex_type_html(xml, param, class_name)
     complex_class = get_complex_class_name(param)
     xml.a( "name" => "#{complex_class}")  { }
-    if param.is_a?(Array)
-      xml.p  { |y|
-        y << "This is an array type of <span class='pre'>";
-        if WashOut::Type::BASIC_TYPES.include?(param[0].class.to_s.downcase)
-          xml.span("class" => "blue") {  "#{param[0].class.to_s}" }
-        else
-          xml.a("href" => "##{param[0].source_class_name}") { |x| x << "<span class='lightBlue'>#{param[0].source_class_name}</span>" }
+    xml.h3 "#{complex_class}"
+ 
+    if param.is_a?(WashOut::Param)
+      xml.ul("class" => "pre") {
+       
+        param.map.each do |element| 
+          # raise YAML::dump(element) if class_name.include?("ype") and element.name == "members"
+          xml.li { |pre|
+            if WashOut::Type::BASIC_TYPES.include?(element.type)
+            pre << "<span class='blue'>#{element.type}</span>&nbsp;<span class='bold'>#{element.name}</span>"
+          else
+            complex_class = get_complex_class_name(element)
+            unless  complex_class.nil? 
+            if  element.multiplied == false
+              pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{element.name}</span>"
+            else
+              pre << "<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}<span></a>&nbsp;<span class='bold'>#{element.name}</span>"
+            end
+            end
+          end
+          }
+
         end
+
       }
-    elsif param.is_a?(WashOut::Param)
-      raise YAML::dump(param)
 
     end
 
@@ -219,6 +227,7 @@ module WashOutHelper
     xml.h3 "#{operation}"
     xml.a("name" => "#{operation}") {}
 
+
     xml.p("class" => "pre"){ |pre|
       if !formats[:out].nil?
         if WashOut::Type::BASIC_TYPES.include?(formats[:out][0].type)
@@ -244,7 +253,11 @@ module WashOutHelper
           else
             complex_class = get_complex_class_name(param)
             unless complex_class.nil?
+              if  param.multiplied == false
               pre << "#{use_spacer ? spacer: ''}<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+            else
+              pre << "#{use_spacer ? spacer: ''}<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+            end
             end
           end
           if j< (mlen-1)
@@ -278,7 +291,11 @@ module WashOutHelper
           else
             complex_class = get_complex_class_name(param)
             unless complex_class.nil?
+               if  param.multiplied == false
               pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+            else
+              pre << "<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+            end
             end
           end
         }

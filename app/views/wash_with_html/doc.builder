@@ -56,9 +56,9 @@ xml.html( "xmlns" => "http://www.w3.org/1999/xhtml" ) {
 
       xml.h2 "Index "
       xml.p  "Complex Types: "
-
+      @complex_types =  get_complex_types(@map)
       xml.ul do
-        get_complex_types(@map).each do |hash|
+        @complex_types.each do |hash|
           xml.li { |y| y << "<a href='##{hash[:class]}'><span class='pre'>#{hash[:class]}</span></a>" }
         end
       end
@@ -94,7 +94,7 @@ xml.html( "xmlns" => "http://www.w3.org/1999/xhtml" ) {
 
     xml.h2 "Complex types:"
 
-   # create_html_complex_types(xml, @map)
+    create_html_complex_types(xml, @complex_types)
     
     unless @fault_types.blank?
       xml.h2 "Fault types:"
