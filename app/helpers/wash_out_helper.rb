@@ -84,8 +84,9 @@ module WashOutHelper
     elsif p.type == "struct" #TODO figure out a way to avoid collissions for hashes
       complex_class = p.name.classify
     end
-    unless complex_class.nil? && defined.blank?
-      timestamp = defined.blank? ? p.timestamp : Time.now.to_i 
+    unless complex_class.nil?
+      if !defined.blank?
+      timestamp =  Time.now.to_i
 
       found = false
       defined.each do |hash|
@@ -94,7 +95,10 @@ module WashOutHelper
       if found == true && p.type =="struct"
        # found a nested hash or a class
         complex_class = complex_class+timestamp.to_s
-        p.timestamp = timestamp
+        p.timestamp = timestamp.to_s
+      end
+      elsif defined.blank? and p.timestamp
+        complex_class = complex_class+p.timestamp
       end
     end
     return complex_class
@@ -161,18 +165,18 @@ module WashOutHelper
     complex_class = get_complex_class_name(param)
     xml.a( "name" => "#{complex_class}")  { }
     xml.h3 "#{complex_class}"
- 
+
     if param.is_a?(WashOut::Param)
       xml.ul("class" => "pre") {
-       
-        param.map.each do |element| 
+
+        param.map.each do |element|
           # raise YAML::dump(element) if class_name.include?("ype") and element.name == "members"
           xml.li { |pre|
             if WashOut::Type::BASIC_TYPES.include?(element.type)
             pre << "<span class='blue'>#{element.type}</span>&nbsp;<span class='bold'>#{element.name}</span>"
           else
             complex_class = get_complex_class_name(element)
-            unless  complex_class.nil? 
+            unless  complex_class.nil?
             if  element.multiplied == false
               pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{element.name}</span>"
             else
