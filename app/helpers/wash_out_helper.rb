@@ -92,7 +92,7 @@ module WashOutHelper
     param.each do |p|
       complex_class = get_complex_class_name(p)
       timestamp = Time.now.to_i
-      if defined.include?(complex_class) && param.type =="struct" && p.source_class.blank? # found a nested hash
+      if defined.include?(complex_class) && param.type =="struct"  # found a nested hash or a class
         complex_class = compless_class+timestamp.to_s 
         param.timestamp = timestamp
       end
