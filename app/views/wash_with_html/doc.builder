@@ -96,10 +96,10 @@ xml.html( "xmlns" => "http://www.w3.org/1999/xhtml" ) {
 
     create_html_complex_types(xml, @complex_types)
     
-    unless @fault_types.blank?
-      xml.h2 "Fault types:"
-      create_html_fault_types_details(xml, @map)
-    end
+    # unless @fault_types.blank?
+    #   xml.h2 "Fault types:"
+    #   create_html_fault_types_details(xml, @map)
+    # end
 
 
 

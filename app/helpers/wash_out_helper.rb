@@ -84,9 +84,8 @@ module WashOutHelper
     elsif p.type == "struct" #TODO figure out a way to avoid collissions for hashes
       complex_class = p.name.classify
     end
-    unless complex_class.nil?
-      if !defined.blank?
-      timestamp =  Time.now.to_i
+    if !complex_class.nil? && defined.blank?
+      timestamp = Time.now.to_i
 
       found = false
       defined.each do |hash|
@@ -95,12 +94,12 @@ module WashOutHelper
       if found == true && p.type =="struct"
        # found a nested hash or a class
         complex_class = complex_class+timestamp.to_s
-        p.timestamp = timestamp.to_s
+        p.timestamp = timestamp
+      #  raise p.inspect
       end
-      elsif defined.blank? and p.timestamp
-        complex_class = complex_class+p.timestamp
-      end
+    elsif !complex_class.nil? && defined.blank?
     end
+
     return complex_class
   end
 
@@ -115,6 +114,7 @@ module WashOutHelper
           c_names = []
           p.map.each do |obj|
             complex_class = get_complex_class_name(obj, defined)
+            raise p.inspect if p.timestamp
             defined << {:class =>complex_class, :obj => obj} unless complex_class.nil?
           end
           defined.concat(c_names)
@@ -194,25 +194,40 @@ module WashOutHelper
 
   end
 
-  def create_html_fault_types_details(xml, map)
-    unless map.blank?
-      map.sort_by { |operation, formats| formats[:raises].to_s.downcase }.uniq
-      map.each do |operation, formats|
-        faults = formats[:raises]
-        unless faults.blank?
-          faults = [formats[:raises]] if !faults.is_a?(Array)
-          faults.each do |p|
-            create_html_fault_type(xml, p)
-          end
-        end
-      end
-    end
-  end
+  # def create_html_fault_types_details(xml, map)
+  #   unless map.blank?
+  #     map.sort_by { |operation, formats| formats[:raises].to_s.downcase }.uniq
+  #     map.each do |operation, formats|
+  #       faults = formats[:raises]
+  #       unless faults.blank?
+  #         faults = [formats[:raises]] if !faults.is_a?(Array)
+  #         faults.each do |p|
+  #           create_html_fault_type(xml, p)
+  #         end
+  #       end
+  #     end
+  #   end
+  # end
 
-  def create_html_fault_type(xml, param)
-
-
-  end
+  # def create_html_fault_type(xml, param)
+  #   xml.h3 "#{param}"
+  #   xml.a("name" => "#{param}") {}
+  #   xml.ul {
+  #   param.new.accessible_attributes.each do |attribute|
+  #     xml.li { |pre|
+  #           if WashOut::Type::BASIC_TYPES.include?(attribute.class.name.downcase)
+  #           pre << "<span class='blue'>#{element.type}</span>&nbsp;<span class='bold'>#{element.name}</span>"
+  #         else
+  #           if  !attribute.is_a?(Array)
+  #             pre << "<a href='#'><span class='lightBlue'>#{attribute.class.name}<span></a>&nbsp;<span class='bold'>#{attribute}</span>"
+  #           else
+  #             pre << "<a href='#'><span class='lightBlue'>Array of #{attribute[0].class.name}<span></a>&nbsp;<span class='bold'>#{attribute}</span>"
+  #           end
+  #         end
+  #     }
+  #   end
+  # }
+  # end
 
   def create_html_public_methods(xml, map)
     unless map.blank?
