@@ -85,7 +85,7 @@ module WashOutHelper
       complex_class = p.name.classify
     end
     unless complex_class.nil?
-      timestamp = !defined.blank? ? Time.now.to_i : p.timestamp
+      timestamp = defined.blank? ? p.timestamp : Time.now.to_i 
       if defined.include?(complex_class) && p.type =="struct"
        # found a nested hash or a class
         complex_class = complex_class+timestamp.to_s
