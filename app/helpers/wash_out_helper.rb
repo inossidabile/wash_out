@@ -75,45 +75,44 @@ module WashOutHelper
 
 
 
-  def get_complex_class_name(p)
+  def get_complex_class_name(p, defined = [])
+    complex_class = nil
     if !p.source_class_name.nil?  # it is a class and has ancestor WashOut::Type
-      p.source_class_name
+      complex_class=  p.source_class_name
     elsif p.type == "struct" && !p.source_class.blank?    # it is a class
-      p.source_class
+      complex_class = p.source_class
     elsif p.type == "struct" #TODO figure out a way to avoid collissions for hashes
-      p.name.classify
-    else
-      nil
+      complex_class = p.name.classify
     end
+    unless complex_class.nil?
+      timestamp = !defined.blank? ? Time.now.to_i : p.timestamp
+      if defined.include?(complex_class) && p.type =="struct"
+       # found a nested hash or a class
+        complex_class = complex_class+timestamp.to_s
+        p.timestamp = timestamp
+      end
+    end
+    return complex_class
   end
 
-  def get_complex_types_names_nested_param(param, defined)
-    c_names = []
-    param.each do |p|
-      complex_class = get_complex_class_name(p)
-      timestamp = Time.now.to_i
-      if defined.include?(complex_class) && param.type =="struct"  # found a nested hash or a class
-        complex_class = compless_class+timestamp.to_s 
-        param.timestamp = timestamp
-      end
-      c_names << complex_class unless complex_class.nil?
-    end
-    return c_names
-  end
 
   def get_complex_types_names(map)
     defined = []
     map.each do |operation, formats|
       (formats[:in] + formats[:out]).each do |p|
-        complex_class = get_complex_class_name(p)
+        complex_class = get_complex_class_name(p, defined)
         defined << complex_class unless complex_class.nil?
         if washout_param_is_complex?(p)
-          c_names =  get_complex_types_names_nested_param(p.map, defined)
+          c_names = []
+          p.map.each do |obj|
+            complex_class = get_complex_class_name(obj, defined)
+            c_names << complex_class unless complex_class.nil?
+          end
           defined.concat(c_names)
         end
       end
     end
-    defined.sort_by { |name| name.downcase }.uniq
+    defined.sort_by { |name| name.downcase }
   end
 
   def get_fault_types_names(map)
@@ -155,28 +154,28 @@ module WashOutHelper
     end
   end
 
-   def create_element_html(xml, element)
+  def create_element_html(xml, element)
 
   end
 
-   def create_type_html(xml, param)
+  def create_type_html(xml, param)
     complex_class = get_complex_class_name(param)
-     xml.a( "name" => "#{complex_class}")  { }
-     if param.is_a?(Array)
-       xml.p  { |y|
-           y << "This is an array type of <span class='pre'>";
-           if WashOut::Type::BASIC_TYPES.include?(param[0].class.to_s.downcase)
-             xml.span("class" => "blue") {  "#{param[0].class.to_s}" }
-           else
-             xml.a("href" => "##{param[0].source_class_name}") { |x| x << "<span class='lightBlue'>#{param[0].source_class_name}</span>" }
-           end
-        }
-     elsif param.is_a?(WashOut::Param)
-        raise YAML::dump(param)
+    xml.a( "name" => "#{complex_class}")  { }
+    if param.is_a?(Array)
+      xml.p  { |y|
+        y << "This is an array type of <span class='pre'>";
+        if WashOut::Type::BASIC_TYPES.include?(param[0].class.to_s.downcase)
+          xml.span("class" => "blue") {  "#{param[0].class.to_s}" }
+        else
+          xml.a("href" => "##{param[0].source_class_name}") { |x| x << "<span class='lightBlue'>#{param[0].source_class_name}</span>" }
+        end
+      }
+    elsif param.is_a?(WashOut::Param)
+      raise YAML::dump(param)
 
-     end
+    end
 
-   end
+  end
 
   def create_html_fault_types_details(xml, map)
     unless map.blank?
@@ -250,7 +249,7 @@ module WashOutHelper
             xml.br
           end
           if (j+1) == mlen
-             xml.span("class" => "bold") {|y|  y << ")" }
+            xml.span("class" => "bold") {|y|  y << ")" }
           end
           j+=1
         end
@@ -265,11 +264,11 @@ module WashOutHelper
 
     xml.ul {
       j=0
-       mlen = formats[:in].size
-       while j<mlen
+      mlen = formats[:in].size
+      while j<mlen
         param = formats[:in][j]
         xml.li("class" => "pre") { |pre|
-           if WashOut::Type::BASIC_TYPES.include?(param.type)
+          if WashOut::Type::BASIC_TYPES.include?(param.type)
             pre << "<span class='blue'>#{param.type}</span>&nbsp;<span class='bold'>#{param.name}</span>"
           else
             complex_class = get_complex_class_name(param)
@@ -277,25 +276,25 @@ module WashOutHelper
               pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
             end
           end
-          }
-         j+=1
-       end
+        }
+        j+=1
+      end
 
     }
 
     xml.p "Return value:"
     xml.ul {
       xml.li {
-     if !formats[:out].nil?
+        if !formats[:out].nil?
 
-        if WashOut::Type::BASIC_TYPES.include?(formats[:out][0].type)
-          xml.span("class" => "pre") { |xml| xml.span("class" => "blue") { |sp| sp << "#{formats[:out][0].type}" } }
+          if WashOut::Type::BASIC_TYPES.include?(formats[:out][0].type)
+            xml.span("class" => "pre") { |xml| xml.span("class" => "blue") { |sp| sp << "#{formats[:out][0].type}" } }
+          else
+            xml.span("class" => "pre") { xml.a("href" => "##{formats[:out][0].type}") { |xml| xml.span("class" => "lightBlue") { |y| y<<"#{formats[:out][0].type}" } } }
+          end
         else
-          xml.span("class" => "pre") { xml.a("href" => "##{formats[:out][0].type}") { |xml| xml.span("class" => "lightBlue") { |y| y<<"#{formats[:out][0].type}" } } }
+          xml.span("class" => "pre") { |sp| sp << "void" }
         end
-      else
-         xml.span("class" => "pre") { |sp| sp << "void" }
-      end
 
       }
     }
