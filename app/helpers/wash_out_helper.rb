@@ -155,7 +155,7 @@ module WashOutHelper
   end
 
   def create_html_complex_type_validation_errors(xml)
-    xml.a( "name" => "#ValidationErrors")  { }
+    xml.a( "name" => "ValidationErrors")  { }
     xml.h3 "ValidationErrors"
 
     xml.ul("class" => "pre") {
