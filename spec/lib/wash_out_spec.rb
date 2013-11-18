@@ -275,7 +275,7 @@ describe WashOut do
           end
         end
 
-        savon(:rumba)[:rumba_response].should == {:value => ["1", "2", "3"]}
+        savon(:rumba)[:rumba_response].should == {:value => [1, 2, 3]}
       end
 
       it "respond with complex structures inside arrays" do
@@ -344,7 +344,7 @@ describe WashOut do
             end
           end
 
-          savon(:rocknroll)[:rocknroll_response].should be_nil
+          savon(:rocknroll)[:rocknroll_response].should eq({:my_value=>{:"@xsi:type"=>"xsd:int"}})
         end
 
         it "respond with complext definition" do
@@ -356,7 +356,7 @@ describe WashOut do
             end
           end
 
-          savon(:rocknroll)[:rocknroll_response].should be_nil
+          savon(:rocknroll)[:rocknroll_response].should eq({:my_value=>{:"@xsi:type"=>"tns:MyValue"}})
         end
 
         it "respond with nested simple definition" do
