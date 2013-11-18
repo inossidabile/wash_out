@@ -3,19 +3,13 @@ module WashOut
 
 
     BASIC_TYPES=[
+     "string",
+     "integer",
+     "double",
     "boolean",
-    "byte",
     "date",
-    "decimal",
-    "double",
-    "duration",
-    "dateTime",
+    "datetime",
     "float",
-    "int",
-    "integer",
-    "number",
-    "short",
-    "string",
     "time"
   ]
     def self.type_name(value)

@@ -176,6 +176,12 @@ module WashOut
       render_soap_error(error.message)
     end
 
+    def _render_soap_fault_exception(error)
+      render :template => "wash_with_soap/#{soap_config.wsdl_style}/custom_error", :status => 500,
+             :layout => false,
+             :locals => { :error_message => error.message, :error_faultcode => error.faultCode, :errors => error.errors },
+             :content_type => 'text/xml'
+    end
     # Render a SOAP error response.
     #
     # Rails do not support sequental rescue_from handling, that is, rescuing an
@@ -197,6 +203,17 @@ module WashOut
       controller.send :before_filter, :_map_soap_parameters,   :except => [
         :_generate_wsdl, :_generate_doc,:_invalid_action ]
       controller.send :skip_before_filter, :verify_authenticity_token
+      controller.send :around_filter, :_catch_soap_faults
+    end
+
+    def _catch_soap_faults
+        yield
+  rescue => exception
+    if exception.class <= WashOut::SoapFault
+      _render_soap_fault_exception(exception)
+    else
+      raise exception
+    end
     end
 
     def self.deep_select(hash, result=[], &blk)

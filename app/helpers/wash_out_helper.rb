@@ -178,9 +178,9 @@ module WashOutHelper
             complex_class = get_complex_class_name(element)
             unless  complex_class.nil?
             if  element.multiplied == false
-              pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{element.name}</span>"
+              pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}</span></a>&nbsp;<span class='bold'>#{element.name}</span>"
             else
-              pre << "<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}<span></a>&nbsp;<span class='bold'>#{element.name}</span>"
+              pre << "<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}</span></a>&nbsp;<span class='bold'>#{element.name}</span>"
             end
             end
           end
@@ -194,40 +194,42 @@ module WashOutHelper
 
   end
 
-  # def create_html_fault_types_details(xml, map)
-  #   unless map.blank?
-  #     map.sort_by { |operation, formats| formats[:raises].to_s.downcase }.uniq
-  #     map.each do |operation, formats|
-  #       faults = formats[:raises]
-  #       unless faults.blank?
-  #         faults = [formats[:raises]] if !faults.is_a?(Array)
-  #         faults.each do |p|
-  #           create_html_fault_type(xml, p)
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
+   def create_html_fault_types_details(xml, map)
+     unless map.blank?
+       map.sort_by { |operation, formats| formats[:raises].to_s.downcase }.uniq
+       map.each do |operation, formats|
+         faults = formats[:raises]
+         unless faults.blank?
+           faults = [formats[:raises]] if !faults.is_a?(Array)
+           faults.each do |p|
+             create_html_fault_type(xml, p)
+           end
+         end
+       end
+     end
+   end
 
-  # def create_html_fault_type(xml, param)
-  #   xml.h3 "#{param}"
-  #   xml.a("name" => "#{param}") {}
-  #   xml.ul {
-  #   param.new.accessible_attributes.each do |attribute|
-  #     xml.li { |pre|
-  #           if WashOut::Type::BASIC_TYPES.include?(attribute.class.name.downcase)
-  #           pre << "<span class='blue'>#{element.type}</span>&nbsp;<span class='bold'>#{element.name}</span>"
-  #         else
-  #           if  !attribute.is_a?(Array)
-  #             pre << "<a href='#'><span class='lightBlue'>#{attribute.class.name}<span></a>&nbsp;<span class='bold'>#{attribute}</span>"
-  #           else
-  #             pre << "<a href='#'><span class='lightBlue'>Array of #{attribute[0].class.name}<span></a>&nbsp;<span class='bold'>#{attribute}</span>"
-  #           end
-  #         end
-  #     }
-  #   end
-  # }
-  # end
+   def create_html_fault_type(xml, param)
+     xml.h3 "#{param}"
+     xml.a("name" => "#{param}") {}
+     xml.ul {
+       if param.ancestors.include?(WashOut::SoapFault)
+
+         param.accessible_attributes.each do |attribute|
+         xml.li { |pre|
+            if WashOut::Type::BASIC_TYPES.include?(attribute.class.name.downcase) && attribute != "errors"
+            pre << "<span class='blue'>#{attribute.class.name.downcase}</span>&nbsp;<span class='bold'>#{attribute}</span>"
+            elsif attribute == "errors"
+              pre << "<a href='#ValidationErrors'><span class='lightBlue'>Array of ValidationErrors</span></a>&nbsp;<span class='bold'>#{attribute}</span>"
+            else
+               pre << "<a href='##{attribute.class.name}'><span class='lightBlue'>#{attribute.class.name}</span></a>&nbsp;<span class='bold'>#{attribute}</span>"
+             end
+         }
+         end
+         xml.li { |pre| pre << "<span class='blue'>string</span>&nbsp;<span class='bold'>backtrace</span>" }
+       end
+     }
+   end
 
   def create_html_public_methods(xml, map)
     unless map.blank?
@@ -273,9 +275,9 @@ module WashOutHelper
             complex_class = get_complex_class_name(param)
             unless complex_class.nil?
               if  param.multiplied == false
-              pre << "#{use_spacer ? spacer: ''}<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+              pre << "#{use_spacer ? spacer: ''}<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}</span></a>&nbsp;<span class='bold'>#{param.name}</span>"
             else
-              pre << "#{use_spacer ? spacer: ''}<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+              pre << "#{use_spacer ? spacer: ''}<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}</span></a>&nbsp;<span class='bold'>#{param.name}</span>"
             end
             end
           end
@@ -311,9 +313,9 @@ module WashOutHelper
             complex_class = get_complex_class_name(param)
             unless complex_class.nil?
                if  param.multiplied == false
-              pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+              pre << "<a href='##{complex_class}'><span class='lightBlue'>#{complex_class}</span></a>&nbsp;<span class='bold'>#{param.name}</span>"
             else
-              pre << "<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}<span></a>&nbsp;<span class='bold'>#{param.name}</span>"
+              pre << "<a href='##{complex_class}'><span class='lightBlue'>Array of #{complex_class}</span></a>&nbsp;<span class='bold'>#{param.name}</span>"
             end
             end
           end

@@ -1,3 +1,4 @@
+require 'wash_out/soap_fault'
 require 'wash_out/configurable'
 require 'wash_out/soap_config'
 require 'wash_out/soap'
