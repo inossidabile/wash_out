@@ -105,24 +105,36 @@ module WashOutHelper
   end
 
 
+  def get_nested_complex_types(param, defined)
+    defined = [] if defined.blank?
+    complex_class = get_complex_class_name(param, defined)
+    defined << {:class =>complex_class, :obj => param} unless complex_class.nil?
+    if washout_param_is_complex?(param)
+      c_names = []
+      param.map.each do |obj|
+        nested = get_nested_complex_types(obj, defined)
+        nested.each  do |hash|
+          c_names << hash
+        end
+      end
+      defined.concat(c_names)
+    end
+    defined.sort_by { |hash| hash[:class].downcase }.uniq unless defined.blank?
+  end
+
+
   def get_complex_types(map)
     defined = []
     map.each do |operation, formats|
       (formats[:in] + formats[:out]).each do |p|
-        complex_class = get_complex_class_name(p, defined)
-        defined << {:class =>complex_class, :obj => p} unless complex_class.nil?
-        if washout_param_is_complex?(p)
-          c_names = []
-          p.map.each do |obj|
-            complex_class = get_complex_class_name(obj, defined)
-            defined << {:class =>complex_class, :obj => obj} unless complex_class.nil?
-          end
-          defined.concat(c_names)
+        nested = get_nested_complex_types(p, defined)
+        nested.each  do |hash|
+          defined << hash
         end
       end
     end
     defined <<  {:class =>"ValidationErrors", :obj => nil} unless get_fault_types_names(map).blank?
-    defined.sort_by { |hash| hash[:class].downcase }.uniq unless defined.blank?
+  defined.sort_by { |hash| hash[:class].downcase }.uniq unless defined.blank?
   end
 
   def get_fault_types_names(map)
