@@ -90,6 +90,37 @@ describe WashOut do
   describe "Dispatcher" do
 
     context "simple actions" do
+      it "accepts requests with no HTTP header" do
+        mock_controller do
+          soap_action "answer", :args => nil, :return => :int
+          def answer
+            render :soap => "42"
+          end
+        end
+
+        request = <<-XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Body>
+            <tns:answer>
+              <value>42</value>
+            </tns:answer>
+          </env:Body>
+          </env:Envelope>
+        XML
+
+        HTTPI.post("http://app/api/action", request).body.should == <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
+  <soap:Body>
+    <tns:answerResponse>
+      <Value xsi:type="xsd:int">42</Value>
+    </tns:answerResponse>
+  </soap:Body>
+</soap:Envelope>
+        XML
+      end
+
       it "accept no parameters" do
         mock_controller do
           soap_action "answer", :args => nil, :return => :int
@@ -275,7 +306,7 @@ describe WashOut do
           end
         end
 
-        savon(:rumba)[:rumba_response].should == {:value => [1, 2, 3]}
+        savon(:rumba)[:rumba_response].should == {:value => ["1", "2", "3"]}
       end
 
       it "respond with complex structures inside arrays" do
@@ -344,7 +375,7 @@ describe WashOut do
             end
           end
 
-          savon(:rocknroll)[:rocknroll_response].should eq({:my_value=>{:"@xsi:type"=>"xsd:int"}})
+          savon(:rocknroll)[:rocknroll_response].should be_nil
         end
 
         it "respond with complext definition" do
@@ -356,7 +387,7 @@ describe WashOut do
             end
           end
 
-          savon(:rocknroll)[:rocknroll_response].should eq({:my_value=>{:"@xsi:type"=>"tns:MyValue"}})
+          savon(:rocknroll)[:rocknroll_response].should be_nil
         end
 
         it "respond with nested simple definition" do
@@ -419,6 +450,19 @@ describe WashOut do
 
         savon(:date, :value => '2000-12-30')
         lambda { savon(:date) }.should_not raise_exception
+      end
+
+      it "recognize base64Binary" do
+        mock_controller do
+          soap_action "base64", :args => :base64Binary, :return => :nil
+          def base64
+            params[:value].should == 'test' unless params[:value].blank?
+            render :soap => nil
+          end
+        end
+
+        savon(:base64, :value => Base64.encode64('test'))
+        lambda { savon(:base64) }.should_not raise_exception
       end
     end
 
