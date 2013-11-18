@@ -221,24 +221,31 @@ module WashOutHelper
   end
 
   def create_html_fault_types_details(xml, map)
+    defined = []
     unless map.blank?
-      map.sort_by { |operation, formats| formats[:raises].to_s.downcase }.uniq
+     map =  map.sort_by { |operation, formats| formats[:raises].to_s.downcase }.uniq
       map.each do |operation, formats|
         faults = formats[:raises]
         unless faults.blank?
           faults = [formats[:raises]] if !faults.is_a?(Array)
           faults.each do |p|
-            create_html_fault_type(xml, p)
+            defined << p
           end
         end
       end
+    end
+    unless defined.blank?
+   defined =  defined.sort_by { |name| name.to_s.downcase }.uniq
+     defined.each do |fault|
+       create_html_fault_type(xml, fault)
+     end
     end
   end
 
   def create_html_fault_type(xml, param)
     xml.h3 "#{param}"
     xml.a("name" => "#{param}") {}
-    xml.ul {
+    xml.ul("class" => "pre") {
       if param.ancestors.include?(WashOut::SoapFault)
 
         param.accessible_attributes.each do |attribute|
