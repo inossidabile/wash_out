@@ -7,7 +7,10 @@ module WashOut
     # response.
     class SOAPError < Exception
       attr_accessor :code
-      def initialize(message, code=nil); @code = code; end
+      def initialize(message, code=nil)
+        super(message)
+        @code = code
+      end
     end
 
     class ProgrammerError < Exception; end
