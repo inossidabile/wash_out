@@ -22,7 +22,7 @@ module WashOut
       map
     end
 
-    def wash_out_param_name
+    def wash_out_param_name(*args)
       return name.underscore
     end
   end
