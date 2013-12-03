@@ -507,6 +507,19 @@ describe WashOut do
         lambda { savon(:error, :need_error => true) }.should raise_exception(Savon::SOAPFault)
       end
 
+      it "misses basic exceptions" do
+        mock_controller do
+          soap_action "error", :args => { :need_error => :boolean }, :return => nil
+          def error
+            raise self.class.const_get(:Exception), "you wanted one" if params[:need_error]
+            render :soap => nil
+          end
+        end
+
+        lambda { savon(:error, :need_error => false) }.should_not raise_exception
+        lambda { savon(:error, :need_error => true) }.should raise_exception(Exception)
+      end
+
       it "raise for manual throws" do
         mock_controller do
           soap_action "error", :args => nil, :return => nil

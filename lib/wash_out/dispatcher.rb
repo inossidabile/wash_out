@@ -145,7 +145,9 @@ module WashOut
       render_soap_error("Cannot find SOAP action mapping for #{request.env['wash_out.soap_action']}")
     end
 
-    def _render_soap_exception(error)
+    def _catch_soap_errors
+      yield
+    rescue SOAPError => error
       render_soap_error(error.message, error.code)
     end
 
@@ -161,7 +163,7 @@ module WashOut
     end
 
     def self.included(controller)
-      controller.send :rescue_from, SOAPError, :with => :_render_soap_exception
+      controller.send :around_filter, :_catch_soap_errors
       controller.send :helper, :wash_out
       controller.send :before_filter, :_authenticate_wsse,     :except => [
         :_generate_wsdl, :_invalid_action ]
