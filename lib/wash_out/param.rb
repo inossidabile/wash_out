@@ -40,7 +40,7 @@ module WashOut
     # Hash, to a native Ruby object according to the definition of this type.
     def load(data, key)
       if !data.has_key? key
-        raise WashOut::Dispatcher::SOAPError, "Required SOAP parameter '#{key}' is missing"
+        raise WashOut::SOAPError, "Required SOAP parameter '#{key}' is missing"
       end
 
       data = data[key]
@@ -84,7 +84,7 @@ module WashOut
             operation.call(data)
           end
         rescue
-          raise WashOut::Dispatcher::SOAPError, "Invalid SOAP parameter '#{key}' format"
+          raise WashOut::SOAPError, "Invalid SOAP parameter '#{key}' format"
         end
       end
     end
@@ -168,7 +168,7 @@ module WashOut
     # Used to load an entire structure.
     def map_struct(data)
       unless data.is_a?(Hash)
-        raise WashOut::Dispatcher::SOAPError, "SOAP message structure is broken"
+        raise WashOut::SOAPError, "SOAP message structure is broken"
       end
 
       data   = data.with_indifferent_access

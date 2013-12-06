@@ -2,21 +2,72 @@ module WashOut
   # The WashOut::Dispatcher module should be included in a controller acting
   # as a SOAP endpoint. It includes actions for generating WSDL and handling
   # SOAP requests.
-  module Dispatcher
-    # A SOAPError exception can be raised to return a correct SOAP error
-    # response.
-    class SOAPError < Exception
-      attr_accessor :code
-      def initialize(message, code=nil)
-        super(message)
-        @code = code
+  module Dispatcher extend ActiveSupport::Concern
+
+    module ClassMethods
+      def soap_config=(obj)
+        class_variable_set :@@soap_config, OpenStruct.new(
+          WashOut::Engine.config.wash_out.merge obj
+        )
+      end
+
+      # Define a SOAP action +action+. The function has two required +options+:
+      # :args and :return. Each is a type +definition+ of format described in
+      # WashOut::Param#parse_def.
+      #
+      # An optional option :to can be passed to allow for names of SOAP actions
+      # which are not valid Ruby function names.
+      def soap_action(action, options={})
+        if action.is_a?(Symbol)
+          if soap_config.camelize_wsdl.to_s == 'lower'
+            options[:to] ||= action.to_s
+            action         = action.to_s.camelize(:lower)
+          elsif soap_config.camelize_wsdl
+            options[:to] ||= action.to_s
+            action         = action.to_s.camelize
+          end
+
+        end
+
+        default_response_tag = soap_config.camelize_wsdl ? 'Response' : '_response'
+        default_response_tag = "tns:#{action}#{default_response_tag}"
+
+        self.soap_actions[action] = options.merge(
+          :in           => WashOut::Param.parse_def(soap_config, options[:args]),
+          :out          => WashOut::Param.parse_def(soap_config, options[:return]),
+          :to           => options[:to] || action,
+          :response_tag => options[:response_tag] || default_response_tag
+        )
       end
     end
 
-    class ProgrammerError < Exception; end
+    included do
+      helper :wash_out
+
+      around_filter :_catch_soap_errors
+      before_filter :_authenticate_wsse,   :except => [ :_generate_wsdl, :_invalid_action ]
+      before_filter :_map_soap_parameters, :except => [ :_generate_wsdl, :_invalid_action ]
+
+      skip_before_filter :verify_authenticity_token
+
+      cattr_reader   :soap_config
+      cattr_accessor :soap_actions
+
+      self.soap_actions = {}
+    end
+
+    # Render a SOAP error response.
+    #
+    # Rails do not support sequental rescue_from handling, that is, rescuing an
+    # exception from a rescue_from handler. Hence this function is a public API.
+    def render_soap_error(message, code=nil)
+      render :template => "wash_with_soap/#{soap_config.wsdl_style}/error", :status => 500,
+             :layout => false,
+             :locals => { :error_message => message, :error_code => (code || 'Server') },
+             :content_type => 'text/xml'
+    end
 
     def _authenticate_wsse
-
       begin
         xml_security   = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
         xml_security   = xml_security.values_at(:header, :Header).compact.first
@@ -100,7 +151,7 @@ module WashOut
           result_spec[i] = param.flat_copy
 
           unless data.is_a?(Hash)
-            raise ProgrammerError,
+            raise WashOut::ProgrammerError,
               "SOAP response used #{data.inspect} (which is #{data.class.name}), " +
               "in the context where a Hash with key of '#{param.raw_name}' " +
               "was expected."
@@ -110,7 +161,7 @@ module WashOut
 
           unless value.nil?
             if param.multiplied && !value.is_a?(Array)
-              raise ProgrammerError,
+              raise WashOut::ProgrammerError,
                 "SOAP response tried to use '#{value.inspect}' " +
                 "(which is of type #{value.class.name}), as the value for " +
                 "'#{param.raw_name}' (which expects an Array)."
@@ -147,29 +198,8 @@ module WashOut
 
     def _catch_soap_errors
       yield
-    rescue SOAPError => error
+    rescue WashOut::SOAPError => error
       render_soap_error(error.message, error.code)
-    end
-
-    # Render a SOAP error response.
-    #
-    # Rails do not support sequental rescue_from handling, that is, rescuing an
-    # exception from a rescue_from handler. Hence this function is a public API.
-    def render_soap_error(message, code=nil)
-      render :template => "wash_with_soap/#{soap_config.wsdl_style}/error", :status => 500,
-             :layout => false,
-             :locals => { :error_message => message, :error_code => (code || 'Server') },
-             :content_type => 'text/xml'
-    end
-
-    def self.included(controller)
-      controller.send :around_filter, :_catch_soap_errors
-      controller.send :helper, :wash_out
-      controller.send :before_filter, :_authenticate_wsse,     :except => [
-        :_generate_wsdl, :_invalid_action ]
-      controller.send :before_filter, :_map_soap_parameters,   :except => [
-        :_generate_wsdl, :_invalid_action ]
-      controller.send :skip_before_filter, :verify_authenticity_token
     end
 
     def self.deep_select(hash, result=[], &blk)

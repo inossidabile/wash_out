@@ -5,14 +5,14 @@ module WashOut
       wsse = self.new(soap_config, token)
 
       unless wsse.eligible?
-        raise WashOut::Dispatcher::SOAPError, "Unauthorized"
+        raise WashOut::SOAPError, "Unauthorized"
       end
     end
 
     def initialize(soap_config, token)
       @soap_config = soap_config
       if token.blank? && required?
-        raise WashOut::Dispatcher::SOAPError, "Missing required UsernameToken"
+        raise WashOut::SOAPError, "Missing required UsernameToken"
       end
       @username_token = token
     end

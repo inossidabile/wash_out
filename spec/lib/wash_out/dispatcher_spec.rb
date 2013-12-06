@@ -54,7 +54,7 @@ describe WashOut::Dispatcher do
 
   describe "#_load_params" do
     let(:dispatcher) { Dispatcher.new }
-    let(:soap_config) { WashOut::SoapConfig.new({ camelize_wsdl: false }) }
+    let(:soap_config) { OpenStruct.new(camelize_wsdl: false) }
     it "should load params for an array" do
       spec = WashOut::Param.parse_def(soap_config, {:my_array => [:integer] } )
       xml_data = {:my_array => [1, 2, 3]}
