@@ -54,10 +54,10 @@ def mock_controller(options = {}, &block)
   Object.send :const_set, :ApiController, Class.new(ApplicationController) {
     soap_service options.reverse_merge({
       snakecase_input: true,
-      camelize_wsdl: true,
-      namespace: false
+      camelize_wsdl:   true,
+      namespace:       false
     })
-    class_exec &block if block
+    class_exec(&block) if block_given?
   }
 
   ActiveSupport::Dependencies::Reference.instance_variable_get(:'@store').delete('ApiController')

@@ -57,7 +57,7 @@ module WashOut
       # Render a SOAP error response.
       #
       def render_soap_error(message, code=nil)
-        render :template => "wash_with_soap/#{soap_config.wsdl_style}/error", :status => 500,
+        render :template => "wash_out/#{soap_config.wsdl_style}/error", :status => 500,
                :layout => false,
                :locals => { :error_message => message, :error_code => (code || 'Server') },
                :content_type => 'text/xml'
@@ -125,7 +125,7 @@ module WashOut
         @namespace = soap_config.namespace
         @name      = controller_path.gsub('/', '_')
 
-        render :template => "wash_with_soap/#{soap_config.wsdl_style}/wsdl", :layout => false,
+        render :template => "wash_out/#{soap_config.wsdl_style}/wsdl", :layout => false,
                :content_type => 'text/xml'
       end
 
@@ -180,7 +180,7 @@ module WashOut
           return result_spec
         }
 
-        render :template => "wash_with_soap/#{soap_config.wsdl_style}/response",
+        render :template => "wash_out/#{soap_config.wsdl_style}/response",
                :layout => false,
                :locals => { :result => inject.call(result, @action_spec[:out]) },
                :content_type => 'text/xml'
