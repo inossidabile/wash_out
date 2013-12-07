@@ -27,7 +27,7 @@ RSpec.configure do |config|
 
   config.mock_with :rspec
   config.before(:all) do
-    WashOut::Engine.config.wash_out = WashOut::Engine.defaults
+    WashOut::Rails::Engine.config.wash_out = WashOut::Rails::Engine.defaults
   end
 
   config.after(:suite) do

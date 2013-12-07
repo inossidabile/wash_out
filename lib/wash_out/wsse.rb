@@ -1,6 +1,8 @@
 module WashOut
   class Wsse
+
     attr_reader :soap_config
+
     def self.authenticate(soap_config, token)
       wsse = self.new(soap_config, token)
 

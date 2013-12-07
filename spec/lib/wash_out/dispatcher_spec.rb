@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe WashOut::Dispatcher do
+describe WashOut::Rails::Controller do
 
   class Dispatcher < ApplicationController
     soap_service
@@ -13,13 +13,13 @@ describe WashOut::Dispatcher do
   end
 
   it "finds nested hashes" do
-    WashOut::Dispatcher.deep_select(:foo => 1){|k,v| k == :foo}.should == [1]
-    WashOut::Dispatcher.deep_select({:foo => {:foo => 1}}){|k,v| k == :foo}.should == [{:foo => 1}, 1]
+    WashOut::Middlewares::Router.deep_select(:foo => 1){|k,v| k == :foo}.should == [1]
+    WashOut::Middlewares::Router.deep_select({:foo => {:foo => 1}}){|k,v| k == :foo}.should == [{:foo => 1}, 1]
   end
 
   it "replaces nested hashed" do
-    WashOut::Dispatcher.deep_replace_href({:foo => {:@href => 1}}, {1 => 2}).should == {:foo => 2}
-    WashOut::Dispatcher.deep_replace_href({:bar => {:foo => {:@href => 1}}}, {1 => 2}).should == {:bar => {:foo => 2}}
+    WashOut::Middlewares::Router.deep_replace_href({:foo => {:@href => 1}}, {1 => 2}).should == {:foo => 2}
+    WashOut::Middlewares::Router.deep_replace_href({:bar => {:foo => {:@href => 1}}}, {1 => 2}).should == {:bar => {:foo => 2}}
   end
 
   xit "parses typical request" do
