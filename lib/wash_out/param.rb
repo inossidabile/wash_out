@@ -13,10 +13,16 @@ module WashOut
     def initialize(soap_config, name, type, multiplied = false)
       type ||= {}
       @soap_config = soap_config
-      @name       = WashOut.normalize(name, soap_config)
+      @name       = name.to_s
       @raw_name   = name.to_s
       @map        = {}
       @multiplied = multiplied
+
+      if soap_config.camelize_wsdl.to_s == 'lower'
+        @name = @name.camelize(:lower)
+      elsif soap_config.camelize_wsdl
+        @name = @name.camelize
+      end
 
       if type.is_a?(Symbol)
         @type = type.to_s
@@ -24,11 +30,9 @@ module WashOut
         @type         = 'struct'
         @map          = self.class.parse_def(soap_config, type.wash_out_param_map)
         @source_class = type
-      elsif type.is_a?(Hash)
+      else
         @type = 'struct'
         @map  = self.class.parse_def(soap_config, type)
-      else
-        raise RuntimeError, "Wrong definition: #{type.inspect}"
       end
     end
 
@@ -130,16 +134,26 @@ module WashOut
       raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
       return [] if definition == nil
 
-      definition = { :value => definition } unless definition.is_a?(Hash)
+      if definition.is_a?(Class) && definition.ancestors.include?(WashOut::Type)
+        definition = definition.wash_out_param_map
+      end
 
-      definition.map do |name, opt|
-        if opt.is_a? WashOut::Param
-          opt
-        elsif opt.is_a? Array
-          WashOut::Param.new(soap_config, name, opt[0], true)
-        else
-          WashOut::Param.new(soap_config, name, opt)
+      if [Array, Symbol].include?(definition.class)
+        definition = { :value => definition }
+      end
+
+      if definition.is_a? Hash
+        definition.map do |name, opt|
+          if opt.is_a? WashOut::Param
+            opt
+          elsif opt.is_a? Array
+            WashOut::Param.new(soap_config, name, opt[0], true)
+          else
+            WashOut::Param.new(soap_config, name, opt)
+          end
         end
+      else
+        raise RuntimeError, "Wrong definition: #{definition.inspect}"
       end
     end
 
