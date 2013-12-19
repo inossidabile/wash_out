@@ -4,346 +4,90 @@ require 'spec_helper'
 
 describe WashOut do
 
-  let(:nori) do
+  let :nori do
     Nori.new(
-      strip_namespaces:     true,
-      advanced_typecasting: true,
-      convert_tags_to:      lambda { |x| x.snakecase.to_sym }
+      :strip_namespaces => true,
+      :advanced_typecasting => true,
+      :convert_tags_to => lambda {|x| x.snakecase.to_sym}
     )
   end
 
-  def savon(method, message={}, log=false, &block)
-    message = {value: message} unless message.is_a?(Hash)
+  def savon(method, message={}, &block)
+    message = {:value => message} unless message.is_a?(Hash)
 
-    savon = Savon::Client.new(log: log, wsdl: 'http://app/api/wsdl', &block)
-    savon.call(method, message: message).to_hash
+    savon = Savon::Client.new(:log => false, :wsdl => 'http://app/api/wsdl', &block)
+    savon.call(method, :message => message).to_hash
   end
 
   def savon!(method, message={}, &block)
-    savon(method, message, true, &block)
+    message = {:value => message} unless message.is_a?(Hash)
+
+    savon = Savon::Client.new(:log => true, :wsdl => 'http://app/api/wsdl', &block)
+    savon.call(method, :message => message).to_hash
+  end
+
+  describe "Module" do
+    it "includes" do
+      lambda {
+        mock_controller do
+          # nothing
+        end
+      }.should_not raise_exception
+    end
+
+    it "allows definition of a simple action" do
+      lambda {
+        mock_controller do
+          soap_action "answer", :args => nil, :return => :integer
+        end
+      }.should_not raise_exception
+    end
   end
 
   describe "WSDL" do
-    let(:wsdl) do
+    let :wsdl do
+      mock_controller do
+        soap_action :result, :args => nil, :return => :int
+
+        soap_action "getArea", :args => {
+          :circle => [{
+            :center => { :x => [:integer], :y => :integer },
+            :radius => :double
+          }]},
+          :return => { :area => :double }
+        soap_action "rocky", :args   => { :circle1 => { :x => :integer } },
+                             :return => { :circle2 => { :y => :integer } }
+      end
+
       HTTPI.get("http://app/api/wsdl").body
     end
 
-    let(:xml) do
+    let :xml do
       nori.parse wsdl
     end
 
-    context "Definitions" do
-      it "of complex types" do
-        mock_controller do
-          soap_action "rocky", args:   { circle1: { x: :integer } },
-                               return: { circle2: { y: :integer } }
-        end
+    it "lists operations" do
+      operations = xml[:definitions][:binding][:operation]
+      operations.should be_a_kind_of(Array)
 
-        wsdl.include?('<xsd:complexType name="Circle1">').should == true
-      end
-
-      it "of arrays" do
-        mock_controller do
-          soap_action "getArea", args: {
-            circle: [{
-              center: { x: [:integer], y: :integer },
-              radius: :double
-            }]},
-            return: { area: :double }
-        end
-
-        x = xml[:definitions][:types][:schema][:complex_type].
-          find{|x| x[:'@name'] == 'Center'}[:sequence][:element].
-          find{|x| x[:'@name'] == 'X'}
-
-        x[:'@min_occurs'].should == "0"
-        x[:'@max_occurs'].should == "unbounded"
-      end
+      operations.map{|e| e[:'@name']}.sort.should == ['Result', 'getArea', 'rocky'].sort
     end
 
-    context "Method Listing" do
-      let(:wsdl) do
-        type = Class.new(WashOut::Type) do
-          def self.name; 'Rozmarin'; end
-
-          map(
-            :complex_type_symbol  => :integer,
-            'complex_type_string' => :integer
-          )
-        end
-
-        mock_controller(options) do
-          soap_action :basic, args: :integer, return: nil
-          soap_action :complex_symbol_name, args: :integer, return: nil
-
-          soap_action "complex_string_name", args: :integer, return: nil
-
-          soap_action :complex_arguments, args: {
-              :complex_symbol  => { complex_inline_symbol: :integer },
-              'complex_string' => { 'complex_inline_string' => :integer }
-            },
-            return: {
-              complex_return: {
-                :complex_inline_return_symbol  => :integer,
-                'complex_inline_return_string' => :integer
-              }
-            }
-
-          soap_action :type_arguments, args: type, return: nil
-        end
-
-        HTTPI.get("http://app/api/wsdl").body
-      end
-
-      let(:operations) { xml[:definitions][:binding][:operation].map { |e| e[:'@name'] }.sort }
-      let(:arguments) do
-        convert = Proc.new do |data|
-          if data[:sequence]
-            {
-              data[:@name] => Array.wrap(data[:sequence][:element]).map do |e|
-                convert.call(e)
-              end
-            }
-          else
-            data[:@name]
-          end
-        end
-
-        xml[:definitions][:types][:schema][:complex_type].map do |entry|
-          convert.call entry
-        end
-      end
-
-      subject { operations }
-
-      context "Without converters" do
-        let(:options) do
-          { camelize_wsdl: false }
-        end
-
-        it do
-          should == [
-            "basic",
-            "complex_arguments",
-            "complex_string_name",
-            "complex_symbol_name",
-            "type_arguments"
-          ]
-        end
-
-        it do
-          arguments.should == [
-            {"complex_symbol" => ["complex_inline_symbol"]},
-            {"complex_string" => ["complex_inline_string"]},
-            {"complex_return" => ["complex_inline_return_symbol", "complex_inline_return_string"]},
-            {"rozmarin"       => ["complex_type_symbol", "complex_type_string"]}
-          ]
-        end
-      end
-
-      context "With camelization" do
-        let(:options) do
-          { camelize_wsdl: true }
-        end
-
-        it do
-          should == [
-            "Basic",
-            "ComplexArguments",
-            "ComplexSymbolName",
-            "TypeArguments",
-            "complex_string_name"
-          ]
-        end
-
-        it do
-          arguments.should == [
-            {"ComplexSymbol" => ["ComplexInlineSymbol"]},
-            {"ComplexString" => ["ComplexInlineString"]},
-            {"ComplexReturn" => ["ComplexInlineReturnSymbol", "ComplexInlineReturnString"]},
-            {"Rozmarin"      => ["ComplexTypeSymbol", "ComplexTypeString"]}
-          ]
-        end
-      end
-
-      context "With lower camelization" do
-        let(:options) do
-          { camelize_wsdl: 'lower' }
-        end
-
-        it do
-          should == [
-            "basic",
-            "complexArguments",
-            "complexSymbolName",
-            "complex_string_name",
-            "typeArguments"
-          ]
-        end
-
-        it do
-          arguments.should == [
-            {"complexSymbol" => ["complexInlineSymbol"]},
-            {"complexString" => ["complexInlineString"]},
-            {"complexReturn" => ["complexInlineReturnSymbol", "complexInlineReturnString"]},
-            {"rozmarin"      => ["complexTypeSymbol", "complexTypeString"]}
-          ]
-        end
-      end   
+    it "defines complex types" do
+      wsdl.include?('<xsd:complexType name="Circle1">').should == true
     end
 
+    it "defines arrays" do
+      x = xml[:definitions][:types][:schema][:complex_type].
+        find{|x| x[:'@name'] == 'Center'}[:sequence][:element].
+        find{|x| x[:'@name'] == 'X'}
+
+      x[:'@min_occurs'].should == "0"
+      x[:'@max_occurs'].should == "unbounded"
+    end
   end
 
-  describe "Call dispatch" do
-
-    context "Methods matching" do
-      before do
-        type = Class.new(WashOut::Type) do
-          def self.name; 'Rozmarin'; end
-
-          map(
-            :complex_type_symbol  => :integer,
-            'complex_type_string' => :integer
-          )
-        end
-
-        mock_controller(options) do
-          soap_action :basic, args: :integer, return: nil
-          soap_action :complex_symbol_name, args: :integer, return: nil
-
-          soap_action "complex_string_name", args: :integer, return: nil
-
-          soap_action :complex_arguments, args: {
-              :complex_symbol  => { complex_inline_symbol: :integer },
-              'complex_string' => { 'complex_inline_string' => :integer }
-            },
-            return: {
-              complex_return: {
-                :complex_inline_return_symbol  => :integer,
-                'complex_inline_return_string' => :integer
-              }
-            }
-
-          soap_action :type_arguments, args: type, return: nil
-
-          def basic
-            params[:value].should == 1
-            render soap: nil
-          end
-
-          def complex_symbol_name
-            params[:value].should == 1
-            render soap: nil
-          end
-
-          def complex_string_name
-            params[:value].should == 1
-            render soap: nil
-          end
-
-          def complex_arguments
-            params.should == {
-              'complex_symbol' => { 'complex_inline_symbol' => 1 },
-              'complex_string' => { 'complex_inline_string' => 1 }
-            }
-
-            render soap: {
-              complex_return: {
-                complex_inline_return_symbol: 1,
-                complex_inline_return_string: 1
-              }
-            }
-          end
-
-          def type_arguments
-            params.should == {
-              'value' => {
-                'complex_type_symbol' => 1,
-                'complex_type_string' => 1
-              }
-            }
-
-            render soap: nil
-          end
-        end
-      end
-
-      context "Without converters" do
-        let(:options) do
-          {
-            camelize_wsdl: false,
-            snakecase_input: false
-          }
-        end
-
-        it do
-          savon :basic, 1
-          savon :complex_symbol_name, 1
-          savon :complex_string_name, 1
-
-          savon(
-            :complex_arguments,
-            {
-              'complex_symbol' => { 'complex_inline_symbol' => 1 },
-              'complex_string' => { 'complex_inline_string' => 1 }
-            }
-          ).should == {
-            complex_arguments_response: {
-              complex_return: {
-                complex_inline_return_symbol: '1',
-                complex_inline_return_string: '1',
-                :"@xsi:type"=>"tns:complex_return"
-              }
-            }
-          }
-
-          savon :type_arguments, {
-            'value' => {
-              'complex_type_symbol' => 1,
-              'complex_type_string' => 1
-            }
-          }
-        end
-      end
-
-      context "With camelization and snakecasing" do
-        let(:options) do
-          {
-            camelize_wsdl:   true,
-            snakecase_input: true
-          }
-        end
-
-        it do
-          savon :basic, 1
-          savon :complex_symbol_name, 1
-          savon :complex_string_name, 1
-
-          savon(
-            :complex_arguments,
-            {
-              'ComplexSymbol' => { 'ComplexInlineSymbol' => 1 },
-              'ComplexString' => { 'ComplexInlineString' => 1 }
-            }
-          ).should == {
-            complex_arguments_response: {
-              complex_return: {
-                complex_inline_return_symbol: '1',
-                complex_inline_return_string: '1',
-                :"@xsi:type" => "tns:ComplexReturn"
-              }
-            }
-          }
-
-          savon :type_arguments, {
-            'Value' => {
-              'ComplexTypeSymbol' => 1,
-              'ComplexTypeString' => 1
-            }
-          }
-        end
-      end
-    end
+  describe "Dispatcher" do
 
     context "simple actions" do
       it "accepts requests with no HTTP header" do
@@ -674,7 +418,7 @@ describe WashOut do
     end
 
     context "types" do
-      it "recognizes boolean" do
+      it "recognize boolean" do
         mock_controller do
           soap_action "true", :args => :boolean, :return => :nil
           def true
@@ -695,7 +439,7 @@ describe WashOut do
         savon(:false, :value => "0")
       end
 
-      it "recognizes dates" do
+      it "recognize dates" do
         mock_controller do
           soap_action "date", :args => :date, :return => :nil
           def date
@@ -708,7 +452,7 @@ describe WashOut do
         lambda { savon(:date) }.should_not raise_exception
       end
 
-      it "recognizes base64Binary" do
+      it "recognize base64Binary" do
         mock_controller do
           soap_action "base64", :args => :base64Binary, :return => :nil
           def base64
@@ -723,7 +467,7 @@ describe WashOut do
     end
 
     context "errors" do
-      it "raises for incorrect requests" do
+      it "raise for incorrect requests" do
         mock_controller do
           soap_action "duty",
             :args => {:bad => {:a => :string, :b => :string}, :good => {:a => :string, :b => :string}},
@@ -738,7 +482,7 @@ describe WashOut do
         }.should raise_exception(Savon::SOAPFault)
       end
 
-      it "raises for date in incorrect format" do
+      it "raise for date in incorrect format" do
         mock_controller do
           soap_action "date", :args => :date, :return => :nil
           def date
@@ -750,7 +494,7 @@ describe WashOut do
         }.should raise_exception(Savon::SOAPFault)
       end
 
-      it "raises to report SOAP errors" do
+      it "raise to report SOAP errors" do
         mock_controller do
           soap_action "error", :args => { :need_error => :boolean }, :return => nil
           def error
@@ -776,7 +520,7 @@ describe WashOut do
         lambda { savon(:error, :need_error => true) }.should raise_exception(Exception)
       end
 
-      it "raises for manual throws" do
+      it "raise for manual throws" do
         mock_controller do
           soap_action "error", :args => nil, :return => nil
           def error
@@ -787,7 +531,7 @@ describe WashOut do
         lambda { savon(:error) }.should raise_exception(Savon::SOAPFault)
       end
 
-      it "raises when response structure mismatches" do
+      it "raise when response structure mismatches" do
         mock_controller do
           soap_action 'bad', :args => :integer, :return => {
             :basic => :string,
@@ -830,7 +574,7 @@ describe WashOut do
     end
 
     context "deprecates" do
-      it "prohibits old syntax" do
+      it "old syntax" do
         # save rspec context check
         raise_runtime_exception = raise_exception(RuntimeError)
 
@@ -890,7 +634,7 @@ describe WashOut do
 
     it "appends username_token to params" do
       mock_controller(wsse_username: "gorilla", wsse_password: "secret") do
-        soap_action :check_token, :args => :integer, :return => nil
+        soap_action "checkToken", :args => :integer, :return => nil, :to => 'check_token'
         def check_token
           request.env['WSSE_TOKEN']['username'].should == "gorilla"
           request.env['WSSE_TOKEN']['password'].should == "secret"
@@ -953,49 +697,6 @@ describe WashOut do
         should raise_exception(Savon::SOAPFault)
     end
 
-  end
-
-  describe "Class-based Types" do
-    type = Class.new(WashOut::Type) do
-      def self.name; 'Ronin'; end
-      map(foo: [:integer])
-    end
-
-    context "with snakecasing" do
-      it "handles arrays" do
-        mock_controller do
-          soap_action "rumba",
-                      :args   => {
-                        :rumbas => type
-                      },
-                      :return => nil
-          def rumba
-            params.should == {"rumbas" => {"foo" => [1, 2, 3]}}
-            render :soap => nil
-          end
-        end
-
-        savon(:rumba, :rumbas => {:foo => [1, 2, 3]})
-      end
-    end
-
-    context "without snakecasing", dev: true do
-      xit "handles arrays" do
-        mock_controller(snakecase_input: false, camelize_wsdl: true) do
-          soap_action "rumba",
-                      :args => {
-                        :rumbas => type
-                      },
-                      :return => nil
-          def rumba
-            params.should == {"Rumbas" => {"Foo" => [1, 2, 3]}}
-            render :soap => nil
-          end
-        end
-
-        savon(:rumba, 'Rumbas' => {'Foo' => [1, 2, 3]})
-      end
-    end
   end
 
 end
