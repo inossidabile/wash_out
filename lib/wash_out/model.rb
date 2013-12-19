@@ -1,5 +1,9 @@
 module WashOut
-  module ActiveRecord
+  module Model
+    def wash_out_columns
+      columns_hash
+    end
+
     def wash_out_param_map
       types = {
         :text      => :string,
@@ -9,7 +13,7 @@ module WashOut
       }
       map = {}
 
-      columns_hash.each do |key, column|
+      wash_out_columns.each do |key, column|
         type = column.type
         type = types[type] if types.has_key?(type)
         map[key] = type

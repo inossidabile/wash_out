@@ -498,7 +498,7 @@ describe WashOut do
         mock_controller do
           soap_action "error", :args => { :need_error => :boolean }, :return => nil
           def error
-            raise WashOut::SOAPError.new("you wanted one") if params[:need_error]
+            raise self.class.const_get(:SOAPError), "you wanted one" if params[:need_error]
             render :soap => nil
           end
         end
@@ -562,12 +562,12 @@ describe WashOut do
         end
 
         lambda { savon(:bad) }.should raise_exception(
-          WashOut::ProgrammerError,
+          WashOut::Dispatcher::ProgrammerError,
           /SOAP response .*wyldness.*Array.*Hash.*stallion/
         )
 
         lambda { savon(:bad2) }.should raise_exception(
-          WashOut::ProgrammerError,
+          WashOut::Dispatcher::ProgrammerError,
           /SOAP response .*oops.*String.*telephone_booths.*Array/
         )
       end

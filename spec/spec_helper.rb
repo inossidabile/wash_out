@@ -27,7 +27,11 @@ RSpec.configure do |config|
 
   config.mock_with :rspec
   config.before(:all) do
-    WashOut::Engine.config.wash_out = WashOut::Engine.defaults
+    WashOut::Engine.config.wash_out = {
+      snakecase_input: false,
+      camelize_wsdl: false,
+      namespace: false
+    }
   end
 
   config.after(:suite) do

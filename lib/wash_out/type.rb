@@ -1,5 +1,6 @@
 module WashOut
   class Type
+
     def self.type_name(value)
       @param_type_name = value.to_s
     end
@@ -14,7 +15,7 @@ module WashOut
     end
 
     def self.wash_out_param_name(soap_config = nil)
-      soap_config      ||= OpenStruct.new(WashOut::Engine.config.wash_out)
+      soap_config ||= WashOut::SoapConfig.new({})
       @param_type_name ||= name.underscore.gsub '/', '.'
 
       if soap_config.camelize_wsdl.to_s == 'lower'
@@ -22,7 +23,6 @@ module WashOut
       elsif soap_config.camelize_wsdl
         @param_type_name = @param_type_name.camelize
       end
-
       @param_type_name
     end
   end

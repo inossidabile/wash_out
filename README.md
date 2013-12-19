@@ -63,7 +63,7 @@ class RumbasController < ApplicationController
   def add_circle
     circle = params[:circle]
 
-    raise WashOut::SOAPError, "radius is too small" if circle[:radius] < 3.0
+    raise SOAPError, "radius is too small" if circle[:radius] < 3.0
 
     Circle.new(circle[:center][:x], circle[:center][:y], circle[:radius])
 
