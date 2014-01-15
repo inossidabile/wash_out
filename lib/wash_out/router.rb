@@ -48,6 +48,9 @@ module WashOut
     end
 
     def soap_body(env)
+      # Don't let nobody intercept us ^_^
+      env['rack.input'].rewind if env['rack.input'].respond_to?(:rewind)
+
       env['rack.input'].respond_to?(:string) ? env['rack.input'].string
                                              : env['rack.input'].read
     end
