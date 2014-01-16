@@ -6,10 +6,11 @@ module WashOut
     # A SOAPError exception can be raised to return a correct SOAP error
     # response.
     class SOAPError < Exception
-      attr_accessor :code
-      def initialize(message, code=nil)
+      attr_accessor :code, :detail
+      def initialize(message, code=nil, detail=nil)
         super(message)
         @code = code
+        @detail = detail
       end
     end
 
@@ -92,7 +93,46 @@ module WashOut
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
 
-      inject = lambda {|data, map|
+      render :template => "wash_with_soap/#{soap_config.wsdl_style}/response",
+             :layout => false,
+             :locals => { :result => inject.call(result, @action_spec[:out]) },
+             :content_type => 'text/xml'
+    end
+
+    # This action is a fallback for all undefined SOAP actions.
+    def _invalid_action
+      render_soap_error("Cannot find SOAP action mapping for #{request.env['wash_out.soap_action']}")
+    end
+
+    def _catch_soap_errors
+      yield
+    rescue SOAPError => error
+      render_soap_error(error.message, error.code, error.detail)
+    end
+
+    # Render a SOAP error response.
+    #
+    # Rails do not support sequental rescue_from handling, that is, rescuing an
+    # exception from a rescue_from handler. Hence this function is a public API.
+    def render_soap_error(message, code=nil, result=nil)
+      @namespace   = soap_config.namespace
+      @operation   = soap_action = request.env['wash_out.soap_action']
+      @action_spec = self.class.soap_actions[soap_action]
+
+      result = { 'value' => result } unless result.is_a? Hash
+      result = HashWithIndifferentAccess.new(result)
+
+      locals = { :error_message => message, :error_code => (code || 'Server') }
+      locals.merge!(:detail => result.nil? ? nil : inject.call(result, @action_spec[:error]))
+
+      render :template => "wash_with_soap/#{soap_config.wsdl_style}/error", :status => 500,
+             :layout => false,
+             :locals => locals,
+             :content_type => 'text/xml'
+    end
+
+    def inject
+      lambda do |data, map|
         result_spec = []
         return result_spec if data.nil?
 
@@ -130,36 +170,8 @@ module WashOut
             end
           end
         end
-
         return result_spec
-      }
-
-      render :template => "wash_with_soap/#{soap_config.wsdl_style}/response",
-             :layout => false,
-             :locals => { :result => inject.call(result, @action_spec[:out]) },
-             :content_type => 'text/xml'
-    end
-
-    # This action is a fallback for all undefined SOAP actions.
-    def _invalid_action
-      render_soap_error("Cannot find SOAP action mapping for #{request.env['wash_out.soap_action']}")
-    end
-
-    def _catch_soap_errors
-      yield
-    rescue SOAPError => error
-      render_soap_error(error.message, error.code)
-    end
-
-    # Render a SOAP error response.
-    #
-    # Rails do not support sequental rescue_from handling, that is, rescuing an
-    # exception from a rescue_from handler. Hence this function is a public API.
-    def render_soap_error(message, code=nil)
-      render :template => "wash_with_soap/#{soap_config.wsdl_style}/error", :status => 500,
-             :layout => false,
-             :locals => { :error_message => message, :error_code => (code || 'Server') },
-             :content_type => 'text/xml'
+      end
     end
 
     def self.included(controller)
