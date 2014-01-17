@@ -544,10 +544,10 @@ describe WashOut do
           soap_action "error",
                       :args => { :need_error => :boolean },
                       :return => nil,
-                      error: {error_code: :integer}
+                      error: { :error_code => :integer}
           def error
             detail = { errorCode: 1 }
-            render_soap_error "a message", 1, { error_code: 1 }
+            render_soap_error "a message", 1, { :error_code => 1 }
           end
         end
 
