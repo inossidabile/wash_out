@@ -179,7 +179,7 @@ module WashOut
       controller.send :helper, :wash_out
       controller.send :before_filter, :_authenticate_wsse,     :except => [
         :_generate_wsdl, :_invalid_action ]
-      controller.send :before_filter, :_map_soap_parameters,   :except => [
+      controller.send :prepend_before_filter, :_map_soap_parameters,   :except => [
         :_generate_wsdl, :_invalid_action ]
       controller.send :skip_before_filter, :verify_authenticity_token
     end
