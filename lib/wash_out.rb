@@ -1,3 +1,4 @@
+require 'virtus'
 require 'wash_out/configurable'
 require 'wash_out/soap_config'
 require 'wash_out/soap'
@@ -22,6 +23,13 @@ module ActionDispatch::Routing
       match "#{controller_name}/action" => WashOut::Router.new(controller_class_name), :via => [:get, :post], :defaults => { :controller => controller_class_name, :action => '_action' }, :format => false
     end
   end
+end
+
+Virtus::Attribute.class_eval do
+  accept_options :min_occurs, :max_occurs, :nillable
+  min_occurs 1 
+  max_occurs 1
+  nillable true
 end
 
 Mime::Type.register "application/soap+xml", :soap

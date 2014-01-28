@@ -13,3 +13,4 @@ gemfiles
 coverage
 tags
 Gemfile.lock
+/nbproject/private/

@@ -17,4 +17,5 @@ Gem::Specification.new do |s|
     in your controllers if you are upgrading from a version before 0.8.5.
   EOS
   s.add_dependency("nori", ">= 2.0.0")
+  s.add_dependency("virtus", ">= 1.0.0")
 end
