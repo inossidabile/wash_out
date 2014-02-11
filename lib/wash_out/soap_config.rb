@@ -13,6 +13,7 @@ module WashOut
       catch_xml_errors: false,
       wsse_username: nil,
       wsse_password: nil,
+      wsse_auth_callback: nil,
     }
 
     attr_reader :config

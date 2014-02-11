@@ -18,7 +18,15 @@ module WashOut
     end
 
     def required?
-      !soap_config.wsse_username.blank?
+      !soap_config.wsse_username.blank? || auth_callback?
+    end
+
+    def auth_callback?
+      return !!soap_config.wsse_auth_callback && soap_config.wsse_auth_callback.respond_to?(:call) && soap_config.wsse_auth_callback.arity == 2
+    end
+
+    def perform_auth_callback(user, password)
+      soap_config.wsse_auth_callback.call(user, password)
     end
 
     def expected_user
@@ -64,6 +72,10 @@ module WashOut
 
       user     = @username_token.values_at(:username, :Username).compact.first
       password = @username_token.values_at(:password, :Password).compact.first
+
+      if auth_callback?
+        return perform_auth_callback(user, password)
+      end
 
       if (expected_user == user && expected_password == password)
         return true
