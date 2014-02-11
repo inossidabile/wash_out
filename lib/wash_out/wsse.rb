@@ -1,4 +1,13 @@
 module WashOut
+
+  module WsseParams
+    def wsse_username
+      if request.env['WSSE_TOKEN']
+        request.env['WSSE_TOKEN'].values_at(:username, :Username).compact.first
+      end
+    end
+  end
+
   class Wsse
     attr_reader :soap_config
     def self.authenticate(soap_config, token)
