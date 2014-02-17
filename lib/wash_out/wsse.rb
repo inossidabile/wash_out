@@ -82,15 +82,15 @@ module WashOut
       user     = @username_token.values_at(:username, :Username).compact.first
       password = @username_token.values_at(:password, :Password).compact.first
 
+      if (expected_user == user && matches_expected_digest?(password))
+        return true
+      end
+
       if auth_callback?
         return perform_auth_callback(user, password)
       end
 
       if (expected_user == user && expected_password == password)
-        return true
-      end
-
-      if (expected_user == user && matches_expected_digest?(password))
         return true
       end
 
