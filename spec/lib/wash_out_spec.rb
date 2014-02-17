@@ -681,6 +681,10 @@ describe WashOut do
       end
 
       # correct auth
+      lambda { savon(:check_auth, 42){ wsse_auth "gorilla", "secret" } }.
+        should_not raise_exception
+
+      # correct digest auth
       lambda { savon(:check_auth, 42){ wsse_auth "gorilla", "secret", :digest } }.
         should_not raise_exception
 
