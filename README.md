@@ -137,6 +137,32 @@ To use defined type inside your inline declaration, pass the class instead of ty
 Note that WashOut extends the `ActiveRecord` so every model you use is already a WashOut::Type and can be used
 inside your interface declarations.
 
+## WSSE Authentication
+
+WashOut provides two mechanism for WSSE Authentication. 
+
+### Static Authentication
+
+You can configure the service to validate against a username and password with the following configuration:
+
+```ruby
+soap_service namespace: "wash_out", wsse_username: "username", wsse_password: "password"
+```
+
+With this mechanism, all the actions in the controller will be authenticated against the specified username and password. If you need to authenticate different users, you can use the dynamic mechanism described below.
+
+### Dynamic Authentication
+
+Dynamic authentication allows you to process the username and password any way you want, with the most common case being authenticating against a database. The configuration option for this mechanism is called `wsse_auth_callback`:
+
+```ruby
+soap_service namespace: "wash_out", wsse_auth_callback: ->(username, password) {
+  return !User.find_by(username: username).authenticate(password).blank?
+}
+```
+
+Keep in mind that the password may already be hashed by the SOAP client, so you would have to check against that condition too as per [spec](http://www.oasis-open.org/committees/download.php/16782/wss-v1.1-spec-os-UsernameTokenProfile.pdf)
+
 ## Configuration
 
 Use `config.wash_out...` inside your environment configuration to setup WashOut globally.
