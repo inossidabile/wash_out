@@ -4,7 +4,7 @@ gemspec
 
 gem 'wasabi'
 gem 'savon', '>= 2.0.0'
-gem 'httpi', :git => 'git://github.com/savonrb/httpi.git'
+gem 'httpi'
 
 gem 'rspec-rails'
 gem 'guard'
