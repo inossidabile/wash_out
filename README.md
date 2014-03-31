@@ -94,7 +94,7 @@ WashOutSample::Application.routes.draw do
 end
 ```
 
-In such a setup, the generated WSDL may be queried at path `/api/wsdl`. So, with a
+In such a setup, the generated WSDL may be queried at path `/rumbas/wsdl`. So, with a
 gem like Savon, a request can be done using this path:
 
 ```ruby
