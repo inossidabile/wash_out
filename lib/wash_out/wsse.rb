@@ -1,4 +1,13 @@
 module WashOut
+
+  module WsseParams
+    def wsse_username
+      if request.env['WSSE_TOKEN']
+        request.env['WSSE_TOKEN'].values_at(:username, :Username).compact.first
+      end
+    end
+  end
+
   class Wsse
     attr_reader :soap_config
     def self.authenticate(soap_config, token)
@@ -18,7 +27,15 @@ module WashOut
     end
 
     def required?
-      !soap_config.wsse_username.blank?
+      !soap_config.wsse_username.blank? || auth_callback?
+    end
+
+    def auth_callback?
+      return !!soap_config.wsse_auth_callback && soap_config.wsse_auth_callback.respond_to?(:call) && soap_config.wsse_auth_callback.arity == 2
+    end
+
+    def perform_auth_callback(user, password)
+      soap_config.wsse_auth_callback.call(user, password)
     end
 
     def expected_user
@@ -65,11 +82,15 @@ module WashOut
       user     = @username_token.values_at(:username, :Username).compact.first
       password = @username_token.values_at(:password, :Password).compact.first
 
-      if (expected_user == user && expected_password == password)
+      if (expected_user == user && matches_expected_digest?(password))
         return true
       end
 
-      if (expected_user == user && matches_expected_digest?(password))
+      if auth_callback?
+        return perform_auth_callback(user, password)
+      end
+
+      if (expected_user == user && expected_password == password)
         return true
       end
 

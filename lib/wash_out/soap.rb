@@ -40,6 +40,7 @@ module WashOut
     included do
       include WashOut::Configurable
       include WashOut::Dispatcher
+      include WashOut::WsseParams
       self.soap_actions = {}
     end
   end

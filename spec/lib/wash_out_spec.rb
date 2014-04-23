@@ -705,8 +705,45 @@ describe WashOut do
       end
 
       # correct auth
+      lambda { savon(:check_auth, 42){ wsse_auth "gorilla", "secret" } }.
+        should_not raise_exception
+
+      # correct digest auth
       lambda { savon(:check_auth, 42){ wsse_auth "gorilla", "secret", :digest } }.
         should_not raise_exception
+
+      # wrong user
+      lambda { savon(:check_auth, 42){ wsse_auth "chimpanzee", "secret", :digest } }.
+        should raise_exception(Savon::SOAPFault)
+
+      # wrong pass
+      lambda { savon(:check_auth, 42){ wsse_auth "gorilla", "nicetry", :digest } }.
+        should raise_exception(Savon::SOAPFault)
+
+      # no auth
+      lambda { savon(:check_auth, 42) }.
+        should raise_exception(Savon::SOAPFault)
+    end
+
+    it "handles auth callback" do
+      mock_controller(
+        wsse_auth_callback: lambda {|user, password|
+          return user == "gorilla" && password == "secret" 
+        }
+      ) do
+        soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
+        def check_auth
+          render :soap => (params[:value] == 42)
+        end
+      end
+
+      # correct auth
+      lambda { savon(:check_auth, 42){ wsse_auth "gorilla", "secret" } }.
+        should_not raise_exception
+
+      # correct digest auth
+      lambda { savon(:check_auth, 42){ wsse_auth "gorilla", "secret", :digest } }.
+        should raise_exception(Savon::SOAPFault)
 
       # wrong user
       lambda { savon(:check_auth, 42){ wsse_auth "chimpanzee", "secret", :digest } }.
