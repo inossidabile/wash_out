@@ -18,7 +18,7 @@ module WashOut
       soap_action = env['HTTP_SOAPACTION'].to_s.gsub(/^"(.*)"$/, '\1')
 
       if soap_action.blank?
-        soap_action = nori.parse(soap_body env)
+        soap_action = nori(controller.soap_config.snakecase_input).parse(soap_body env)
             .values_at(:envelope, :Envelope).compact.first
             .values_at(:body, :Body).compact.first
             .keys.first.to_s
@@ -41,7 +41,7 @@ module WashOut
         :strip_namespaces => true,
         :advanced_typecasting => true,
         :convert_tags_to => (
-          snakecase ? lambda { |tag| tag.snakecase.to_sym } 
+          snakecase ? lambda { |tag| tag.snakecase.to_sym }
                     : lambda { |tag| tag.to_sym }
         )
       )
