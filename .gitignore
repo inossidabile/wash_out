@@ -2,6 +2,8 @@
 .bundle/
 *.gem
 .idea/
+.ruby-gemset
+.ruby-version
 .rvmrc
 *.swp
 log/*.log
