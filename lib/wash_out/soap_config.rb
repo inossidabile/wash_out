@@ -14,6 +14,7 @@ module WashOut
       wsse_username: nil,
       wsse_password: nil,
       wsse_auth_callback: nil,
+      soap_action_routing: true,
     }
 
     attr_reader :config

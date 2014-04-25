@@ -15,7 +15,8 @@ module WashOut
     def parse_soap_action(env)
       return env['wash_out.soap_action'] if env['wash_out.soap_action']
 
-      soap_action = env['HTTP_SOAPACTION'].to_s.gsub(/^"(.*)"$/, '\1')
+      soap_action = controller.soap_config.soap_action_routing ? env['HTTP_SOAPACTION'].to_s.gsub(/^"(.*)"$/, '\1')
+                                                               : ''
 
       if soap_action.blank?
         soap_action = nori.parse(soap_body env)
