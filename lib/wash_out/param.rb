@@ -7,8 +7,8 @@ module WashOut
     attr_accessor :multiplied
     attr_accessor :value
     attr_accessor :source_class
-    attr_accessor :min_occurs
-    attr_accessor :max_occurs
+    attr_accessor :minoccurs
+    attr_accessor :maxoccurs
     attr_accessor :nillable
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
@@ -22,8 +22,8 @@ module WashOut
       @multiplied = multiplied
       
       if type.is_a?(Hash)
-        @min_occurs = type[:options][:min_occurs]
-        @max_occurs = type[:options][:max_occurs]
+        @minoccurs = type[:options][:minoccurs]
+        @maxoccurs = type[:options][:maxoccurs]
         @nillable = type[:options][:nillable]
       end
         
