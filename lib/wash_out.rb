@@ -26,12 +26,12 @@ module ActionDispatch::Routing
 end
 
 Virtus::Attribute.class_eval do
-  accept_options :min_occurs, :max_occurs, :nillable
-  min_occurs 1 
-  max_occurs 1
+  accept_options :minoccurs, :maxoccurs, :nillable
+  minoccurs 1 
+  maxoccurs 1
   nillable true
 end
-
+  
 Mime::Type.register "application/soap+xml", :soap
 ActiveRecord::Base.send :extend, WashOut::Model if defined?(ActiveRecord)
 

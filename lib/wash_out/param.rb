@@ -35,13 +35,15 @@ module WashOut
 
       if type.is_a?(Symbol)
         @type = type.to_s
-      elsif  type[:primitive].is_a?(String) && type[:member_type].nil?
+      elsif !type.is_a?(Class) && type.respond_to?(:[]) && type[:primitive].is_a?(String) && type[:member_type].nil?
         @type = type[:primitive].to_s.downcase
-      else
+      else        
+        type = type[0] if type.is_a?(Array)
         @type         = 'struct'
-        @source_class =   type[:member_type].present?  ?  type[:member_type] : type[:primitive] 
+        @source_class =   type.is_a?(Class) ? type : (type[:member_type].present?  ?  type[:member_type] : type[:primitive] )
+  
         @map          = self.class.parse_def(soap_config, @source_class.wash_out_param_map)
-        @multiplied = true if  type[:primitive].to_s.downcase == "array"
+        @multiplied = true if type.is_a?(Array) ||  (type.respond_to?(:[]) &&  type[:primitive].to_s.downcase == "array")
       end
     end
 
@@ -143,9 +145,7 @@ module WashOut
     raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
     return [] if definition == nil
 
-    if definition.is_a?(Hash) && definition.keys.size > 1
-      raise RuntimeError, "Please use single keys hashes"
-    end
+  
       
     if definition.is_a?(Class) && definition.ancestors.include?(WashOut::Type)
       definition = definition.wash_out_param_map
@@ -155,14 +155,14 @@ module WashOut
      definition = {:value => definition}
    end
      
-    if  definition.class.ancestors.include?(Virtus::Model::Core) || definition.class.ancestors.include?(ActiveRecord::Base) || definition.is_a?(Hash) 
+  
+    if  definition.is_a?(Hash) || definition.class.ancestors.include?(Virtus::Model::Core) || definition.class.ancestors.include?(ActiveRecord::Base) 
       definition.map do |name, opt|          
         if opt.is_a? WashOut::Param
           opt
         elsif opt.is_a? Array
           WashOut::Param.new(soap_config, name, opt[0], true)
         else
-         
           WashOut::Param.new(soap_config, name, opt)
         end
       end
