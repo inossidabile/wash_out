@@ -20,10 +20,10 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   end
 
   xml.portType :name => "#{@name}_port" do
-    @map.keys.each do |operation|
+    @map.each do |operation, formats|
       xml.operation :name => operation do
         xml.input :message => "tns:#{operation}"
-        xml.output :message => "tns:#{operation}#{controller.soap_config.camelize_wsdl ? 'Response' : '_response'}"
+        xml.output :message => "tns:#{formats[:response_tag]}"
       end
     end
   end
@@ -59,7 +59,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
         xml.part wsdl_occurence(p, true, :name => p.name, :type => p.namespaced_type)
       end
     end
-    xml.message :name => "#{operation}#{controller.soap_config.camelize_wsdl ? 'Response' : '_response'}" do
+    xml.message :name => formats[:response_tag] do
       formats[:out].each do |p|
         xml.part wsdl_occurence(p, true, :name => p.name, :type => p.namespaced_type)
       end

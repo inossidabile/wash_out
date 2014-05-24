@@ -4,9 +4,7 @@ xml.tag! "soap:Envelope", "xmlns:soap" => 'http://schemas.xmlsoap.org/soap/envel
                           "xmlns:xsi" => 'http://www.w3.org/2001/XMLSchema-instance',
                           "xmlns:tns" => @namespace do
   xml.tag! "soap:Body" do
-    key = "tns:#{@operation}#{controller.soap_config.camelize_wsdl ? 'Response' : '_response'}"
-
-    xml.tag! @action_spec[:response_tag] do
+    xml.tag! "tns:#{@action_spec[:response_tag]}" do
       wsdl_data xml, result
     end
   end
