@@ -159,9 +159,7 @@ module WashOut
       definition = definition.wash_out_param_map
     end
     
-    if [Array, Symbol].include?(definition.class)
-        definition = { :value => definition }
-    end
+   definition = { :value => definition } unless definition.is_a?(Hash)
     
      
     if  definition.is_a?(Hash) ||  (definition.is_a?(Class) &&  has_valid_ancestors?(definition))
