@@ -12,25 +12,28 @@ module WashOut
         :decimal   => :double,
         :timestamp => :string
       }
-      map = {}
+      mapper = {}
 
       wash_out_columns.each do |key, column|
         type = column.type
         type = types[type] if types.has_key?(type)
-        map[key] =  { :primitive => type, 
+        mapper[key] =  { :primitive => type, 
           :member_type => (column.respond_to?(:array) && column.array == true) ? "string" : nil,
-          :nillable => column.null,
-          :minoccurs => required?(self.class, key) ? 1 : 0 ,
+          :nillable => column.respond_to?(:null) ? column.null : true,
+          :minoccurs => required?( key) ? 1 : 0 ,
           :maxoccurs =>(column.respond_to?(:array) && column.array == true)  ? "unbounded" : 1
         };
       end
 
-      map
+      mapper
     end
     
-    def required?(obj, attr)
-      target = (obj.class == Class) ? obj : obj.class
-      target.validators_on(attr).map(&:class).include?(
+   def map
+     wash_out_param_map
+   end
+    
+    def required?( attr)
+      validators_on(attr).map(&:class).include?(
         ActiveModel::Validations::PresenceValidator)
     end
 

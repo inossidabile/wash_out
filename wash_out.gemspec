@@ -18,4 +18,5 @@ Gem::Specification.new do |s|
   EOS
   s.add_dependency("nori", ">= 2.0.0")
   s.add_dependency("virtus", ">= 1.0.0")
+  s.add_dependency("activemodel", ">= 4.0.0")
 end

@@ -34,6 +34,7 @@ end
   
 Mime::Type.register "application/soap+xml", :soap
 ActiveRecord::Base.send :extend, WashOut::Model if defined?(ActiveRecord)
+ActiveRecord::Base.send :include, ActiveModel::Validations if defined?(ActiveRecord)
 
 ActionController::Renderers.add :soap do |what, options|
   _render_soap(what, options)

@@ -19,12 +19,13 @@ module WashOut
       @name       = name.to_s
       @raw_name   = name.to_s
       @map        = {}
-      @multiplied = multiplied
+      @multiplied = (multiplied == true) || type.is_a?(Array) ||  (!type.is_a?(Symbol) && type.respond_to?(:[]) &&  type[:primitive].to_s.downcase == "array")
+      
       
       if type.is_a?(Hash)
-        @minoccurs = type[:options][:minoccurs]
-        @maxoccurs = type[:options][:maxoccurs]
-        @nillable = type[:options][:nillable]
+        @minoccurs = type.try(:fetch, :minoccurs, 0)
+        @maxoccurs = type.try(:fetch,:maxoccurs, 1)
+        @nillable = type.try(:fetch,:nillable, true)
       end
         
       if soap_config.camelize_wsdl.to_s == 'lower'
@@ -32,7 +33,7 @@ module WashOut
       elsif soap_config.camelize_wsdl
         @name = @name.camelize
       end
-
+      
       if type.is_a?(Symbol)
         @type = type.to_s
       elsif !type.is_a?(Class) && type.respond_to?(:[]) && type[:primitive].is_a?(String) && type[:member_type].nil?
@@ -43,7 +44,6 @@ module WashOut
         @source_class =   type.is_a?(Class) ? type : (type[:member_type].present?  ?  type[:member_type] : type[:primitive] )
   
         @map          = self.class.parse_def(soap_config, @source_class.wash_out_param_map)
-        @multiplied = true if type.is_a?(Array) ||  (type.respond_to?(:[]) &&  type[:primitive].to_s.downcase == "array")
       end
     end
 
@@ -141,6 +141,15 @@ module WashOut
   # +:parameter_name+ is ignored.
   #
   # This function returns an array of WashOut::Param objects.
+ 
+    def self.has_valid_ancestors?(class_name)
+      class_name.ancestors.include?(WashOut::Type) || 
+        class_name.ancestors.include?(ActiveRecord::Base) || 
+        class_name.class.ancestors.include?(WashOut::Type) ||
+        class_name.class.ancestors.include?(ActiveRecord::Base) 
+    end
+     
+    
   def self.parse_def(soap_config, definition)
     raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
     return [] if definition == nil
@@ -150,13 +159,13 @@ module WashOut
     if definition.is_a?(Class) && definition.ancestors.include?(WashOut::Type)
       definition = definition.wash_out_param_map
     end
-      
-   if definition.is_a?(Symbol)
-     definition = {:value => definition}
-   end
+    
+    if [Array, Symbol].include?(definition.class)
+        definition = { :value => definition }
+    end
+    
      
-  
-    if  definition.is_a?(Hash) || definition.class.ancestors.include?(Virtus::Model::Core) || definition.class.ancestors.include?(ActiveRecord::Base) 
+    if  definition.is_a?(Hash) ||  (definition.is_a?(Class) &&  has_valid_ancestors?(definition))
       definition.map do |name, opt|          
         if opt.is_a? WashOut::Param
           opt
@@ -167,9 +176,9 @@ module WashOut
         end
       end
     else
-      raise RuntimeError, "Wrong definition: #{definition.inspect}"
+        raise RuntimeError, "Wrong definition: #{definition.inspect}"
+      end
     end
-  end
 
   def flat_copy
     copy = self.class.new(@soap_config, @name, @type.to_sym, @multiplied)
