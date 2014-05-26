@@ -1,3 +1,4 @@
+require 'virtus'
 require 'wash_out/configurable'
 require 'wash_out/soap_config'
 require 'wash_out/soap'
@@ -24,8 +25,16 @@ module ActionDispatch::Routing
   end
 end
 
+Virtus::Attribute.class_eval do
+  accept_options :minoccurs, :maxoccurs, :nillable
+  minoccurs 1 
+  maxoccurs 1
+  nillable true
+end
+  
 Mime::Type.register "application/soap+xml", :soap
 ActiveRecord::Base.send :extend, WashOut::Model if defined?(ActiveRecord)
+ActiveRecord::Base.send :include, ActiveModel::Validations if defined?(ActiveRecord)
 
 ActionController::Renderers.add :soap do |what, options|
   _render_soap(what, options)

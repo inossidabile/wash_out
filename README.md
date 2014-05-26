@@ -8,6 +8,13 @@ WashOut is a gem that greatly simplifies creation of SOAP service providers.
 
 But if you have a chance, please [http://stopsoap.com/](http://stopsoap.com/).
 
+##  Requirements
+
+1. {Ruby 1.9.x or Ruby 2.0.x}[http://www.ruby-lang.org]
+2. {Ruby on Rails}[http://rubyonrails.org].
+3. {Virtus Gem}[https://github.com/solnic/virtus]
+4. {ActiveModel Gem}[https://rubygems.org/gems/activemodel]
+
 ## Compatibility
 
 Rails >3.0 only. MRI 1.9, 2.0, JRuby (--1.9).
@@ -53,22 +60,6 @@ class RumbasController < ApplicationController
     render :soap => (params[:a] + params[:b])
   end
 
-  # Complex structures
-  soap_action "AddCircle",
-              :args   => { :circle => { :center => { :x => :integer,
-                                                     :y => :integer },
-                                        :radius => :double } },
-              :return => nil, # [] for wash_out below 0.3.0
-              :to     => :add_circle
-  def add_circle
-    circle = params[:circle]
-
-    raise SOAPError, "radius is too small" if circle[:radius] < 3.0
-
-    Circle.new(circle[:center][:x], circle[:center][:y], circle[:radius])
-
-    render :soap => nil
-  end
 
   # Arrays
   soap_action "integers_to_boolean",
@@ -120,10 +111,8 @@ inside separate classes for the complex ones. Here's the way to do that:
 
 ```ruby
 class Fluffy < WashOut::Type
-  map :universe => {
-        :name => :string,
-        :age  => :int
-      }
+   attribute name, String, :options => {:minoccurs => 0, :maxoccurs => 1, :nillable =>true }
+  attribute name, Integer, :options => {:minoccurs => 0, :maxoccurs => 1, :nillable =>true }
 end
 
 class FluffyContainer < WashOut::Type

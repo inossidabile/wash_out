@@ -3,7 +3,10 @@ module WashOutHelper
   def wsdl_data_options(param)
     case controller.soap_config.wsdl_style
     when 'rpc'
-      { :"xsi:type" => param.namespaced_type }
+      { :"xsi:type" => param.namespaced_type, 
+        :"xsi:minOccurs" => param.minoccurs,
+        :"xsi:maxOccurs" => param.maxoccurs,
+        :"xsi:nillable" => param.nillable}
     when 'document'
       { }
     end
@@ -13,7 +16,7 @@ module WashOutHelper
     params.each do |param|
       tag_name = param.name
       param_options = wsdl_data_options(param)
-
+     
       if !param.struct?
         if !param.multiplied
           xml.tag! tag_name, param.value, param_options
@@ -63,12 +66,17 @@ module WashOutHelper
       wsdl_type xml, p, defined
     end
   end
-
+  
   def wsdl_occurence(param, inject, extend_with = {})
     data = !param.multiplied ? {} : {
       "#{'xsi:' if inject}minOccurs" => 0,
       "#{'xsi:' if inject}maxOccurs" => 'unbounded'
     }
+    
+     data = data.reverse_merge({  "minOccurs" => param.minoccurs,
+      "maxOccurs" => param.maxoccurs,
+      "nillable" => param.nillable
+    }) if inject
 
     extend_with.merge(data)
   end
