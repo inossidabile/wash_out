@@ -17,7 +17,7 @@ module WashOut
       wash_out_columns.each do |key, column|
         type = column.type
         type = types[type] if types.has_key?(type)
-        map[key] =  { :primitive => type, 
+        map[key] =  { :primitive => "#{type}", 
           :member_type => (column.respond_to?(:array) && column.array == true) ? "string" : nil,
           :nillable => column.respond_to?(:null) ? column.null : true,
           :minoccurs => required?( key) ? 1 : 0 ,
