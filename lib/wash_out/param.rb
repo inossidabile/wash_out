@@ -33,6 +33,7 @@ module WashOut
       elsif soap_config.camelize_wsdl
         @name = @name.camelize
       end
+       type =  type.is_a?(Class) || type.is_a?(Symbol) ? type : (type[:member_type].present?  ?  type[:member_type] : type[:primitive] )
       
       if type.is_a?(Symbol)
         @type = type.to_s
@@ -41,8 +42,7 @@ module WashOut
       else        
         type = type[0] if type.is_a?(Array)
         @type         = 'struct'
-        @source_class =   type.is_a?(Class) ? type : (type[:member_type].present?  ?  type[:member_type] : type[:primitive] )
-  
+        @source_class =   type
         @map          = self.class.parse_def(soap_config, @source_class.wash_out_param_map)
       end
     end
@@ -156,7 +156,7 @@ module WashOut
 
   
       
-    if definition.is_a?(Class) && definition.ancestors.include?(WashOut::Type)
+    if definition.is_a?(Class) && has_valid_ancestors?(definition)
       definition = definition.wash_out_param_map
     end
     
