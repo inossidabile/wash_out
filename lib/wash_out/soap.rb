@@ -32,7 +32,8 @@ module WashOut
         # array can only have strings or symbols and size == 1
         #hash can\t have nested hashes
         
-        check_input_args(options[:args])
+        check_soap_args(options[:args])
+        check_soap_args(options[:returns])
         
         self.soap_actions[action] = options.merge(
           :in           => WashOut::Param.parse_def(soap_config, options[:args]),
@@ -60,7 +61,7 @@ module WashOut
         end
       end
       
-      def check_input_args(args)
+      def check_soap_args(args)
         if (args.is_a?(Hash))
           args.each do |key, value|   
             if value.is_a?(Hash)
