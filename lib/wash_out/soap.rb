@@ -53,17 +53,28 @@ module WashOut
         end
       end
       
+      def check_virtus_model_format(value)
+        if  value.ancestors.include?(WashOut::Type) ||   value.class.ancestors.include?(WashOut::Type) 
+          elem =  value.attribute_set.detect {|elem|  elem.primitive.to_s.downcase == "hash" }
+          raise RuntimeError, "Please consider using classified type for this: #{elem.inspect}" if elem.present?
+        end
+      end
+      
       def check_input_args(args)
         if (args.is_a?(Hash))
           args.each do |key, value|   
-             if value.is_a?(Hash)
-               raise RuntimeError, "Please consider using classified type for this: #{value.inspect}"
-             elsif value.is_a?(Array) 
-                check_array_format(value)
+            if value.is_a?(Hash)
+              raise RuntimeError, "Please consider using classified type for this: #{value.inspect}"
+            elsif value.is_a?(Array) 
+              check_array_format(value)
+            else
+              check_virtus_model_format(value)
             end
           end
-         elsif args.is_a?(Array) 
-            check_array_format(args)
+        elsif args.is_a?(Array) 
+          check_array_format(args)
+        else
+          check_virtus_model_format(args)
         end
       end
       
