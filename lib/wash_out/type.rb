@@ -23,9 +23,9 @@ module WashOut
       @param_map = attribute_set.inject({}) {|h, elem| h["#{elem.name}"]= 
           { :primitive => "#{elem.primitive}", 
           :member_type => elem.options[:member_type].nil? ? nil: elem.options[:member_type].primitive, 
-          :nillable => elem.options[:nillable],
-          :minoccurs => elem.options[:minoccurs],
-          :maxoccurs => elem.options[:maxoccurs]
+          :nillable => elem.options[:nillable].present? ?  elem.options[:nillable] : true,
+          :minoccurs => elem.options[:minoccurs].present? ?  elem.options[:minoccurs] : 0,
+          :maxoccurs => elem.options[:maxoccurs].present? ?  elem.options[:maxoccurs] : 1
         }; h }
     end
 
