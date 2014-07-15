@@ -50,20 +50,6 @@ module WashOut
       @_params = _load_params(action_spec[:in], strip_empty_nodes.call(xml_data))
     end
 
-    def action_spec
-      self.class.soap_actions[soap_action]
-    end
-
-    def soap_action
-      request.env['wash_out.soap_action']
-    end
-
-    def xml_data
-      xml_data = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
-      xml_data = xml_data.values_at(:body, :Body).compact.first
-      xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym).compact.first || {}
-    end
-
     # Creates the final parameter hash based on the request spec and xml_data from the request
     def _load_params(spec, xml_data)
       params = HashWithIndifferentAccess.new
@@ -195,5 +181,22 @@ module WashOut
 
       hash
     end
+
+    private
+
+    def action_spec
+      self.class.soap_actions[soap_action]
+    end
+
+    def soap_action
+      request.env['wash_out.soap_action']
+    end
+
+    def xml_data
+      xml_data = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
+      xml_data = xml_data.values_at(:body, :Body).compact.first
+      xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym).compact.first || {}
+    end
+
   end
 end
