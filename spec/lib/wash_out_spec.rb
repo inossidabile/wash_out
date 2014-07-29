@@ -74,7 +74,7 @@ describe WashOut do
     end
 
     it "defines complex types" do
-      wsdl.include?('<xsd:complexType name="Circle1">').should == true
+      expect(wsdl.include?('<s:element minOccurs="0" maxOccurs="1" name="Circle1" type="s:struct"/>')).to eq(true)
     end
 
     it "defines arrays" do

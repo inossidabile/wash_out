@@ -42,14 +42,18 @@ module WashOutHelper
   def wsdl_type(xml, param, defined=[])
     more = []
 
-    if param.struct?
+    if 1 == 1 #param.struct?
       if !defined.include?(param.basic_type)
-        xml.tag! "xsd:complexType", :name => param.basic_type do
-          xml.tag! "xsd:sequence" do
-            param.map.each do |value|
-              more << value if value.struct?
-              xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
-            end
+        #xml.tag! "s:complexType", :name => param.basic_type do
+        xml.tag! "s:complexType" do
+          xml.tag! "s:sequence" do
+            #binding.pry
+            #param.map.each do |value|
+              #binding.pry
+              #more << value if 1 == 1 #value.struct?
+              #xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
+              xml.tag! "s:element", :minOccurs => "0", :maxOccurs => "1", :name => param.name, :type => "s:#{param.type}"
+            #end
           end
         end
 
