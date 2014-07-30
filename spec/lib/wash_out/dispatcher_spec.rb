@@ -22,36 +22,6 @@ describe WashOut::Dispatcher do
     WashOut::Dispatcher.deep_replace_href({:bar => {:foo => {:@href => 1}}}, {1 => 2}).should == {:bar => {:foo => 2}}
   end
 
-  xit "parses typical request" do
-    dispatcher = Dispatcher.mock("<foo>1</foo>")
-    dispatcher._parse_soap_parameters
-    dispatcher.params.should == {:foo => "1"}
-  end
-
-  xit "parses href request" do
-    dispatcher = Dispatcher.mock <<-XML
-      <root>
-        <request>
-          <entities href="#id1">
-          </entities>
-        </request>
-        <entity id="id1">
-          <foo><bar>1</bar></foo>
-          <sub href="#id2" />
-        </entity>
-        <ololo id="id2">
-          <foo>1</foo>
-        </ololo>
-      </root>
-    XML
-    dispatcher._parse_soap_parameters
-    dispatcher.params[:root][:request][:entities].should == {
-      :foo => {:bar=>"1"},
-      :sub => {:foo=>"1", :@id=>"id2"},
-      :@id => "id1"
-    }
-  end
-
   describe "#_load_params" do
     let(:dispatcher) { Dispatcher.new }
     let(:soap_config) { WashOut::SoapConfig.new({ camelize_wsdl: false }) }

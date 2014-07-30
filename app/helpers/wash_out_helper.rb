@@ -42,18 +42,14 @@ module WashOutHelper
   def wsdl_type(xml, param, defined=[])
     more = []
 
-    if 1 == 1 #param.struct?
+    if param.struct?
       if !defined.include?(param.basic_type)
-        #xml.tag! "s:complexType", :name => param.basic_type do
-        xml.tag! "s:complexType" do
-          xml.tag! "s:sequence" do
-            #binding.pry
-            #param.map.each do |value|
-              #binding.pry
-              #more << value if 1 == 1 #value.struct?
-              #xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
-              xml.tag! "s:element", :minOccurs => "0", :maxOccurs => "1", :name => param.name, :type => "s:#{param.type}"
-            #end
+        xml.tag! "xsd:complexType", :name => param.basic_type do
+          xml.tag! "xsd:sequence" do
+            param.map.each do |value|
+              more << value if value.struct?
+              xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
+            end
           end
         end
 
@@ -61,11 +57,22 @@ module WashOutHelper
       elsif !param.classified?
         raise RuntimeError, "Duplicate use of `#{param.basic_type}` type name. Consider using classified types."
       end
+    else
+      if !defined.include?(param.basic_type)
+        xml.tag! "s:complexType" do
+          xml.tag! "s:sequence" do
+            xml.tag! "s:element", :minOccurs => "0", :maxOccurs => "1", :name => param.name, :type => "s:#{param.type}"
+          end
+        end
+
+        defined << param.basic_type
+      end
     end
 
     more.each do |p|
       wsdl_type xml, p, defined
     end
+
   end
 
   def wsdl_occurence(param, inject, extend_with = {})

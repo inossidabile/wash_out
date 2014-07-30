@@ -55,8 +55,8 @@ describe WashOut do
             :radius => :double
           }]},
           :return => { :area => :double }
-        soap_action "rocky", :args   => { :circle1 => { :x => :integer } },
-                             :return => { :circle2 => { :y => :integer } }
+          soap_action "rocky", :args   => { :circle1 => { :x => :integer } },
+            :return => { :circle2 => { :y => :integer } }
       end
 
       HTTPI.get("http://app/api/wsdl").body
@@ -74,7 +74,7 @@ describe WashOut do
     end
 
     it "defines complex types" do
-      expect(wsdl.include?('<s:element minOccurs="0" maxOccurs="1" name="Circle1" type="s:struct"/>')).to eq(true)
+      wsdl.include?('<xsd:complexType name="Circle1">').should == true
     end
 
     it "defines arrays" do
@@ -85,6 +85,43 @@ describe WashOut do
       x[:'@min_occurs'].should == "0"
       x[:'@max_occurs'].should == "unbounded"
     end
+  end
+
+  describe "Avaya WSDL" do
+    let :wsdl do
+      mock_controller_document do
+        soap_action :result, :args => nil, :return => :int
+
+        soap_action "GetCoachExtensionByCallerID", :args => {
+          :ani => :string },
+          :return => :string
+      end
+      HTTPI.get("http://app/api/wsdl").body
+    end
+
+    let :xml do
+      nori.parse wsdl
+    end
+
+    it "lists operations" do
+      operations = xml[:definitions][:binding][:operation]
+      operations.should be_a_kind_of(Array)
+
+      operations.map{|e| e[:'@name']}.sort.should == ['Result', 'GetCoachExtensionByCallerID'].sort
+    end
+
+    it "defines complex types" do
+      expect(wsdl.include?('<s:element minOccurs="0" maxOccurs="1" name="Ani" type="s:string"/>')).to eq(true)
+    end
+
+    it "defines the correct method name for the request" do
+      expect(wsdl.include?('<s:element name="GetCoachExtensionByCallerID">')).to eq(true)
+    end
+
+    it "defines the correct method name for the response" do
+      expect(wsdl.include?('<s:element name="GetCoachExtensionByCallerIDResponse">')).to eq(true)
+    end
+
   end
 
   describe "Dispatcher" do
@@ -185,10 +222,10 @@ describe WashOut do
         mock_controller do
           soap_action "getArea", :args   => { :circle => { :center => { :x => :integer,
                                                                         :y => :integer },
-                                                           :radius => :double } },
-                                 :return => { :area => :double,
-                                              :distance_from_o => :double },
-                                 :to     => :get_area
+                                                                        :radius => :double } },
+                                                                        :return => { :area => :double,
+                                                                                     :distance_from_o => :double },
+                                                                                     :to     => :get_area
           def get_area
             circle = params[:circle]
             render :soap => { :area            => Math::PI * circle[:radius] ** 2,
@@ -206,10 +243,10 @@ describe WashOut do
       it "accept arrays" do
         mock_controller do
           soap_action "rumba",
-                      :args   => {
-                        :rumbas => [:integer]
-                      },
-                      :return => nil
+            :args   => {
+            :rumbas => [:integer]
+          },
+          :return => nil
           def rumba
             params.should == {"rumbas" => [1, 2, 3]}
             render :soap => nil
@@ -222,10 +259,10 @@ describe WashOut do
       it "accept empty arrays" do
         mock_controller do
           soap_action "rumba",
-                      :args   => {
-                        :my_array => [:integer]
-                      },
-                      :return => nil
+            :args   => {
+            :my_array => [:integer]
+          },
+          :return => nil
           def rumba
             params.should == {}
             render :soap => nil
@@ -237,10 +274,10 @@ describe WashOut do
       it "accept nested empty arrays" do
         mock_controller do
           soap_action "rumba",
-                      :args   => {
-                        :nested => {:my_array => [:integer] }
-                      },
-                      :return => nil
+            :args   => {
+            :nested => {:my_array => [:integer] }
+          },
+          :return => nil
           def rumba
             params.should == {"nested" => {}}
             render :soap => nil
@@ -252,13 +289,13 @@ describe WashOut do
       it "accept nested structures inside arrays" do
         mock_controller do
           soap_action "rumba",
-                      :args   => {
-                        :rumbas => [ {
-                          :zombies => :string,
-                          :puppies => :string
-                        } ]
-                      },
-                      :return => nil
+            :args   => {
+            :rumbas => [ {
+              :zombies => :string,
+              :puppies => :string
+            } ]
+          },
+          :return => nil
           def rumba
             params.should == {
               "rumbas" => [
@@ -279,17 +316,17 @@ describe WashOut do
       it "respond with nested structures" do
         mock_controller do
           soap_action "gogogo",
-                      :args   => nil,
-                      :return => {
-                        :zoo => :string,
-                        :boo => { :moo => :string, :doo => :string }
-                      }
-          def gogogo
-            render :soap => {
-              :zoo => 'zoo',
-              :boo => { :moo => 'moo', :doo => 'doo' }
+            :args   => nil,
+            :return => {
+              :zoo => :string,
+              :boo => { :moo => :string, :doo => :string }
             }
-          end
+            def gogogo
+              render :soap => {
+                :zoo => 'zoo',
+                :boo => { :moo => 'moo', :doo => 'doo' }
+              }
+            end
         end
 
         savon(:gogogo)[:gogogo_response].
@@ -299,8 +336,8 @@ describe WashOut do
       it "respond with arrays" do
         mock_controller do
           soap_action "rumba",
-                      :args   => nil,
-                      :return => [:integer]
+            :args   => nil,
+            :return => [:integer]
           def rumba
             render :soap => [1, 2, 3]
           end
@@ -316,14 +353,14 @@ describe WashOut do
             :return => {
               :rumbas => [{:zombies => :string, :puppies => :string}]
             }
-          def rumba
-            render :soap =>
+            def rumba
+              render :soap =>
               {:rumbas => [
-                  {:zombies => "suck1", :puppies => "rock1" },
-                  {:zombies => "suck2", :puppies => "rock2" }
-                ]
+                {:zombies => "suck1", :puppies => "rock1" },
+                {:zombies => "suck2", :puppies => "rock2" }
+              ]
               }
-          end
+            end
         end
 
         savon(:rumba)[:rumba_response].should == {
@@ -369,7 +406,7 @@ describe WashOut do
         it "respond with simple definition" do
           mock_controller do
             soap_action "rocknroll",
-                        :args => nil, :return => { :my_value => [:integer] }
+              :args => nil, :return => { :my_value => [:integer] }
             def rocknroll
               render :soap => {}
             end
@@ -381,7 +418,7 @@ describe WashOut do
         it "respond with complext definition" do
           mock_controller do
             soap_action "rocknroll",
-                        :args => nil, :return => { :my_value => [{ :value => :integer }] }
+              :args => nil, :return => { :my_value => [{ :value => :integer }] }
             def rocknroll
               render :soap => {}
             end
@@ -393,7 +430,7 @@ describe WashOut do
         it "respond with nested simple definition" do
           mock_controller do
             soap_action "rocknroll",
-                        :args => nil, :return => { :my_value => { :my_array => [{ :value => :integer }] } }
+              :args => nil, :return => { :my_value => { :my_array => [{ :value => :integer }] } }
             def rocknroll
               render :soap => {}
             end
@@ -406,7 +443,7 @@ describe WashOut do
         it "handles incomplete array response" do
           mock_controller do
             soap_action "rocknroll",
-                        :args => nil, :return => { :my_value => [{ :value => :string }] }
+              :args => nil, :return => { :my_value => [{ :value => :string }] }
             def rocknroll
               render :soap => { :my_value => [nil] }
             end
@@ -581,8 +618,8 @@ describe WashOut do
         mock_controller do
           lambda {
             soap_action "rumba",
-                        :args   => :integer,
-                        :return => []
+            :args   => :integer,
+            :return => []
           }.should raise_runtime_exception
           def rumba
             render :soap => nil
