@@ -15,11 +15,11 @@ describe WashOut::Type do
       map :foo => Abraka1
     end
 
-    Abraka1.wash_out_param_name.should == 'abraka1'
-    Abraka1.wash_out_param_map.should == {:test => :string}
+    expect(Abraka1.wash_out_param_name).to eq('abraka1')
+    expect(Abraka1.wash_out_param_map).to eq({:test => :string})
 
-    Abraka2.wash_out_param_name.should == 'test'
-    Abraka2.wash_out_param_map.should == {:foo => Abraka1}
+    expect(Abraka2.wash_out_param_name).to eq('test')
+    expect(Abraka2.wash_out_param_map).to eq({:foo => Abraka1})
   end
 
   it "allows arrays inside custom types" do
@@ -31,11 +31,11 @@ describe WashOut::Type do
       map :foo => [:bar => Abraka1]
     end
 
-    Abraka1.wash_out_param_name.should == 'abraka1'
-    Abraka1.wash_out_param_map.should == {:test => :string}
+    expect(Abraka1.wash_out_param_name).to eq('abraka1')
+    expect(Abraka1.wash_out_param_map).to eq({:test => :string})
 
-    Abraka2.wash_out_param_name.should == 'test'
-    Abraka2.wash_out_param_map.should == {:foo => [:bar => Abraka1]}
+    expect(Abraka2.wash_out_param_name).to eq('test')
+    expect(Abraka2.wash_out_param_map).to eq({:foo => [:bar => Abraka1]})
   end
 
 end

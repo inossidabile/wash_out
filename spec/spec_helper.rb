@@ -32,6 +32,9 @@ RSpec.configure do |config|
       camelize_wsdl: false,
       namespace: false
     }
+    config.expect_with :rspec do |c|
+      c.syntax = [:should, :expect]
+    end
   end
 
   config.after(:suite) do
@@ -59,6 +62,22 @@ def mock_controller(options = {}, &block)
     soap_service options.reverse_merge({
       snakecase_input: true,
       camelize_wsdl: true,
+      wsdl_style: 'rpc',
+      namespace: false
+    })
+    class_exec &block if block
+  }
+
+  ActiveSupport::Dependencies::Reference.instance_variable_get(:'@store').delete('ApiController')
+end
+
+def mock_controller_document(options = {}, &block)
+  Object.send :remove_const, :ApiController if defined?(ApiController)
+  Object.send :const_set, :ApiController, Class.new(ApplicationController) {
+    soap_service options.reverse_merge({
+      snakecase_input: true,
+      camelize_wsdl: true,
+      wsdl_style: 'document',
       namespace: false
     })
     class_exec &block if block
