@@ -32,6 +32,9 @@ RSpec.configure do |config|
       camelize_wsdl: false,
       namespace: false
     }
+    config.expect_with :rspec do |c|
+      c.syntax = [:should, :expect]
+    end
   end
 
   config.after(:suite) do
