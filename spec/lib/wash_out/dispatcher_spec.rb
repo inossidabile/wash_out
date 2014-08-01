@@ -52,6 +52,21 @@ describe WashOut::Dispatcher do
     }
   end
 
+  describe "#_map_soap_parameters" do
+    let(:dispatcher) { Dispatcher.new }
+    let(:soap_config) { WashOut::SoapConfig.new(camelize_wsdl: false) }
+
+    before do
+      allow(dispatcher).to receive(:action_spec).and_return(in: WashOut::Param.parse_def(soap_config, {:empty => :string } ))
+      allow(dispatcher).to receive(:xml_data).and_return(:empty => { :"@xsi:type" => "xsd:string" })
+    end
+
+    it "should handle empty strings that have been parsed wrong by nori" do
+      dispatcher._map_soap_parameters
+      expect(dispatcher.params).to eq('empty' => nil)
+    end
+  end
+
   describe "#_load_params" do
     let(:dispatcher) { Dispatcher.new }
     let(:soap_config) { WashOut::SoapConfig.new({ camelize_wsdl: false }) }
