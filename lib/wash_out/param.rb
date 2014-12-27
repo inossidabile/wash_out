@@ -8,16 +8,18 @@ module WashOut
     attr_accessor :value
     attr_accessor :source_class
     attr_accessor :soap_config
+    attr_accessor :ancestors
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
-    def initialize(soap_config, name, type, multiplied = false)
+    def initialize(soap_config, name, type, multiplied = false, options = {})
       type ||= {}
       @soap_config = soap_config
       @name       = name.to_s
       @raw_name   = name.to_s
       @map        = {}
       @multiplied = multiplied
+      @ancestors = options[:ancestors] || []
 
       if soap_config.camelize_wsdl.to_s == 'lower'
         @name = @name.camelize(:lower)
@@ -29,11 +31,11 @@ module WashOut
         @type = type.to_s
       elsif type.is_a?(Class)
         @type         = 'struct'
-        @map          = self.class.parse_def(soap_config, type.wash_out_param_map)
         @source_class = type
+        @map          = self.class.parse_def(soap_config, type, @ancestors + [self])
       else
         @type = 'struct'
-        @map  = self.class.parse_def(soap_config, type)
+        @map  = self.class.parse_def(soap_config, type, @ancestors + [self])
       end
     end
 
@@ -131,7 +133,7 @@ module WashOut
     # +:parameter_name+ is ignored.
     #
     # This function returns an array of WashOut::Param objects.
-    def self.parse_def(soap_config, definition)
+    def self.parse_def(soap_config, definition, ancestors = [])
       raise RuntimeError, "[] should not be used in your params. Use nil if you want to mark empty set." if definition == []
       return [] if definition == nil
 
@@ -148,9 +150,13 @@ module WashOut
           if opt.is_a? WashOut::Param
             opt
           elsif opt.is_a? Array
-            WashOut::Param.new(soap_config, name, opt[0], true)
+            WashOut::Param.new(soap_config, name, opt[0], true, ancestors: ancestors)
           else
-            WashOut::Param.new(soap_config, name, opt)
+            if self_ref = ancestors.detect{|param| param.source_class == opt}
+              self_ref
+            else
+              WashOut::Param.new(soap_config, name, opt)
+            end
           end
         end
       else
