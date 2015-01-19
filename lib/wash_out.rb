@@ -11,6 +11,12 @@ require 'wash_out/model'
 require 'wash_out/wsse'
 require 'wash_out/middleware'
 
+module WashOut
+  def self.root
+    File.expand_path '../..', __FILE__
+  end
+end
+
 module ActionDispatch::Routing
   class Mapper
     # Adds the routes for a SOAP endpoint at +controller+.
