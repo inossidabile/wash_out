@@ -188,6 +188,10 @@ module WashOut
       self.class.soap_actions[soap_action]
     end
 
+    def request_input_tag
+      action_spec[:request_tag]
+    end
+
     def soap_action
       request.env['wash_out.soap_action']
     end
@@ -195,7 +199,7 @@ module WashOut
     def xml_data
       xml_data = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
-      xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym).compact.first || {}
+      xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym, request_input_tag.to_sym).compact.first || {}
     end
 
   end
