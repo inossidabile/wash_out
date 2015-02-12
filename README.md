@@ -78,6 +78,20 @@ class RumbasController < ApplicationController
     render :soap => params[:data].map{|x| x ? 1 : 0}
   end
 
+  # With a customised input tag name, in case params are wrapped;
+  # e.g. for a request to the 'IntegersToBoolean' action:
+  #   <soapenv:Envelope>
+  #     <soapenv:Body>
+  #       <MyRequest>  <!-- not <IntegersToBoolean> -->
+  #         <Data>...</Data>
+  #       </MyRequest>
+  #     </soapenv:Body>
+  #   </soapenv:Envelope>
+  soap_action "integers_to_boolean",
+              :args => { :my_request => { :data => [:integer] } },
+              :as => 'MyRequest'
+              :return => [:boolean]
+
   # You can use all Rails features like filtering, too. A SOAP controller
   # is just like a normal controller with a special routing.
   before_filter :dump_parameters
