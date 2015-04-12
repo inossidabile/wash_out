@@ -28,19 +28,19 @@ describe WashOut do
 
   describe "Module" do
     it "includes" do
-      lambda {
+      expect {
         mock_controller do
           # nothing
         end
-      }.should_not raise_exception
+      }.not_to raise_exception
     end
 
     it "allows definition of a simple action" do
-      lambda {
+      expect {
         mock_controller do
           soap_action "answer", :args => nil, :return => :integer
         end
-      }.should_not raise_exception
+      }.not_to raise_exception
     end
   end
 
@@ -68,13 +68,13 @@ describe WashOut do
 
     it "lists operations" do
       operations = xml[:definitions][:binding][:operation]
-      operations.should be_a_kind_of(Array)
+      expect(operations).to be_a_kind_of(Array)
 
-      operations.map{|e| e[:'@name']}.sort.should == ['Result', 'getArea', 'rocky'].sort
+      expect(operations.map{|e| e[:'@name']}.sort).to eq ['Result', 'getArea', 'rocky'].sort
     end
 
     it "defines complex types" do
-      wsdl.include?('<xsd:complexType name="Circle1">').should == true
+      expect(wsdl.include?('<xsd:complexType name="Circle1">')).to be true
     end
 
     it "defines arrays" do
@@ -82,8 +82,8 @@ describe WashOut do
         find{|x| x[:'@name'] == 'Center'}[:sequence][:element].
         find{|x| x[:'@name'] == 'X'}
 
-      x[:'@min_occurs'].should == "0"
-      x[:'@max_occurs'].should == "unbounded"
+      expect(x[:'@min_occurs']).to eq "0"
+      expect(x[:'@max_occurs']).to eq "unbounded"
     end
   end
 
@@ -109,7 +109,7 @@ describe WashOut do
           </env:Envelope>
         XML
 
-        HTTPI.post("http://app/api/action", request).body.should == <<-XML
+        expect(HTTPI.post("http://app/api/action", request).body).to eq <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
   <soap:Body>
@@ -129,8 +129,8 @@ describe WashOut do
           end
         end
 
-        savon(:answer)[:answer_response][:value].
-          should == "42"
+        expect(savon(:answer)[:answer_response][:value]).
+          to eq "42"
       end
 
       it "accept insufficient parameters" do
@@ -141,8 +141,8 @@ describe WashOut do
           end
         end
 
-        savon(:answer)[:answer_response][:value].
-          should == "42"
+        expect(savon(:answer)[:answer_response][:value]).
+          to eq "42"
       end
 
       it "accept empty parameter" do
@@ -152,8 +152,8 @@ describe WashOut do
             render :soap => {:a => params[:a]}
           end
         end
-        savon(:answer, :a => '')[:answer_response][:a].
-          should == {:"@xsi:type"=>"xsd:string"}
+        expect(savon(:answer, :a => '')[:answer_response][:a]).
+          to eq({:"@xsi:type"=>"xsd:string"})
       end
 
       it "accept one parameter" do
@@ -164,8 +164,8 @@ describe WashOut do
           end
         end
 
-        savon(:check_answer, 42)[:check_answer_response][:value].should == true
-        savon(:check_answer, 13)[:check_answer_response][:value].should == false
+        expect(savon(:check_answer, 42)[:check_answer_response][:value]).to be true
+        expect(savon(:check_answer, 13)[:check_answer_response][:value]).to be false
       end
 
       it "accept two parameters" do
@@ -176,7 +176,7 @@ describe WashOut do
           end
         end
 
-        savon(:funky, :a => 42, :b => 'k')[:funky_response][:value].should == '420k'
+        expect(savon(:funky, :a => 42, :b => 'k')[:funky_response][:value]).to eq '420k'
       end
     end
 
@@ -601,8 +601,7 @@ describe WashOut do
         end
       end
 
-      savon(name.underscore.to_sym)["#{name.underscore}_response".to_sym][:value].
-        should == "forty two"
+      expect(savon(name.underscore.to_sym)["#{name.underscore}_response".to_sym][:value]).to eq "forty two"
     end
 
     it "respects :response_tag option" do
@@ -613,14 +612,14 @@ describe WashOut do
         end
       end
 
-      savon(:specific).should == {:test => {:value=>"test"}}
+      expect(savon(:specific)).to eq({:test => {:value=>"test"}})
     end
 
     it "handles snakecase option properly" do
       mock_controller(snakecase_input: false, camelize_wsdl: false) do
         soap_action "rocknroll", :args => {:ZOMG => :string}, :return => nil
         def rocknroll
-          params["ZOMG"].should == "yam!"
+          expect(params["ZOMG"]).to eq "yam!"
           render :soap => nil
         end
       end
@@ -636,8 +635,8 @@ describe WashOut do
       mock_controller(wsse_username: "gorilla", wsse_password: "secret") do
         soap_action "checkToken", :args => :integer, :return => nil, :to => 'check_token'
         def check_token
-          request.env['WSSE_TOKEN']['username'].should == "gorilla"
-          request.env['WSSE_TOKEN']['password'].should == "secret"
+          expect(request.env['WSSE_TOKEN']['username']).to eq "gorilla"
+          expect(request.env['WSSE_TOKEN']['password']).to eq "secret"
           render :soap => nil
         end
       end
