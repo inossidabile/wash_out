@@ -50,13 +50,13 @@ describe WashOut::Param do
     let(:map) { WashOut::Param.parse_def(soap_config, :value => :boolean) }
 
     it "should accept 'true' and '1'" do
-      map[0].load({:value => true}, :value).should be_true
-      map[0].load({:value => "1"}, :value).should be_true
+      map[0].load({:value => true}, :value).should be true
+      map[0].load({:value => "1"}, :value).should be true
     end
 
     it "should accept 'false' and '0'" do
-      map[0].load({:value => false}, :value).should be_false
-      map[0].load({:value => "0"}, :value).should be_false
+      map[0].load({:value => false}, :value).should be false
+      map[0].load({:value => "0"}, :value).should be false
     end
   end
 end
