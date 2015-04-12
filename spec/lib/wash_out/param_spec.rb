@@ -21,9 +21,9 @@ describe WashOut::Param do
       soap_config = WashOut::SoapConfig.new({ camelize_wsdl: false })
       map = WashOut::Param.parse_def soap_config, Abraka2
 
-      map.should be_a_kind_of(Array)
-      map[0].name.should == 'foo'
-      map[0].map[0].name.should == 'test'
+      expect(map).to be_a_kind_of(Array)
+      expect(map[0].name).to eq 'foo'
+      expect(map[0].map[0].name).to eq 'test'
     end
 
     it "respects camelization setting" do
@@ -31,16 +31,16 @@ describe WashOut::Param do
 
       map = WashOut::Param.parse_def soap_config, Abraka2
 
-      map.should be_a_kind_of(Array)
-      map[0].name.should == 'Foo'
-      map[0].map[0].name.should == 'Test'
+      expect(map).to be_a_kind_of(Array)
+      expect(map[0].name).to eq 'Foo'
+      expect(map[0].map[0].name).to eq 'Test'
     end
   end
 
   it "should accept nested empty arrays" do
     soap_config = WashOut::SoapConfig.new({ camelize_wsdl: false })
     map = WashOut::Param.parse_def(soap_config, {:nested => {:some_attr => :string, :empty => [:integer] }} )
-    map[0].load( {:nested => nil}, :nested).should == {}
+    expect(map[0].load( {:nested => nil}, :nested)).to eq({})
   end
 
   describe "booleans" do
@@ -50,13 +50,13 @@ describe WashOut::Param do
     let(:map) { WashOut::Param.parse_def(soap_config, :value => :boolean) }
 
     it "should accept 'true' and '1'" do
-      map[0].load({:value => true}, :value).should be true
-      map[0].load({:value => "1"}, :value).should be true
+      expect(map[0].load({:value => true}, :value)).to be true
+      expect(map[0].load({:value => "1"}, :value)).to be true
     end
 
     it "should accept 'false' and '0'" do
-      map[0].load({:value => false}, :value).should be false
-      map[0].load({:value => "0"}, :value).should be false
+      expect(map[0].load({:value => false}, :value)).to be false
+      expect(map[0].load({:value => "0"}, :value)).to be false
     end
   end
 end
