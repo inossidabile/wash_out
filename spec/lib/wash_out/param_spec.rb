@@ -50,13 +50,33 @@ describe WashOut::Param do
     let(:map) { WashOut::Param.parse_def(soap_config, :value => :boolean) }
 
     it "should accept 'true' and '1'" do
-      map[0].load({:value => true}, :value).should be_true
-      map[0].load({:value => "1"}, :value).should be_true
+      map[0].load({:value => true}, :value).should be true
+      map[0].load({:value => "1"}, :value).should be true
     end
 
     it "should accept 'false' and '0'" do
-      map[0].load({:value => false}, :value).should be_false
-      map[0].load({:value => "0"}, :value).should be_false
+      map[0].load({:value => false}, :value).should be false
+      map[0].load({:value => "0"}, :value).should be false
+    end
+  end
+
+
+  describe '#flat_copy' do
+    it 'should copy everything' do
+      soap_config = WashOut::SoapConfig.new({})
+      type = :foo
+      multiplied = "of course"
+      
+      param = WashOut::Param.new(soap_config, 'name', type, multiplied)
+      param.source_class = "middle class"
+      evil_clone = param.flat_copy
+
+      expect(evil_clone.source_class).to eq "middle class"
+      expect(evil_clone.name).to eq 'name'
+      expect(evil_clone.raw_name).to eq 'name'
+      expect(evil_clone.type).to eq "foo"
+      expect(evil_clone.multiplied).to eq "of course"
+      expect(evil_clone.soap_config).to eq soap_config
     end
   end
 end
