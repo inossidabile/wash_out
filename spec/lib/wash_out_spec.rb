@@ -199,8 +199,8 @@ describe WashOut do
         message = { :circle => { :center => { :x => 3, :y => 4 },
                                  :radius => 5 } }
 
-        savon(:get_area, message)[:get_area_response].
-          should == ({ :area => (Math::PI * 25).to_s, :distance_from_o => (5.0).to_s })
+        expect(savon(:get_area, message)[:get_area_response]).
+          to eq ({ :area => (Math::PI * 25).to_s, :distance_from_o => (5.0).to_s })
       end
 
       it "accept arrays" do
@@ -211,7 +211,7 @@ describe WashOut do
                       },
                       :return => nil
           def rumba
-            params.should == {"rumbas" => [1, 2, 3]}
+            expect(params).to eq({"rumbas" => [1, 2, 3]})
             render :soap => nil
           end
         end
@@ -227,7 +227,7 @@ describe WashOut do
                       },
                       :return => nil
           def rumba
-            params.should == {}
+            expect(params).to eq({})
             render :soap => nil
           end
         end
@@ -242,7 +242,7 @@ describe WashOut do
                       },
                       :return => nil
           def rumba
-            params.should == {"nested" => {}}
+            expect(params).to eq({"nested" => {}})
             render :soap => nil
           end
         end
@@ -260,12 +260,12 @@ describe WashOut do
                       },
                       :return => nil
           def rumba
-            params.should == {
+            expect(params).to eq({
               "rumbas" => [
                 {"zombies" => 'suck', "puppies" => 'rock'},
                 {"zombies" => 'slow', "puppies" => 'fast'}
               ]
-            }
+            })
             render :soap => nil
           end
         end
@@ -292,8 +292,15 @@ describe WashOut do
           end
         end
 
-        savon(:gogogo)[:gogogo_response].
-          should == {:zoo=>"zoo", :boo=>{:moo=>"moo", :doo=>"doo", :"@xsi:type"=>"tns:Boo"}}
+        expect(savon(:gogogo)[:gogogo_response]).
+          to eq({
+            :zoo=>"zoo", 
+            :boo=>{
+              :moo=>"moo", 
+              :doo=>"doo", 
+              :"@xsi:type"=>"tns:Boo"
+            }
+          })
       end
 
       it "respond with arrays" do
@@ -306,7 +313,9 @@ describe WashOut do
           end
         end
 
-        savon(:rumba)[:rumba_response].should == {:value => ["1", "2", "3"]}
+        expect(savon(:rumba)[:rumba_response]).to eq({
+          :value => ["1", "2", "3"]
+        })
       end
 
       it "respond with complex structures inside arrays" do
@@ -326,12 +335,12 @@ describe WashOut do
           end
         end
 
-        savon(:rumba)[:rumba_response].should == {
+        expect(savon(:rumba)[:rumba_response]).to eq({
           :rumbas => [
             {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:Rumbas"},
             {:zombies => "suck2", :puppies => "rock2", :"@xsi:type"=>"tns:Rumbas" }
           ]
-        }
+        })
       end
 
       it "respond with structs in structs in arrays" do
@@ -345,7 +354,7 @@ describe WashOut do
           end
         end
 
-        savon(:rumba)[:rumba_response].should == {
+        expect(savon(:rumba)[:rumba_response]).to eq({
           :value => [
             {
               :rumbas => {
@@ -362,7 +371,7 @@ describe WashOut do
               :"@xsi:type"=>"tns:Value"
             }
           ]
-        }
+        })
       end
 
       context "with arrays missing" do
@@ -375,7 +384,7 @@ describe WashOut do
             end
           end
 
-          savon(:rocknroll)[:rocknroll_response].should be_nil
+          expect(savon(:rocknroll)[:rocknroll_response]).to be nil
         end
 
         it "respond with complext definition" do
@@ -387,7 +396,7 @@ describe WashOut do
             end
           end
 
-          savon(:rocknroll)[:rocknroll_response].should be_nil
+          expect(savon(:rocknroll)[:rocknroll_response]).to be nil
         end
 
         it "respond with nested simple definition" do
@@ -399,8 +408,10 @@ describe WashOut do
             end
           end
 
-          savon(:rocknroll)[:rocknroll_response][:my_value].
-            should == { :"@xsi:type" => "tns:MyValue" }
+          expect(savon(:rocknroll)[:rocknroll_response][:my_value]).
+            to eq({ 
+              :"@xsi:type" => "tns:MyValue"
+            })
         end
 
         it "handles incomplete array response" do
@@ -422,13 +433,13 @@ describe WashOut do
         mock_controller do
           soap_action "true", :args => :boolean, :return => :nil
           def true
-            params[:value].should == true
+            expect(params[:value]).to be true
             render :soap => nil
           end
 
           soap_action "false", :args => :boolean, :return => :nil
           def false
-            params[:value].should == false
+            expect(params[:value]).to be false
             render :soap => nil
           end
         end
@@ -443,26 +454,26 @@ describe WashOut do
         mock_controller do
           soap_action "date", :args => :date, :return => :nil
           def date
-            params[:value].should == Date.parse('2000-12-30') unless params[:value].blank?
+            expect(params[:value]).to eq Date.parse('2000-12-30') unless params[:value].blank?
             render :soap => nil
           end
         end
 
         savon(:date, :value => '2000-12-30')
-        lambda { savon(:date) }.should_not raise_exception
+        expect { savon(:date) }.not_to raise_exception
       end
 
       it "recognize base64Binary" do
         mock_controller do
           soap_action "base64", :args => :base64Binary, :return => :nil
           def base64
-            params[:value].should == 'test' unless params[:value].blank?
+            expect(params[:value]).to eq('test') unless params[:value].blank?
             render :soap => nil
           end
         end
 
         savon(:base64, :value => Base64.encode64('test'))
-        lambda { savon(:base64) }.should_not raise_exception
+        expect { savon(:base64) }.not_to raise_exception
       end
     end
 
@@ -477,9 +488,9 @@ describe WashOut do
           end
         end
 
-        lambda {
+        expect {
           savon(:duty, :bad => 42, :good => nil)
-        }.should raise_exception(Savon::SOAPFault)
+        }.to raise_exception(Savon::SOAPFault)
       end
 
       it "raise for date in incorrect format" do
@@ -489,9 +500,9 @@ describe WashOut do
             render :soap => nil
           end
         end
-        lambda {
+        expect {
           savon(:date, :value  => 'incorrect format')
-        }.should raise_exception(Savon::SOAPFault)
+        }.to raise_exception(Savon::SOAPFault)
       end
 
       it "raise to report SOAP errors" do
@@ -503,8 +514,8 @@ describe WashOut do
           end
         end
 
-        lambda { savon(:error, :need_error => false) }.should_not raise_exception
-        lambda { savon(:error, :need_error => true) }.should raise_exception(Savon::SOAPFault)
+        expect { savon(:error, :need_error => false) }.not_to raise_exception
+        expect { savon(:error, :need_error => true) }.to raise_exception(Savon::SOAPFault)
       end
 
       it "misses basic exceptions" do
@@ -516,8 +527,8 @@ describe WashOut do
           end
         end
 
-        lambda { savon(:error, :need_error => false) }.should_not raise_exception
-        lambda { savon(:error, :need_error => true) }.should raise_exception(Exception)
+        expect { savon(:error, :need_error => false) }.not_to raise_exception
+        expect { savon(:error, :need_error => true) }.to raise_exception(Exception)
       end
 
       it "raise for manual throws" do
@@ -528,7 +539,7 @@ describe WashOut do
           end
         end
 
-        lambda { savon(:error) }.should raise_exception(Savon::SOAPFault)
+        expect { savon(:error) }.to raise_exception(Savon::SOAPFault)
       end
 
       it "raise when response structure mismatches" do
@@ -561,12 +572,12 @@ describe WashOut do
           end
         end
 
-        lambda { savon(:bad) }.should raise_exception(
+        expect { savon(:bad) }.to raise_exception(
           WashOut::Dispatcher::ProgrammerError,
           /SOAP response .*wyldness.*Array.*Hash.*stallion/
         )
 
-        lambda { savon(:bad2) }.should raise_exception(
+        expect { savon(:bad2) }.to raise_exception(
           WashOut::Dispatcher::ProgrammerError,
           /SOAP response .*oops.*String.*telephone_booths.*Array/
         )
@@ -579,6 +590,7 @@ describe WashOut do
         raise_runtime_exception = raise_exception(RuntimeError)
 
         mock_controller do
+
           lambda {
             soap_action "rumba",
                         :args   => :integer,
