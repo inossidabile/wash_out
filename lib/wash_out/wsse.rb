@@ -49,7 +49,6 @@ module WashOut
     def matches_expected_digest?(password)
       nonce     = @username_token.values_at(:nonce, :Nonce).compact.first
       timestamp = @username_token.values_at(:created, :Created).compact.first
-
       return false if nonce.nil? || timestamp.nil?
 
       # Token should not be accepted if timestamp is older than 5 minutes ago
@@ -62,11 +61,11 @@ module WashOut
       flavors = Array.new
 
       # Ruby / Savon
-      token = nonce + timestamp.to_s + expected_password
+      token = nonce + timestamp.strftime("%Y-%m-%dT%H:%M:%SZ") + expected_password
       flavors << Base64.encode64(Digest::SHA1.hexdigest(token)).chomp!
 
       # Java
-      token = Base64.decode64(nonce) + timestamp.to_s + expected_password
+      token = Base64.decode64(nonce) + timestamp.strftime("%Y-%m-%dT%H:%M:%SZ") + expected_password
       flavors << Base64.encode64(Digest::SHA1.digest(token)).chomp!
 
       flavors.each do |f|

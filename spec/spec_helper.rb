@@ -56,6 +56,8 @@ end
 def mock_controller(options = {}, &block)
   Object.send :remove_const, :ApiController if defined?(ApiController)
   Object.send :const_set, :ApiController, Class.new(ApplicationController) {
+    include RSpec::Matchers
+    
     soap_service options.reverse_merge({
       snakecase_input: true,
       camelize_wsdl: true,
