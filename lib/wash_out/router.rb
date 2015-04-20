@@ -18,7 +18,7 @@ module WashOut
       soap_action = controller.soap_config.soap_action_routing ? env['HTTP_SOAPACTION'].to_s.gsub(/^"(.*)"$/, '\1')
                                                                : ''
 
-      if soap_action.blank?
+      if soap_action.blank? || 'rpc' == controller.soap_config.wsdl_style
         parsed_soap_body = nori(controller.soap_config.snakecase_input).parse(soap_body env)
         return nil if parsed_soap_body.blank?
 
