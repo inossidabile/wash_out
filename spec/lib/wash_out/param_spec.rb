@@ -59,4 +59,24 @@ describe WashOut::Param do
       expect(map[0].load({:value => "0"}, :value)).to be false
     end
   end
+
+
+  describe '#flat_copy' do
+    it 'should copy everything' do
+      soap_config = WashOut::SoapConfig.new({})
+      type = :foo
+      multiplied = "of course"
+      
+      param = WashOut::Param.new(soap_config, 'name', type, multiplied)
+      param.source_class = "middle class"
+      evil_clone = param.flat_copy
+
+      expect(evil_clone.source_class).to eq "middle class"
+      expect(evil_clone.name).to eq 'name'
+      expect(evil_clone.raw_name).to eq 'name'
+      expect(evil_clone.type).to eq "foo"
+      expect(evil_clone.multiplied).to eq "of course"
+      expect(evil_clone.soap_config).to eq soap_config
+    end
+  end
 end

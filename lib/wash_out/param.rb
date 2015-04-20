@@ -7,6 +7,7 @@ module WashOut
     attr_accessor :multiplied
     attr_accessor :value
     attr_accessor :source_class
+    attr_accessor :soap_config
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
@@ -160,7 +161,7 @@ module WashOut
     def flat_copy
       copy = self.class.new(@soap_config, @name, @type.to_sym, @multiplied)
       copy.raw_name = raw_name
-      copy.source_class = copy.source_class
+      copy.source_class = source_class
       copy
     end
 
