@@ -6,18 +6,17 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
                 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
                 'xmlns:soap-enc' => 'http://schemas.xmlsoap.org/soap/encoding/',
                 'xmlns:wsdl' => 'http://schemas.xmlsoap.org/wsdl/',
+                'xmlns:wsam' => 'http://www.w3.org/2007/05/addressing/metadata',
+                'xmlns:wsx' => 'http://schemas.xmlsoap.org/ws/2004/09/mex',
+                'xmlns:wsap' => 'http://schemas.xmlsoap.org/ws/2004/08/addressing/policy',
+                'xmlns:msc' => 'http://schemas.microsoft.com/ws/2005/12/wsdl/contract',
+                'xmlns:wsp' => 'http://schemas.xmlsoap.org/ws/2004/09/policy',
+                'xmlns:wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd',
+                'xmlns:soap12' => 'http://schemas.xmlsoap.org/wsdl/soap12/',
+                'xmlns:wsa10' => 'http://www.w3.org/2005/08/addressing',
+                'xmlns:wsaw' => 'http://www.w3.org/2006/05/addressing/wsdl',
+                'xmlns:wsa' => 'http://schemas.xmlsoap.org/ws/2004/08/addressing',
                 'name' => @name,
-                'xmlns:wsam' => "http://www.w3.org/2007/05/addressing/metadata",
-                'xmlns:wsx' => "http://schemas.xmlsoap.org/ws/2004/09/mex",
-                'xmlns:wsap' => "http://schemas.xmlsoap.org/ws/2004/08/addressing/policy",
-                'xmlns:msc' => "http://schemas.microsoft.com/ws/2005/12/wsdl/contract",
-                'xmlns:wsp' => "http://schemas.xmlsoap.org/ws/2004/09/policy",
-                'xmlns:wsu' => "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-                'xmlns:soap12' => "http://schemas.xmlsoap.org/wsdl/soap12/",
-                'xmlns:wsa10' => "http://www.w3.org/2005/08/addressing",
-                'xmlns:wsaw' => "http://www.w3.org/2006/05/addressing/wsdl",
-                'xmlns:wsa' => "http://schemas.xmlsoap.org/ws/2004/08/addressing",
-
                 'targetNamespace' => @namespace do
   xml.types do
     xml.tag! "schema", :targetNamespace => @namespace, :xmlns => 'http://www.w3.org/2001/XMLSchema' do
@@ -30,7 +29,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
     end
   end
 
-  xml.portType :name => "#{@name}_port" do
+  xml.portType :name => "IWebPortal", :type => "tns:IWebPortal" do
     @map.each do |operation, formats|
       xml.operation :name => operation do
         xml.input :message => "tns:#{operation}"
@@ -39,7 +38,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
     end
   end
 
-  xml.binding :name => "#{@name}_binding", :type => "tns:#{@name}_port" do
+  xml.binding :name => "IWebPortal", :type => "tns:IWebPortal" do
     xml.tag! "soap:binding", :style => 'rpc', :transport => 'http://schemas.xmlsoap.org/soap/http'
     @map.keys.each do |operation|
       xml.operation :name => operation do
@@ -58,8 +57,8 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
     end
   end
 
-  xml.service :name => "service" do
-    xml.port :name => "#{@name}_port", :binding => "tns:#{@name}_binding" do
+  xml.service :name => "WebPortal" do
+    xml.port :name => "IWebPortal", :binding => "tns:IWebPortal" do
       xml.tag! "soap:address", :location => send("#{@name}_action_url")
     end
   end
