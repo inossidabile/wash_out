@@ -89,7 +89,7 @@ class RumbasController < ApplicationController
   #   </soapenv:Envelope>
   soap_action "integers_to_boolean",
               :args => { :my_request => { :data => [:integer] } },
-              :as => 'MyRequest'
+              :as => 'MyRequest',
               :return => [:boolean]
 
   # You can use all Rails features like filtering, too. A SOAP controller
