@@ -24,7 +24,7 @@ xml.tag! "s:Header" do
     t.text! "urn:epic-com:Edi.WebPortal.2012.Services:LookupPatientIDResponse"
   end
   xml.tag! "a:RelatesTo" do |t|
-    t.text! "urn:uuid:cfd0a296-f4e0-4e48-a200-cea056a55a6b"
+    t.text! request_id
   end
 end
 

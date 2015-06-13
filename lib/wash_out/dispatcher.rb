@@ -124,9 +124,14 @@ module WashOut
         return result_spec
       }
 
+      envelope   = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
+      header   = envelope.values_at(:header, :Header).compact.first
+      action   = header.values_at(:action, :Action).compact.first
+      request_id = header.values_at(:message_id, :MessageID).compact.first
+
       render :template => "wash_out/#{soap_config.wsdl_style}/response",
              :layout => false,
-             :locals => { :result => inject.call(result, @action_spec[:out]) },
+             :locals => { :result => inject.call(result, @action_spec[:out]), :request_id => request_id },
              :content_type => 'text/xml'
     end
 
