@@ -132,7 +132,7 @@ module WashOut
       render :template => "wash_out/#{soap_config.wsdl_style}/response",
              :layout => false,
              :locals => { :result => inject.call(result, @action_spec[:out]), :request_id => request_id },
-             :content_type => 'text/xml'
+             :content_type => 'application/soap+xml' #text/xml
     end
 
     # This action is a fallback for all undefined SOAP actions.
