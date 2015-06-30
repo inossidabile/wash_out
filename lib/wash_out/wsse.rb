@@ -50,6 +50,7 @@ module WashOut
       nonce     = @username_token.values_at(:nonce, :Nonce).compact.first
       timestamp = @username_token.values_at(:created, :Created).compact.first
       return false if nonce.nil? || timestamp.nil?
+      timestamp = timestamp.to_datetime
 
       # Token should not be accepted if timestamp is older than 5 minutes ago
       # http://www.oasis-open.org/committees/download.php/16782/wss-v1.1-spec-os-UsernameTokenProfile.pdf
