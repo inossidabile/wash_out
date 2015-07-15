@@ -48,7 +48,7 @@ module WashOutHelper
           attrs, elems = [], []
           param.map.each do |value|
             more << value if value.struct?
-            if value.name["@"]
+            if value.attribute?
               attrs << value
             else
               elems << value
@@ -64,7 +64,7 @@ module WashOutHelper
           end
 
           attrs.each do |value|
-            xml.tag! "xsd:attribute", wsdl_occurence(value, false, :name => value.name.tr("@", ""), :type => value.namespaced_type)
+            xml.tag! "xsd:attribute", wsdl_occurence(value, false, :name => value.attr_name, :type => value.namespaced_type)
           end
         end
 
