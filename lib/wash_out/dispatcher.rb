@@ -32,22 +32,27 @@ module WashOut
     end
 
     def _map_soap_parameters
-      strip_empty_nodes = lambda{|hash|
-        hash.keys.each do |key|
-          if hash[key].is_a? Hash
-            value = hash[key].delete_if{|k, v| k.to_s[0] == '@'}
+      @_params = _load_params action_spec[:in],
+        _strip_empty_nodes(action_spec[:in], xml_data)
+    end
 
-            if value.length > 0
-              hash[key] = strip_empty_nodes.call(value)
-            else
-              hash[key] = nil
-            end
-          end
+    def _strip_empty_nodes(params, hash)
+      hash.keys.each do |key|
+        param = params.detect { |a| a.name.to_s == key.to_s }
+        next if !(param && hash[key].is_a?(Hash))
+
+        value = hash[key].delete_if do |k, _|
+          k.to_s[0] == '@' && !param.map.detect { |a| a.name.to_s == k.to_s }
         end
 
-        hash
-      }
-      @_params = _load_params(action_spec[:in], strip_empty_nodes.call(xml_data))
+        if value.length > 0
+          hash[key] = _strip_empty_nodes param.map, value
+        else
+          hash[key] = nil
+        end
+      end
+
+      hash
     end
 
     # Creates the final parameter hash based on the request spec and xml_data from the request

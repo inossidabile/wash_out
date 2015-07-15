@@ -179,7 +179,8 @@ module WashOut
       # RUBY18 Enumerable#each_with_object is better, but 1.9 only.
       @map.map do |param|
         if data.has_key? param.raw_name
-          struct[param.raw_name] = yield param, data, param.raw_name
+          param_name = param.raw_name.tr "@", ""
+          struct[param_name] = yield param, data, param.raw_name
         end
       end
 
