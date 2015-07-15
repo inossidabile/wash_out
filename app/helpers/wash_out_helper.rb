@@ -45,11 +45,26 @@ module WashOutHelper
     if param.struct?
       if !defined.include?(param.basic_type)
         xml.tag! "xsd:complexType", :name => param.basic_type do
-          xml.tag! "xsd:sequence" do
-            param.map.each do |value|
-              more << value if value.struct?
-              xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
+          attrs, elems = [], []
+          param.map.each do |value|
+            more << value if value.struct?
+            if value.name["@"]
+              attrs << value
+            else
+              elems << value
             end
+          end
+
+          if elems.any?
+            xml.tag! "xsd:sequence" do
+              elems.each do |value|
+                xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
+              end
+            end
+          end
+
+          attrs.each do |value|
+            xml.tag! "xsd:attribute", wsdl_occurence(value, false, :name => value.name.tr("@", ""), :type => value.namespaced_type)
           end
         end
 
