@@ -166,11 +166,11 @@ module WashOut
     end
 
     def attribute?
-      raw_name[0] == "@"
+      name[0] == "@"
     end
 
     def attr_name
-      raw_name.tr "@", ""
+      name.tr "@", ""
     end
 
     private
