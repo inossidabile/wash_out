@@ -52,11 +52,11 @@ module WashOut
     end
 
     def soap_body(env)
-      # Don't let nobody intercept us ^_^
-      env['rack.input'].rewind if env['rack.input'].respond_to?(:rewind)
-
-      env['rack.input'].respond_to?(:string) ? env['rack.input'].string
-                                             : env['rack.input'].read
+      body = env['rack.input']
+      body.rewind if body.respond_to? :rewind
+      body.respond_to?(:string) ? body.string : body.read
+    ensure
+      body.rewind if body.respond_to? :rewind
     end
 
     def parse_soap_parameters(env)
