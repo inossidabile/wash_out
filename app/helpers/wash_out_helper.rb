@@ -9,31 +9,44 @@ module WashOutHelper
     end
   end
 
+  def wsdl_data_attrs(param)
+    param.map.reduce({}) do |memo, p|
+      if p.respond_to?(:attribute?) && p.attribute?
+        memo.merge p.attr_name => p.value
+      else
+        memo
+      end
+    end
+  end
+
   def wsdl_data(xml, params)
     params.each do |param|
+      next if param.attribute?
+
       tag_name = param.name
       param_options = wsdl_data_options(param)
 
-      if !param.struct?
-        if !param.multiplied
-          xml.tag! tag_name, param.value, param_options
+      if param.struct?
+        if param.multiplied
+          param.map.each do |p|
+            attrs = wsdl_data_attrs p
+            blk = proc { wsdl_data(xml, p.map) } if p.map.size > attrs.size
+            attrs.reject! { |_, v| v.nil? }
+            xml.tag! tag_name, param_options.merge(attrs), &blk
+          end
         else
+          xml.tag! tag_name, param_options do
+            wsdl_data(xml, param.map)
+          end
+        end
+      else
+        if param.multiplied
           param.value = [] unless param.value.is_a?(Array)
           param.value.each do |v|
             xml.tag! tag_name, v, param_options
           end
-        end
-      else
-        if !param.multiplied
-          xml.tag! tag_name,  param_options do
-            wsdl_data(xml, param.map)
-          end
         else
-          param.map.each do |p|
-            xml.tag! tag_name, param_options do
-              wsdl_data(xml, p.map)
-            end
-          end
+          xml.tag! tag_name, param.value, param_options
         end
       end
     end
