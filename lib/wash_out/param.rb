@@ -170,7 +170,8 @@ module WashOut
     end
 
     def attr_name
-      name.tr "@", ""
+      raise 'Not attribute' unless attribute?
+      name[1..-1]
     end
 
     private
