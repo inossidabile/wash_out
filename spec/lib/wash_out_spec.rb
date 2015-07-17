@@ -323,12 +323,12 @@ describe WashOut do
           soap_action "rumba",
             :args   => nil,
             :return => {
-              :rumbas => [{:zombies => :string, :puppies => :string}]
+              :rumbas => [{:@level => :integer, :zombies => :string, :puppies => :string}]
             }
           def rumba
             render :soap =>
               {:rumbas => [
-                  {:zombies => "suck1", :puppies => "rock1" },
+                  {:@level => 80, :zombies => "suck1", :puppies => "rock1" },
                   {:zombies => "suck2", :puppies => "rock2" }
                 ]
               }
@@ -337,7 +337,7 @@ describe WashOut do
 
         expect(savon(:rumba)[:rumba_response]).to eq({
           :rumbas => [
-            {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:Rumbas"},
+            {:zombies => "suck1",:puppies => "rock1", :"@xsi:type"=>"tns:Rumbas", :@level => "80"},
             {:zombies => "suck2", :puppies => "rock2", :"@xsi:type"=>"tns:Rumbas" }
           ]
         })
@@ -347,10 +347,10 @@ describe WashOut do
         mock_controller do
           soap_action "rumba",
             :args => nil,
-            :return => [{:rumbas => {:zombies => :integer}}]
+            :return => [{:rumbas => {:@level => :integer, :zombies => :integer}}]
 
           def rumba
-            render :soap => [{:rumbas => {:zombies => 100000}}, {:rumbas => {:zombies => 2}}]
+            render :soap => [{:rumbas => {:@level => 80, :zombies => 100000}}, {:rumbas => {:@level => 90, :zombies => 2}}]
           end
         end
 
@@ -359,14 +359,16 @@ describe WashOut do
             {
               :rumbas => {
                 :zombies => "100000",
-                :"@xsi:type" => "tns:Rumbas"
+                :"@xsi:type" => "tns:Rumbas",
+                :"@level" => "80"
               },
               :"@xsi:type" => "tns:Value"
             },
             {
               :rumbas => {
                 :zombies => "2",
-                :"@xsi:type" => "tns:Rumbas"
+                :"@xsi:type" => "tns:Rumbas",
+                :@level => "90",
               },
               :"@xsi:type"=>"tns:Value"
             }

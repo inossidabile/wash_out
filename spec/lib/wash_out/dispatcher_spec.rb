@@ -57,13 +57,13 @@ describe WashOut::Dispatcher do
     let(:soap_config) { WashOut::SoapConfig.new(camelize_wsdl: false) }
 
     before do
-      allow(dispatcher).to receive(:action_spec).and_return(in: WashOut::Param.parse_def(soap_config, {:empty => :string } ))
-      allow(dispatcher).to receive(:xml_data).and_return(:empty => { :"@xsi:type" => "xsd:string" })
+      allow(dispatcher).to receive(:action_spec).and_return(in: WashOut::Param.parse_def(soap_config, { foo: { "@bar" => :string, empty: :string } } ))
+      allow(dispatcher).to receive(:xml_data).and_return(foo: { "@bar" => "buzz", empty: { :"@xsi:type" => "xsd:string" } })
     end
 
-    it "should handle empty strings that have been parsed wrong by nori" do
+    it "should handle empty strings that have been parsed wrong by nori, but preserve attrs" do
       dispatcher._map_soap_parameters
-      expect(dispatcher.params).to eq('empty' => nil)
+      expect(dispatcher.params).to eq("foo" => { "bar" => "buzz", "empty" => nil })
     end
   end
 

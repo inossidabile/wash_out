@@ -165,6 +165,14 @@ module WashOut
       copy
     end
 
+    def attribute?
+      name[0] == "@"
+    end
+
+    def attr_name
+      name.tr "@", ""
+    end
+
     private
 
     # Used to load an entire structure.
@@ -179,7 +187,8 @@ module WashOut
       # RUBY18 Enumerable#each_with_object is better, but 1.9 only.
       @map.map do |param|
         if data.has_key? param.raw_name
-          struct[param.raw_name] = yield param, data, param.raw_name
+          param_name = param.attribute? ? param.attr_name : param.raw_name
+          struct[param_name] = yield param, data, param.raw_name
         end
       end
 
