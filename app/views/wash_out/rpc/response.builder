@@ -37,7 +37,9 @@
 # </soap:Envelope>
 
 xml.instruct!
-xml.tag! "soap:Envelope", "xmlns:soap" => "http://www.w3.org/2003/05/soap-envelope" do
+xml.tag! "soap:Envelope",
+         "xmlns:soap" => "http://www.w3.org/2003/05/soap-envelope",
+         "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance" do
   xml.tag! "soap:Body" do
     xml.tag! "s:Envelope", "xmlns:a" => "http://www.w3.org/2005/08/addressing",
                            "xmlns:s" => "http://www.w3.org/2003/05/soap-envelope" do
