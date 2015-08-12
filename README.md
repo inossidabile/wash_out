@@ -1,3 +1,7 @@
+# WashOut with EPIC WSDL
+
+This is the modified version of wash_out gem. Thanks to 'inossidabile' for building the original one. Please look at the commits to understand the changes need to be made to make this webservice compatible to the way it is expected by EPIC. Your webservices that are built with original wash_out will work with all the wsdlbrowser.com like services out there but will fail with EPIC. Changes have been made here to reflect the strict type and xml checking that happens in EPIC.
+
 # WashOut
 
 WashOut is a gem that greatly simplifies creation of SOAP service providers.
@@ -153,7 +157,7 @@ inside your interface declarations.
 
 ## WSSE Authentication
 
-WashOut provides two mechanism for WSSE Authentication. 
+WashOut provides two mechanism for WSSE Authentication.
 
 ### Static Authentication
 
