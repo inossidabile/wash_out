@@ -60,13 +60,25 @@ describe WashOut::Param do
     end
   end
 
+  describe 'longs' do
+    let(:soap_config) { WashOut::SoapConfig.new({ camelize_wsdl: false }) }
+    let(:map) { WashOut::Param.parse_def(soap_config, :value => :long) }
+
+    it "should accept positive long" do
+      expect(map[0].load({:value => 9223372036854775807}, :value)).to eq 9223372036854775807
+    end
+
+    it "should accept negative long" do
+      expect(map[0].load({:value => -9223372036854775807}, :value)).to eq -9223372036854775807
+    end
+  end
 
   describe '#flat_copy' do
     it 'should copy everything' do
       soap_config = WashOut::SoapConfig.new({})
       type = :foo
       multiplied = "of course"
-      
+
       param = WashOut::Param.new(soap_config, 'name', type, multiplied)
       param.source_class = "middle class"
       evil_clone = param.flat_copy

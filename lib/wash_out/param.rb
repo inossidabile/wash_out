@@ -64,6 +64,7 @@ module WashOut
         operation = case type
           when 'string';       :to_s
           when 'integer';      :to_i
+          when 'long';         :to_i
           when 'double';       :to_f
           when 'boolean';      lambda{|dat| dat === "0" ? false : !!dat}
           when 'date';         :to_date
