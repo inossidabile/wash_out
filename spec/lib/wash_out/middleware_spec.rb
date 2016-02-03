@@ -13,7 +13,7 @@ describe WashOut::Middleware do
     env = {}
     expect {
       WashOut::Middleware.raise_or_render_rexml_parse_error err, env
-    }.to raise_exception
+    }.to raise_exception(REXML::ParseException)
 
     env['HTTP_SOAPACTION'] = 'pretend_action'
     env['rack.errors'] = double 'logger', {:puts => true} 
