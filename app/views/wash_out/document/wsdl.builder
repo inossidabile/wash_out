@@ -19,6 +19,19 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
     end
   end
 
+  @map.each do |operation, formats|
+    xml.message :name => "#{operation}" do
+      formats[:in].each do |p|
+        xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
+      end
+    end
+    xml.message :name => formats[:response_tag] do
+      formats[:out].each do |p|
+        xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
+      end
+    end
+  end
+
   xml.portType :name => "#{@name}_port" do
     @map.each do |operation, formats|
       xml.operation :name => operation do
@@ -50,19 +63,6 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   xml.service :name => "service" do
     xml.port :name => "#{@name}_port", :binding => "tns:#{@name}_binding" do
       xml.tag! "soap:address", :location => send("#{@name}_action_url")
-    end
-  end
-
-  @map.each do |operation, formats|
-    xml.message :name => "#{operation}" do
-      formats[:in].each do |p|
-        xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
-      end
-    end
-    xml.message :name => formats[:response_tag] do
-      formats[:out].each do |p|
-        xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
-      end
     end
   end
 end
