@@ -24,12 +24,6 @@ matrix:
     - rvm: 2.3.0
       gemfile: gemfiles/rails_3.2.12.gemfile
     - rvm: 1.9.3
-      gemfile: gemfiles/rails_3.1.3.gemfile
-    - rvm: 2.2.4
-      gemfile: gemfiles/rails_3.2.12.gemfile
-    - rvm: 2.3.0
-      gemfile: gemfiles/rails_3.1.3.gemfile
-    - rvm: 1.9.3
       gemfile: gemfiles/rails_5.0.0.beta2.gemfile
     - rvm: 2.0.0
       gemfile: gemfiles/rails_5.0.0.beta2.gemfile
