@@ -75,7 +75,7 @@ class RumbasController < ApplicationController
               :args => { :data => [:integer] },
               :return => [:boolean]
   def integers_to_boolean
-    render :soap => params[:data].map{|x| x ? 1 : 0}
+    render :soap => params[:data].map{|i| i > 0}
   end
 
   # Params from XML attributes;
