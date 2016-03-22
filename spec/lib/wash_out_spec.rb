@@ -152,8 +152,7 @@ describe WashOut do
             render :soap => {:a => params[:a]}
           end
         end
-        expect(savon(:answer, :a => '')[:answer_response][:a]).
-          to eq({:"@xsi:type"=>"xsd:string"})
+        expect(savon(:answer, :a => '')[:answer_response][:a]).to be_nil
       end
 
       it "accept one parameter" do
@@ -410,10 +409,20 @@ describe WashOut do
             end
           end
 
-          expect(savon(:rocknroll)[:rocknroll_response][:my_value]).
-            to eq({ 
-              :"@xsi:type" => "tns:MyValue"
-            })
+          expect(savon(:rocknroll)[:rocknroll_response][:my_value]).to be_nil
+        end
+
+        it "responds with missing parameters" do
+          mock_controller do
+            soap_action "rocknroll",
+              args: nil,
+              return: {my_value: :integer}
+            def rocknroll
+              render soap: {my_value: nil}
+            end
+          end
+
+          expect(savon(:rocknroll)[:rocknroll_response][:my_value]).to be_nil
         end
 
         it "handles incomplete array response" do
