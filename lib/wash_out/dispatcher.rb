@@ -173,28 +173,42 @@ module WashOut
       controller.send :"skip_before_#{entity}", :verify_authenticity_token
     end
 
-    def self.deep_select(hash, result=[], &blk)
-      result += Hash[hash.select(&blk)].values
+    def self.deep_select(collection, result = [])
+      is_id = lambda { |v| v.is_a?(Hash) && v.has_key?(:@id) }
+      values = collection.respond_to?(:values) ? collection.values : collection
+      result += values.select(&is_id)
 
-      hash.each do |key, value|
-        result = deep_select(value, result, &blk) if value.is_a? Hash
+      values.each do |value|
+        if value.is_a?(Hash) || value.is_a?(Array)
+          result = deep_select(value, result)
+        end
       end
 
       result
     end
 
     def self.deep_replace_href(hash, replace)
-      return replace[hash[:@href]] if hash.has_key?(:@href)
+      hash.each do |key, value|
+        if value.respond_to?(:has_key?) && value.has_key?(:@href)
+          hash[key] = replace[value[:@href]]
+          hash = deep_replace_href(hash, replace) if hash.is_a?(Hash)
+        elsif key == :@href
+          hash = replace[value]
+        end
 
-      hash.keys.each do |key, value|
-        hash[key] = deep_replace_href(hash[key], replace) if hash[key].is_a?(Hash)
+        if hash[key].is_a?(Hash)
+          hash[key] = deep_replace_href(hash[key], replace)
+        elsif hash[key].is_a?(Array)
+          hash[key] = hash[key].map do |v|
+            v.is_a?(Hash) ? deep_replace_href(v, replace) : v
+          end
+        end
       end
 
       hash
     end
 
     private
-
     def action_spec
       self.class.soap_actions[soap_action]
     end

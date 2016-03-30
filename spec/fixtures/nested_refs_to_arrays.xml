@@ -1,0 +1,19 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Body s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <parent href="#id1" />
+    <q2:child id="id1" xsi:type="q2:child" xmlns:q2="urn:FakeService">
+      <first_list href="#id2" />
+      <second_list href="#id3" />
+    </q2:child>
+    <q3:Array id="id2" q3:arrayType="xsd:int[1]" xmlns:q3="http://schemas.xmlsoap.org/soap/encoding/">
+      <Item>1</Item>
+      <Item>2</Item>
+    </q3:Array>
+    <q4:Array id="id3" q4:arrayType="xsd:int[1]" xmlns:q4="http://schemas.xmlsoap.org/soap/encoding/">
+      <Item>11</Item>
+      <Item>22</Item>
+    </q4:Array>
+  </s:Body>
+</s:Envelope>

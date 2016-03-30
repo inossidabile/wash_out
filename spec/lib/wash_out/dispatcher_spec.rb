@@ -12,14 +12,119 @@ describe WashOut::Dispatcher do
     end
   end
 
-  it "finds nested hashes" do
-    expect(WashOut::Dispatcher.deep_select(:foo => 1){|k,v| k == :foo}).to eq [1]
-    expect(WashOut::Dispatcher.deep_select({:foo => {:foo => 1}}){|k,v| k == :foo}).to eq([{:foo => 1}, 1])
+  describe ".deep_select" do
+    it "find no elements if there aren't any ids" do
+      expect(WashOut::Dispatcher.deep_select({k: {v: :v2}})).to eq []
+    end
+
+    it "finds elements with ids in a hash" do
+      expect(WashOut::Dispatcher.deep_select({k: {:@id => 5, x: :y}})).to eq [{:@id => 5, x: :y}]
+    end
+
+    it "finds elements with ids in a array" do
+      expect(WashOut::Dispatcher.deep_select({k: [{:@id => 5, x: :y}]})).to eq [{:@id => 5, x: :y}]
+    end
+
+    it "finds elements with ids in hashes" do
+      expect(WashOut::Dispatcher.deep_select(
+        {
+          k: {:@id => 5, x: :y},
+          k2: {:@id => 6, n: :m}
+        })).to eq [{:@id => 5, x: :y}, {:@id => 6, n: :m}]
+    end
+
+    it "finds elements in a hash and in a array" do
+      expect(WashOut::Dispatcher.deep_select(
+        {
+          k: [{:@id => 5, x: :y}],
+          k2: {:@id => 6, n: :m}
+        })).to contain_exactly({:@id => 5, x: :y}, {:@id => 6, n: :m})
+    end
+
+    it "finds elements with ids in multiple arrays" do
+      expect(WashOut::Dispatcher.deep_select(
+        {
+          k: [{:@id => 5, x: :y}],
+          k2: [{:@id => 6, n: :m}]
+        })).to eq [{:@id => 5, x: :y}, {:@id => 6, n: :m}]
+    end
   end
 
-  it "replaces nested hashed" do
-    expect(WashOut::Dispatcher.deep_replace_href({:foo => {:@href => 1}}, {1 => 2})).to eq({:foo => 2})
-    expect(WashOut::Dispatcher.deep_replace_href({:bar => {:foo => {:@href => 1}}}, {1 => 2})).to eq({:bar => {:foo => 2}})
+  describe ".deep_replace_href" do
+    it "replaces nested hashed" do
+      expect(WashOut::Dispatcher.deep_replace_href(
+        {:foo => {:@href => 1}},
+        {1 => 2})).to eq(
+          {:foo => 2}
+        )
+    end
+
+    it "replaces deeper nested hashes" do
+      expect(WashOut::Dispatcher.deep_replace_href(
+        {:bar => {:foo => {:@href => 1}}},
+        {1 => 2}
+      )).to eq(
+        {:bar => {:foo => 2}}
+      )
+    end
+
+    it "replace nested refs" do
+      hash = {fizz: {:@href => "#id4"}}
+      replaces = {
+        "#id4" => {:@href => "#id6"},
+        "#id6" => {foo: :bar}
+      }
+      expect(WashOut::Dispatcher.deep_replace_href(hash, replaces)).to eq({
+        fizz: {foo: :bar}})
+    end
+
+    it "replace really nested refs" do
+      hash = {fizz: {:@href => "#id4"}}
+      replaces = {
+        "#id4" => {:@href => "#id6"},
+        "#id6" => {:@href => "#id7"},
+        "#id7" => {foo: :bar}
+      }
+      expect(WashOut::Dispatcher.deep_replace_href(hash, replaces)).to eq({
+        fizz: {foo: :bar}})
+    end
+
+    it "replaces arrays in nested hashes" do
+      hash = {
+        fizz: {:@href => "#id4"},
+        Array: [
+          {Item: [{:@href => "#id6"}, {:@href => "#id7"}]},
+          {Item: {loo: :iioo}}
+        ]
+      }
+      replaces = {
+        "#id4" => {Item: [{:@href => "#id6"}, {:@href => "#id7"}]},
+        "#id6" => {foo: :bar},
+        "#id7" => {baz: :bats}
+      }
+      expect(WashOut::Dispatcher.deep_replace_href(hash, replaces)).to eq({
+        fizz: {Item: [
+          {foo: :bar},
+          {baz: :bats}
+        ]},
+        Array: [
+          {Item: [{foo: :bar}, {baz: :bats}]},
+          {Item: {loo: :iioo}}
+        ]
+      })
+    end
+
+    it "can traverse arrays that do not contain hashes" do
+      hash = {
+        fizz: {:@href => "#id1"},
+      }
+      replaces = {
+        "#id1" => {Item: ["1", "2"]},
+      }
+      expect(WashOut::Dispatcher.deep_replace_href(hash, replaces)).to eq({
+        fizz: {Item: ["1", "2"]},
+      })
+    end
   end
 
   xit "parses typical request" do
