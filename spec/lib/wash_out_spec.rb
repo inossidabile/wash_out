@@ -84,6 +84,13 @@ describe WashOut do
 
       expect(x[:'@min_occurs']).to eq "0"
       expect(x[:'@max_occurs']).to eq "unbounded"
+      expect(x[:'@nillable']).to eq "true"
+    end
+
+    it "adds nillable to all type definitions" do
+      types = xml[:definitions][:message].map { |d| d[:part] }.compact
+      nillable = types.map { |t| t[:"@xsi:nillable"] }
+      expect(nillable.all? { |v| v == "true" }).to be true
     end
   end
 
