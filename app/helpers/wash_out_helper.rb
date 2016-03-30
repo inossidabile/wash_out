@@ -3,7 +3,11 @@ module WashOutHelper
   def wsdl_data_options(param)
     case controller.soap_config.wsdl_style
     when 'rpc'
-      { :"xsi:type" => param.namespaced_type }
+      if param.map.present? || param.value
+        { :"xsi:type" => param.namespaced_type }
+      else
+        { :"xsi:nil" => true }
+      end
     when 'document'
       { }
     end
@@ -96,11 +100,11 @@ module WashOutHelper
   end
 
   def wsdl_occurence(param, inject, extend_with = {})
-    data = !param.multiplied ? {} : {
-      "#{'xsi:' if inject}minOccurs" => 0,
-      "#{'xsi:' if inject}maxOccurs" => 'unbounded'
-    }
-
+    data = {"#{'xsi:' if inject}nillable" => 'true'}
+    if param.multiplied
+      data["#{'xsi:' if inject}minOccurs"] = 0
+      data["#{'xsi:' if inject}maxOccurs"] = 'unbounded'
+    end
     extend_with.merge(data)
   end
 end
