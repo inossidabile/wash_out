@@ -60,6 +60,20 @@ describe WashOut::Param do
     end
   end
 
+  describe "integers" do
+    let(:soap_config) { WashOut::SoapConfig.new({ camelize_wsdl: false }) }
+
+    it "accepts them as 'integer'" do
+      map = WashOut::Param.parse_def(soap_config, :value => :integer)
+      expect(map[0].load({value: '42'}, :value)).to eq 42
+    end
+
+    it "accepts them as 'int'" do
+      map = WashOut::Param.parse_def(soap_config, :value => :int)
+      expect(map[0].load({value: '42'}, :value)).to eq 42
+    end
+  end
+
   describe 'longs' do
     let(:soap_config) { WashOut::SoapConfig.new({ camelize_wsdl: false }) }
     let(:map) { WashOut::Param.parse_def(soap_config, :value => :long) }
