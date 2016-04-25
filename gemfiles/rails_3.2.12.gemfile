@@ -16,5 +16,6 @@ gem "simplecov"
 gem "simplecov-summary"
 gem "rails", "3.2.12"
 gem "test-unit"
+gem "listen", "< 3.1.0"
 
 gemspec :path => "../"

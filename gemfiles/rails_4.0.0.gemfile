@@ -15,5 +15,6 @@ gem "pry"
 gem "simplecov"
 gem "simplecov-summary"
 gem "rails", "4.0.0"
+gem "listen", "< 3.1.0"
 
 gemspec :path => "../"
