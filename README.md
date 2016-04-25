@@ -160,7 +160,7 @@ inside separate classes for the complex ones. Here's the way to do that:
 class Fluffy < WashOut::Type
   map :universe => {
         :name => :string,
-        :age  => :int
+        :age  => :integer
       }
 end
 
