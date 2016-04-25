@@ -166,10 +166,8 @@ module WashOut
 
       controller.send :"around_#{entity}", :_catch_soap_errors
       controller.send :helper, :wash_out
-      controller.send :"before_#{entity}", :_authenticate_wsse,     :except => [
-        :_generate_wsdl, :_invalid_action ]
-      controller.send :"before_#{entity}", :_map_soap_parameters,   :except => [
-        :_generate_wsdl, :_invalid_action ]
+      controller.send :"before_#{entity}", :_authenticate_wsse,   :if => :soap_action?
+      controller.send :"before_#{entity}", :_map_soap_parameters, :if => :soap_action?
       controller.send :"skip_before_#{entity}", :verify_authenticity_token
     end
 
@@ -209,6 +207,10 @@ module WashOut
     end
 
     private
+    def soap_action?
+      soap_action.present?
+    end
+
     def action_spec
       self.class.soap_actions[soap_action]
     end
