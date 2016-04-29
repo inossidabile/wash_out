@@ -33,6 +33,10 @@ module WashOut
     def _map_soap_parameters
       @_params = _load_params action_spec[:in],
         _strip_empty_nodes(action_spec[:in], xml_data)
+      if action_spec[:header_in]
+        @_params[:header] = _load_params action_spec[:header_in],
+        _strip_empty_nodes(action_spec[:header_in], xml_header_data)
+      end
     end
 
     def _strip_empty_nodes(params, hash)
@@ -127,9 +131,19 @@ module WashOut
         return result_spec
       }
 
+      header = options[:header]
+      if header.present?
+        header = { 'value' => header } unless header.is_a? Hash
+        header = HashWithIndifferentAccess.new(header)
+      end
+
       render :template => "wash_out/#{soap_config.wsdl_style}/response",
              :layout => false,
-             :locals => { :result => inject.call(result, @action_spec[:out]) },
+             :locals => {
+               :header => header.present? ? inject.call(header, @action_spec[:header_out])
+                                      : nil,
+               :result => inject.call(result, @action_spec[:out])
+             },
              :content_type => 'text/xml'
     end
 
@@ -222,10 +236,15 @@ module WashOut
     end
 
     def xml_data
-      xml_data = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
-      xml_data = xml_data.values_at(:body, :Body).compact.first || {}
+      envelope = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
+      xml_data = envelope.values_at(:body, :Body).compact.first || {}
       return xml_data if soap_config.wsdl_style == "document"
       xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym, request_input_tag.to_sym).compact.first || {}
+    end
+
+    def xml_header_data
+      envelope = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
+      header_data = envelope.values_at(:header, :Header).compact.first || {}
     end
 
   end
