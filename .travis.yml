@@ -24,6 +24,10 @@ matrix:
     - rvm: 2.3.0
       gemfile: gemfiles/rails_3.2.12.gemfile
     - rvm: 1.9.3
+      gemfile: gemfiles/rails_4.2.0.gemfile
+    - rvm: jruby
+      gemfile: gemfiles/rails_4.2.0.gemfile
+    - rvm: 1.9.3
       gemfile: gemfiles/rails_5.0.0.beta2.gemfile
     - rvm: 2.0.0
       gemfile: gemfiles/rails_5.0.0.beta2.gemfile

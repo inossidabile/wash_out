@@ -12,11 +12,13 @@ describe WashOut do
     )
   end
 
-  def savon(method, message={}, &block)
+  def savon(method, message={}, hashify=true, &block)
     message = {:value => message} unless message.is_a?(Hash)
 
-    savon = Savon::Client.new(:log => false, :wsdl => 'http://app/api/wsdl', &block)
-    savon.call(method, :message => message).to_hash
+    savon  = Savon::Client.new(:log => false, :wsdl => 'http://app/api/wsdl', &block)
+    result = savon.call(method, :message => message)
+    result = result.to_hash if hashify
+    result
   end
 
   def savon!(method, message={}, &block)
@@ -150,6 +152,17 @@ describe WashOut do
 
         expect(savon(:answer)[:answer_response][:value]).
           to eq "42"
+      end
+
+      it "shows date in correct format" do
+        mock_controller do
+          soap_action "answer", :args => {}, :return => {:a => :date}
+          def answer
+            render :soap => {:a => DateTime.new(2000, 1, 1)}
+          end
+        end
+        result = Hash.from_xml savon(:answer, {}, false).http.body
+        expect(result['Envelope']['Body']['answerResponse']['A']).to eq '2000-01-01T00:00:00+00:00'
       end
 
       it "accept empty parameter" do

@@ -15,7 +15,6 @@ gem "pry"
 gem "simplecov"
 gem "simplecov-summary"
 gem "rails", "4.2.0"
-gem "mime-types", "2.6.2"
 gem "listen", "< 3.1.0"
 
 gemspec :path => "../"
