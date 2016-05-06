@@ -140,6 +140,11 @@ module WashOut
       render_soap_error("Cannot find SOAP action mapping for #{request.env['wash_out.soap_action']}")
     end
 
+    # This action is a fallback for invalid SOAP message.
+    def _invalid_soap
+      render_soap_error("Cannot parse SOAP message: #{request.env['wash_out.soap_error']}")
+    end
+
     def _catch_soap_errors
       yield
     rescue SOAPError => error
