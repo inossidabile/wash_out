@@ -21,6 +21,11 @@ describe WashOut do
     result
   end
 
+  def savon_raw(method, xml, &block)
+    savon = Savon::Client.new(:log => false, :wsdl => 'http://app/api/wsdl', &block)
+    savon.call(method, :xml => xml).to_hash
+  end
+
   def savon!(method, message={}, &block)
     message = {:value => message} unless message.is_a?(Hash)
 
@@ -671,7 +676,22 @@ describe WashOut do
 
       savon(:rocknroll, "ZOMG" => 'yam!')
     end
+  end
 
+  describe "Router" do
+    it "raises when SOAP message without SOAP Envelope arrives" do
+      mock_controller do; end
+      invalid_request = File.read(File.expand_path("../../fixtures/invalid_no_envelope.xml", __FILE__))
+      response_hash = Nori.new.parse(HTTPI.post("http://app/api/action", invalid_request).body)
+      expect(response_hash["soap:Envelope"]["soap:Body"]["soap:Fault"]['faultstring']).to eq "Cannot parse SOAP message: Mandatory SOAP Envelope tag is missing"
+    end
+
+    it "raises when SOAP message without SOAP Body arrives" do
+      mock_controller do; end
+      invalid_request = File.read(File.expand_path("../../fixtures/invalid_no_body.xml", __FILE__))
+      response_hash = Nori.new.parse(HTTPI.post("http://app/api/action", invalid_request).body)
+      expect(response_hash["soap:Envelope"]["soap:Body"]["soap:Fault"]['faultstring']).to eq "Cannot parse SOAP message: Mandatory SOAP Body tag is missing"
+    end
   end
 
   describe "WS Security" do

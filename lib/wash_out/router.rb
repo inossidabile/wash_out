@@ -22,10 +22,11 @@ module WashOut
         parsed_soap_body = nori(controller.soap_config.snakecase_input).parse(soap_body env)
         return nil if parsed_soap_body.blank?
 
-        soap_action = parsed_soap_body
-            .values_at(:envelope, :Envelope).compact.first
-            .values_at(:body, :Body).compact.first
-            .keys.first.to_s
+        envelope = parsed_soap_body.values_at(:envelope, :Envelope).compact.first
+        raise WashOut::Dispatcher::SOAPError, "Mandatory SOAP Envelope tag is missing" unless envelope
+        body = envelope.values_at(:body, :Body).compact.first
+        raise WashOut::Dispatcher::SOAPError, "Mandatory SOAP Body tag is missing" unless body
+        soap_action = body.keys.first.to_s
       end
 
       # RUBY18 1.8 does not have force_encoding.
@@ -75,8 +76,13 @@ module WashOut
     def call(env)
       @controller = @controller_name.constantize
 
-      soap_action     = parse_soap_action(env)
-      return [200, {}, ['OK']] if soap_action.blank?
+      begin
+        soap_action = parse_soap_action(env)
+        return [200, {}, ['OK']] if soap_action.blank?
+      rescue WashOut::Dispatcher::SOAPError => e
+        action = '_invalid_soap'
+        env['wash_out.soap_error'] = e.message
+      end
 
       soap_parameters = parse_soap_parameters(env)
 
@@ -85,7 +91,7 @@ module WashOut
       if action_spec
         action = action_spec[:to]
       else
-        action = '_invalid_action'
+        action ||= '_invalid_action'
       end
 
       controller.action(action).call(env)
