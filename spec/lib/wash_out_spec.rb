@@ -671,11 +671,25 @@ describe WashOut do
 
       savon(:rocknroll, "ZOMG" => 'yam!')
     end
+  end
 
+  describe "Router" do
+    it "raises when SOAP message without SOAP Envelope arrives" do
+      mock_controller do; end
+      invalid_request = '<a></a>'
+      response_hash = Nori.new.parse(HTTPI.post("http://app/api/action", invalid_request).body)
+      expect(response_hash["soap:Envelope"]["soap:Body"]["soap:Fault"]['faultstring']).to eq "Invalid SOAP request"
+    end
+      
+    it "raises when SOAP message without SOAP Body arrives" do
+      mock_controller do; end
+      invalid_request = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"></s:Envelope>'
+      response_hash = Nori.new.parse(HTTPI.post("http://app/api/action", invalid_request).body)
+      expect(response_hash["soap:Envelope"]["soap:Body"]["soap:Fault"]['faultstring']).to eq "Invalid SOAP request"
+    end
   end
 
   describe "WS Security" do
-
     it "appends username_token to params" do
       mock_controller(wsse_username: "gorilla", wsse_password: "secret") do
         soap_action "checkToken", :args => :integer, :return => nil, :to => 'check_token'

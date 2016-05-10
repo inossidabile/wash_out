@@ -13,11 +13,8 @@ describe WashOut::Router do
     env['rack.input'] = double 'basic-rack-input', {:string => ''}
     result = WashOut::Router.new('Api').call env
 
-    expect(result[0]).to eq(200)
-    #expect(result[1]['Content-Type']).to eq('text/xml')
-
-    msg = result[2][0]
-    expect(msg).to eq('OK')
+    expect(result[0]).to eq(500)
+    expect(result[1]['Content-Type']).to eq('text/xml; charset=utf-8')
   end
 
   def parse_soap_params_from_xml(filename)

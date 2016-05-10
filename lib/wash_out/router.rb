@@ -22,10 +22,9 @@ module WashOut
         parsed_soap_body = nori(controller.soap_config.snakecase_input).parse(soap_body env)
         return nil if parsed_soap_body.blank?
 
-        soap_action = parsed_soap_body
-            .values_at(:envelope, :Envelope).compact.first
-            .values_at(:body, :Body).compact.first
-            .keys.first.to_s
+        soap_action = parsed_soap_body.values_at(:envelope, :Envelope).try(:compact).try(:first)
+        soap_action = soap_action.values_at(:body, :Body).try(:compact).try(:first) if soap_action
+        soap_action = soap_action.keys.first.to_s if soap_action
       end
 
       # RUBY18 1.8 does not have force_encoding.
@@ -75,17 +74,19 @@ module WashOut
     def call(env)
       @controller = @controller_name.constantize
 
-      soap_action     = parse_soap_action(env)
-      return [200, {}, ['OK']] if soap_action.blank?
+      soap_action = parse_soap_action(env)
 
-      soap_parameters = parse_soap_parameters(env)
-
-      action_spec = controller.soap_actions[soap_action]
-
-      if action_spec
-        action = action_spec[:to]
+      action = if soap_action.blank?
+        '_invalid_request'
       else
-        action = '_invalid_action'
+        soap_parameters = parse_soap_parameters(env)
+        action_spec     = controller.soap_actions[soap_action]
+
+        if action_spec
+          action_spec[:to]
+        else
+          '_invalid_action'
+        end
       end
 
       controller.action(action).call(env)
