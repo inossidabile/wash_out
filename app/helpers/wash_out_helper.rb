@@ -100,7 +100,6 @@ module WashOutHelper
   end
 
   def wsdl_occurence(param, inject, extend_with = {})
-    return extend_with if controller.soap_config.wsdl_style.to_s == 'document'
     data = {"#{'xsi:' if inject}nillable" => 'true'}
     if param.multiplied
       data["#{'xsi:' if inject}minOccurs"] = 0
