@@ -61,6 +61,8 @@ module WashOut
           end
         end
       else
+        data = replace_empty_element_with_blank_string(data)
+
         operation = case type
           when 'string';       :to_s
           when 'integer';      :to_i
@@ -195,6 +197,18 @@ module WashOut
       end
 
       struct
+    end
+
+    def replace_empty_element_with_blank_string(data)
+      if data.is_a?(Hash) && hash_of_just_attributes?(data)
+        ""
+      else
+        data
+      end
+    end
+
+    def hash_of_just_attributes?(hash)
+      hash.keys.all? { |attribute| attribute.start_with?('@') }
     end
   end
 end
