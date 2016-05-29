@@ -175,39 +175,35 @@ module WashOut
       controller.send :"skip_before_#{entity}", :verify_authenticity_token
     end
 
-    def self.deep_select(collection, result = [])
-      is_id = lambda { |v| v.is_a?(Hash) && v.has_key?(:@id) }
+    def self.deep_select(collection, result=[], &blk)
       values = collection.respond_to?(:values) ? collection.values : collection
-      result += values.select(&is_id)
+      result += values.select(&blk)
 
       values.each do |value|
         if value.is_a?(Hash) || value.is_a?(Array)
-          result = deep_select(value, result)
+          result = deep_select(value, result, &blk)
         end
       end
 
       result
     end
 
-    def self.deep_replace_href(hash, replace)
-      hash.each do |key, value|
-        if value.respond_to?(:has_key?) && value.has_key?(:@href)
-          hash[key] = replace[value[:@href]]
-          hash = deep_replace_href(hash, replace) if hash.is_a?(Hash)
-        elsif key == :@href
-          hash = replace[value]
-        end
+    def self.deep_replace_href(element, replace)
+      return element unless element.is_a?(Array) || element.is_a?(Hash)
 
-        if hash[key].is_a?(Hash)
-          hash[key] = deep_replace_href(hash[key], replace)
-        elsif hash[key].is_a?(Array)
-          hash[key] = hash[key].map do |v|
-            v.is_a?(Hash) ? deep_replace_href(v, replace) : v
-          end
-        end
+      if element.is_a?(Array) # Traverse arrays
+        return element.map{|x| deep_replace_href(x, replace)}
       end
 
-      hash
+      if element.has_key?(:@href) # Replace needle and traverse replacement
+        return deep_replace_href(replace[element[:@href]], replace)
+      end
+
+      element.each do |key, value| # Traverse hashes
+        element[key] = deep_replace_href(value, replace)
+      end
+
+      element
     end
 
     private

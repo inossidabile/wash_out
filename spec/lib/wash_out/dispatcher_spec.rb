@@ -13,16 +13,18 @@ describe WashOut::Dispatcher do
   end
 
   describe ".deep_select" do
+    blk = lambda{|v| v.is_a?(Hash) && v.has_key?(:@id)}
+
     it "find no elements if there aren't any ids" do
-      expect(WashOut::Dispatcher.deep_select({k: {v: :v2}})).to eq []
+      expect(WashOut::Dispatcher.deep_select({k: {v: :v2}}, &blk)).to eq []
     end
 
     it "finds elements with ids in a hash" do
-      expect(WashOut::Dispatcher.deep_select({k: {:@id => 5, x: :y}})).to eq [{:@id => 5, x: :y}]
+      expect(WashOut::Dispatcher.deep_select({k: {:@id => 5, x: :y}}, &blk)).to eq [{:@id => 5, x: :y}]
     end
 
     it "finds elements with ids in a array" do
-      expect(WashOut::Dispatcher.deep_select({k: [{:@id => 5, x: :y}]})).to eq [{:@id => 5, x: :y}]
+      expect(WashOut::Dispatcher.deep_select({k: [{:@id => 5, x: :y}]}, &blk)).to eq [{:@id => 5, x: :y}]
     end
 
     it "finds elements with ids in hashes" do
@@ -30,7 +32,7 @@ describe WashOut::Dispatcher do
         {
           k: {:@id => 5, x: :y},
           k2: {:@id => 6, n: :m}
-        })).to eq [{:@id => 5, x: :y}, {:@id => 6, n: :m}]
+        }, &blk)).to eq [{:@id => 5, x: :y}, {:@id => 6, n: :m}]
     end
 
     it "finds elements in a hash and in a array" do
@@ -38,7 +40,7 @@ describe WashOut::Dispatcher do
         {
           k: [{:@id => 5, x: :y}],
           k2: {:@id => 6, n: :m}
-        })).to contain_exactly({:@id => 5, x: :y}, {:@id => 6, n: :m})
+        }, &blk)).to contain_exactly({:@id => 5, x: :y}, {:@id => 6, n: :m})
     end
 
     it "finds elements with ids in multiple arrays" do
@@ -46,7 +48,7 @@ describe WashOut::Dispatcher do
         {
           k: [{:@id => 5, x: :y}],
           k2: [{:@id => 6, n: :m}]
-        })).to eq [{:@id => 5, x: :y}, {:@id => 6, n: :m}]
+        }, &blk)).to eq [{:@id => 5, x: :y}, {:@id => 6, n: :m}]
     end
   end
 
