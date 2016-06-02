@@ -16,7 +16,6 @@ module WashOut
     class ProgrammerError < Exception; end
 
     def _authenticate_wsse
-
       begin
         xml_security   = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
         xml_security   = xml_security.values_at(:header, :Header).compact.first
