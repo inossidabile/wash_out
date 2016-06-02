@@ -26,10 +26,13 @@ module ActionDispatch::Routing
         options.each_with_index { |key, value|  scope_frame[key] = value }
       end
 
-      controller_class_name = [options[:module], controller_name].compact.join("/")
+      controller_class_name = [options[:module], controller_name].compact.join("/").underscore
 
-      match "#{controller_name}/wsdl"   => "#{controller_name}#_generate_wsdl", :via => :get, :format => false
-      match "#{controller_name}/action" => WashOut::Router.new(controller_class_name), :via => [:get, :post], :defaults => { :controller => controller_class_name, :action => '_action' }, :format => false
+      match "#{controller_name}/wsdl"   => "#{controller_name}#_generate_wsdl", :via => :get, :format => false,
+        :as => "#{controller_class_name}_wsdl"
+      match "#{controller_name}/action" => WashOut::Router.new(controller_class_name), :via => [:get, :post],
+        :defaults => { :controller => controller_class_name, :action => '_action' }, :format => false,
+        :as => "#{controller_class_name}_soap"
     end
   end
 end

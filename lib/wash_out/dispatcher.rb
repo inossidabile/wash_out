@@ -69,7 +69,6 @@ module WashOut
 
     # This action generates the WSDL for defined SOAP methods.
     def _generate_wsdl
-
       @map       = self.class.soap_actions
       @namespace = soap_config.namespace
       @name      = controller_path.gsub('/', '_')
