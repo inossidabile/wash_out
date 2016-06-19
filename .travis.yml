@@ -1,7 +1,6 @@
 script: bundle exec rspec
 gemfile:
-  - gemfiles/rails_3.1.3.gemfile
-  - gemfiles/rails_3.2.12.gemfile
+  - gemfiles/rails_3.2.13.gemfile
   - gemfiles/rails_4.0.0.gemfile
   - gemfiles/rails_4.1.0.gemfile
   - gemfiles/rails_4.2.0.gemfile
@@ -16,13 +15,9 @@ rvm:
 matrix:
   exclude:
     - rvm: 2.2.4
-      gemfile: gemfiles/rails_3.1.3.gemfile
-    - rvm: 2.2.4
-      gemfile: gemfiles/rails_3.2.12.gemfile
+      gemfile: gemfiles/rails_3.2.13.gemfile
     - rvm: 2.3.0
-      gemfile: gemfiles/rails_3.1.3.gemfile
-    - rvm: 2.3.0
-      gemfile: gemfiles/rails_3.2.12.gemfile
+      gemfile: gemfiles/rails_3.2.13.gemfile
     - rvm: 1.9.3
       gemfile: gemfiles/rails_4.2.0.gemfile
     - rvm: jruby

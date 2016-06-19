@@ -50,12 +50,18 @@ HTTPI.adapter = :rack
 
 HTTPI::Adapter::Rack.mount 'app', Dummy::Application
 Dummy::Application.routes.draw do
-  wash_out :api
+  namespace :route do
+    scope module: 'space' do
+      wash_out :api
+    end
+  end
 end
 
 def mock_controller(options = {}, &block)
-  Object.send :remove_const, :ApiController if defined?(ApiController)
-  Object.send :const_set, :ApiController, Class.new(ApplicationController) {
+  Object.send :const_set, :Route, Module.new unless defined?(Route)
+  Route.send :const_set, :Space, Module.new unless defined?(Route::Space)
+  Route::Space.send :remove_const, :ApiController if defined?(Route::Space::ApiController)
+  Route::Space.send :const_set, :ApiController, Class.new(ApplicationController) {
     include RSpec::Matchers
     
     soap_service options.reverse_merge({
@@ -66,7 +72,7 @@ def mock_controller(options = {}, &block)
     class_exec &block if block
   }
 
-  ActiveSupport::Dependencies::Reference.instance_variable_get(:'@store').delete('ApiController')
+  ActiveSupport::Dependencies::Reference.instance_variable_get(:'@store').delete('Route::Space::ApiController')
 end
 
 unless defined?(silence_stream) # Rails 5

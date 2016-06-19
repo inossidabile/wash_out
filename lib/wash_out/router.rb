@@ -4,6 +4,26 @@ module WashOut
   # This class is a Rack middleware used to route SOAP requests to a proper
   # action of a given SOAP controller.
   class Router
+    def self.url(request, controller_name)
+      route = Rails.application.routes.routes.select do |x|
+        defaults = x.defaults
+        defaults = defaults[:defaults] if defaults.include?(:defaults) # Rails 5
+        defaults[:controller] == controller_name && defaults[:action] == 'soap'
+      end.first
+
+      path = if route.respond_to?(:optimized_path)      # Rails 4
+        route.optimized_path
+      elsif route.path.respond_to?(:build_formatter)    # Rails 5
+        route.path.build_formatter.evaluate(nil)
+      else
+        route.format({})                                # Rails 3.2
+      end
+
+      path = path.join('') if path.is_a?(Array)
+
+      request.protocol + request.host_with_port + path
+    end
+
     def initialize(controller_name)
       @controller_name = "#{controller_name.to_s}_controller".camelize
     end
@@ -17,7 +37,6 @@ module WashOut
 
       soap_action = controller.soap_config.soap_action_routing ? env['HTTP_SOAPACTION'].to_s.gsub(/^"(.*)"$/, '\1')
                                                                : ''
-
       if soap_action.blank?
         parsed_soap_body = nori(controller.soap_config.snakecase_input).parse(soap_body env)
         return nil if parsed_soap_body.blank?

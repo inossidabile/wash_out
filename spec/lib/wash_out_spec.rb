@@ -15,7 +15,7 @@ describe WashOut do
   def savon(method, message={}, hashify=true, &block)
     message = {:value => message} unless message.is_a?(Hash)
 
-    savon  = Savon::Client.new(:log => false, :wsdl => 'http://app/api/wsdl', &block)
+    savon  = Savon::Client.new(:log => false, :wsdl => 'http://app/route/api/wsdl', &block)
     result = savon.call(method, :message => message)
     result = result.to_hash if hashify
     result
@@ -24,7 +24,7 @@ describe WashOut do
   def savon!(method, message={}, &block)
     message = {:value => message} unless message.is_a?(Hash)
 
-    savon = Savon::Client.new(:log => true, :wsdl => 'http://app/api/wsdl', &block)
+    savon = Savon::Client.new(:log => true, :wsdl => 'http://app/route/api/wsdl', &block)
     savon.call(method, :message => message).to_hash
   end
 
@@ -61,7 +61,7 @@ describe WashOut do
                              :return => { :circle2 => { :y => :integer } }
       end
 
-      HTTPI.get("http://app/api/wsdl").body
+      HTTPI.get("http://app/route/api/wsdl").body
     end
 
     let :xml do
@@ -118,7 +118,7 @@ describe WashOut do
           </env:Envelope>
         XML
 
-        expect(HTTPI.post("http://app/api/action", request).body).to eq <<-XML
+        expect(HTTPI.post("http://app/route/api/action", request).body).to eq <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
   <soap:Body>
@@ -677,14 +677,14 @@ describe WashOut do
     it "raises when SOAP message without SOAP Envelope arrives" do
       mock_controller do; end
       invalid_request = '<a></a>'
-      response_hash = Nori.new.parse(HTTPI.post("http://app/api/action", invalid_request).body)
+      response_hash = Nori.new.parse(HTTPI.post("http://app/route/api/action", invalid_request).body)
       expect(response_hash["soap:Envelope"]["soap:Body"]["soap:Fault"]['faultstring']).to eq "Invalid SOAP request"
     end
       
     it "raises when SOAP message without SOAP Body arrives" do
       mock_controller do; end
       invalid_request = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"></s:Envelope>'
-      response_hash = Nori.new.parse(HTTPI.post("http://app/api/action", invalid_request).body)
+      response_hash = Nori.new.parse(HTTPI.post("http://app/route/api/action", invalid_request).body)
       expect(response_hash["soap:Envelope"]["soap:Body"]["soap:Fault"]['faultstring']).to eq "Invalid SOAP request"
     end
   end

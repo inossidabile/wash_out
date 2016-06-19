@@ -11,7 +11,7 @@ describe WashOut::Router do
     env = {}
     env['REQUEST_METHOD'] = 'GET'
     env['rack.input'] = double 'basic-rack-input', {:string => ''}
-    result = WashOut::Router.new('Api').call env
+    result = WashOut::Router.new('Route::Space::Api').call env
 
     expect(result[0]).to eq(500)
     expect(result[1]['Content-Type']).to eq('text/xml; charset=utf-8')
