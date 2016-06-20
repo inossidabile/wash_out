@@ -313,10 +313,10 @@ describe WashOut do
 
         expect(savon(:gogogo)[:gogogo_response]).
           to eq({
-            :zoo=>"zoo", 
+            :zoo=>"zoo",
             :boo=>{
-              :moo=>"moo", 
-              :doo=>"doo", 
+              :moo=>"moo",
+              :doo=>"doo",
               :"@xsi:type"=>"tns:Boo"
             }
           })
@@ -498,9 +498,9 @@ describe WashOut do
 
       it "makes simple header values accessible" do
         mock_controller do
-          soap_action "answer", :args => nil, :return => :int, :header_args => :string
+          soap_action "answer", :args => nil, :return => :int
           def answer
-            expect(params[:header][:value]).to eq "12345"
+            expect(soap_request.headers).to eq({value: "12345"})
             render :soap => "42"
           end
         end
@@ -525,9 +525,9 @@ describe WashOut do
 
       it "makes complex header values accessible" do
         mock_controller do
-          soap_action "answer", :args => nil, :return => :int, :header_args => {:auth => {:answer_response => :string}}
+          soap_action "answer", :args => nil, :return => :int
           def answer
-            expect(params[:header][:auth][:answer_response]).to eq "12345"
+            expect(soap_request.headers[:auth][:answer_response]).to eq "12345"
             render :soap => "42"
           end
         end
@@ -849,7 +849,7 @@ describe WashOut do
       response_hash = Nori.new.parse(HTTPI.post("http://app/api/action", invalid_request).body)
       expect(response_hash["soap:Envelope"]["soap:Body"]["soap:Fault"]['faultstring']).to eq "Invalid SOAP request"
     end
-      
+
     it "raises when SOAP message without SOAP Body arrives" do
       mock_controller do; end
       invalid_request = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"></s:Envelope>'
@@ -931,7 +931,7 @@ describe WashOut do
     it "handles auth callback" do
       mock_controller(
         wsse_auth_callback: lambda {|user, password|
-          return user == "gorilla" && password == "secret" 
+          return user == "gorilla" && password == "secret"
         }
       ) do
         soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
