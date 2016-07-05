@@ -4,7 +4,7 @@ gemfile:
   - gemfiles/rails_4.0.0.gemfile
   - gemfiles/rails_4.1.0.gemfile
   - gemfiles/rails_4.2.0.gemfile
-  - gemfiles/rails_5.0.0.beta2.gemfile
+  - gemfiles/rails_5.0.0.gemfile
 rvm:
   - 1.9.3
   - 2.0.0
@@ -19,16 +19,18 @@ matrix:
     - rvm: 2.3.0
       gemfile: gemfiles/rails_3.2.13.gemfile
     - rvm: 1.9.3
+      gemfile: gemfiles/rails_4.0.0.gemfile
+    - rvm: 1.9.3
       gemfile: gemfiles/rails_4.2.0.gemfile
     - rvm: jruby
       gemfile: gemfiles/rails_4.2.0.gemfile
     - rvm: 1.9.3
-      gemfile: gemfiles/rails_5.0.0.beta2.gemfile
+      gemfile: gemfiles/rails_5.0.0.gemfile
     - rvm: 2.0.0
-      gemfile: gemfiles/rails_5.0.0.beta2.gemfile
+      gemfile: gemfiles/rails_5.0.0.gemfile
     - rvm: 2.1.8
-      gemfile: gemfiles/rails_5.0.0.beta2.gemfile
+      gemfile: gemfiles/rails_5.0.0.gemfile
     - rvm: jruby
-      gemfile: gemfiles/rails_5.0.0.beta2.gemfile
+      gemfile: gemfiles/rails_5.0.0.gemfile
 before_install:
   - gem update bundler
