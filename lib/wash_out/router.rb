@@ -35,6 +35,7 @@ module WashOut
         route.format({})                                # Rails 3.2
       end
 
+
       path = path.join('') if path.is_a?(Array)
 
       request.protocol + request.host_with_port + path
@@ -123,7 +124,7 @@ module WashOut
           '_invalid_action'
         end
       end
-
+      env["action_dispatch.request.content_type"] = Mime[:soap]
       controller.action(action).call(env)
     end
   end
