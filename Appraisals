@@ -1,10 +1,5 @@
-appraise "rails-3.1.3" do
-  gem "rails", "3.1.3"
-  gem "test-unit"
-end
-
-appraise "rails-3.2.12" do
-  gem "rails", "3.2.12"
+appraise "rails-3.2.13" do
+  gem "rails", "3.2.13"
   gem "test-unit"
   gem "listen", "< 3.1.0"
 end
@@ -24,6 +19,7 @@ appraise "rails-4.2.0" do
   gem "listen", "< 3.1.0"
 end
 
-appraise "rails-5.0.0.beta2" do
-  gem "rails", "5.0.0.beta2"
+
+appraise "rails-5.0.0" do
+  gem "rails", "5.0.0"
 end

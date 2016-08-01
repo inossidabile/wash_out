@@ -4,6 +4,43 @@ module WashOut
   # This class is a Rack middleware used to route SOAP requests to a proper
   # action of a given SOAP controller.
   class Router
+    def self.lookup_soap_routes(controller_name, routes)
+      results = []
+
+      routes.each do |x|
+        defaults = x.defaults
+        defaults = defaults[:defaults] if defaults.include?(:defaults) # Rails 5
+        if defaults[:controller] == controller_name && defaults[:action] == 'soap'
+          results << x
+        end
+
+        app = x.app
+        app = app.app if app.respond_to?(:app)
+        if app.is_a?(Class) && app.ancestors.include?(Rails::Engine)
+          results += lookup_soap_routes(controller_name, app.routes.routes)
+        end
+      end
+
+      results
+    end
+
+    def self.url(request, controller_name)
+      route = lookup_soap_routes(controller_name, Rails.application.routes.routes).first
+
+      path = if route.respond_to?(:optimized_path)      # Rails 4
+        route.optimized_path
+      elsif route.path.respond_to?(:build_formatter)    # Rails 5
+        route.path.build_formatter.evaluate(nil)
+      else
+        route.format({})                                # Rails 3.2
+      end
+
+
+      path = path.join('') if path.is_a?(Array)
+
+      request.protocol + request.host_with_port + path
+    end
+
     def initialize(controller_name)
       @controller_name = "#{controller_name.to_s}_controller".camelize
     end
@@ -17,7 +54,6 @@ module WashOut
 
       soap_action = controller.soap_config.soap_action_routing ? env['HTTP_SOAPACTION'].to_s.gsub(/^"(.*)"$/, '\1')
                                                                : ''
-
       if soap_action.blank?
         parsed_soap_body = nori(controller.soap_config.snakecase_input).parse(soap_body env)
         return nil if parsed_soap_body.blank?
@@ -88,7 +124,7 @@ module WashOut
           '_invalid_action'
         end
       end
-
+      env["action_dispatch.request.content_type"] = Mime[:soap]
       controller.action(action).call(env)
     end
   end
