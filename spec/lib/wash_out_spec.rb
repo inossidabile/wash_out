@@ -484,7 +484,7 @@ describe WashOut do
           </env:Envelope>
         XML
 
-        expect(HTTPI.post("http://app/api/action", request).body).to eq <<-XML
+        expect(HTTPI.post("http://app/route/api/action", request).body).to eq <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
   <soap:Body>
@@ -519,7 +519,7 @@ describe WashOut do
           </env:Envelope>
         XML
 
-        HTTPI.post("http://app/api/action", request)
+        HTTPI.post("http://app/route/api/action", request)
 
       end
 
@@ -548,7 +548,7 @@ describe WashOut do
           </env:Envelope>
         XML
 
-        HTTPI.post("http://app/api/action", request)
+        HTTPI.post("http://app/route/api/action", request)
 
       end
 
@@ -572,7 +572,7 @@ describe WashOut do
           </env:Envelope>
         XML
 
-        expect(HTTPI.post("http://app/api/action", request).body).to eq <<-XML
+        expect(HTTPI.post("http://app/route/api/action", request).body).to eq <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
   <soap:Header>
@@ -610,7 +610,7 @@ describe WashOut do
         </env:Envelope>
       XML
 
-      expect(HTTPI.post("http://app/api/action", request).body).to eq <<-XML
+      expect(HTTPI.post("http://app/route/api/action", request).body).to eq <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
   <soap:Header>
