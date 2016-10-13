@@ -16,7 +16,7 @@ module WashOut
 
         app = x.app
         app = app.app if app.respond_to?(:app)
-        if app.is_a?(Class) && app.ancestors.include?(Rails::Engine)
+        if app.respond_to?(:routes)
           results += lookup_soap_routes(controller_name, app.routes.routes)
         end
       end
