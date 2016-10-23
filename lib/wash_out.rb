@@ -58,3 +58,11 @@ ActionController::Metal.class_eval do
     self.soap_config = options
   end
 end
+
+if Rails::VERSION::MAJOR >= 5
+  ActiveSupport.on_load :action_controller do
+    if self == ActionController::API
+      include ActionController::Helpers
+    end
+  end
+end
