@@ -44,7 +44,7 @@ ActionController::Renderers.add :soap do |what, options|
   _render_soap(what, options)
 end
 
-ActionController::Base.class_eval do
+ActionController::Metal.class_eval do
 
   # Define a SOAP service. The function has no required +options+:
   # but allow any of :parser, :namespace, :wsdl_style, :snakecase_input,
@@ -56,5 +56,19 @@ ActionController::Base.class_eval do
   def self.soap_service(options={})
     include WashOut::SOAP
     self.soap_config = options
+  end
+end
+
+if Rails::VERSION::MAJOR >= 5
+  module ActionController
+    module ApiRendering
+      include ActionView::Rendering
+    end
+  end
+
+  ActiveSupport.on_load :action_controller do
+    if self == ActionController::API
+      include ActionController::Helpers
+    end
   end
 end

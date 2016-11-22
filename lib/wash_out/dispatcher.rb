@@ -31,7 +31,7 @@ module WashOut
     end
 
     def _map_soap_parameters
-      @_params = _load_params action_spec[:in],
+      self.params = _load_params action_spec[:in],
         _strip_empty_nodes(action_spec[:in], xml_data)
     end
 
@@ -170,7 +170,7 @@ module WashOut
       controller.send :helper, :wash_out
       controller.send :"before_#{entity}", :_authenticate_wsse,   :if => :soap_action?
       controller.send :"before_#{entity}", :_map_soap_parameters, :if => :soap_action?
-      controller.send :"skip_before_#{entity}", :verify_authenticity_token
+      controller.send :"skip_before_#{entity}", :verify_authenticity_token, :raise => false
     end
 
     def self.deep_select(collection, result=[], &blk)
