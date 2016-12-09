@@ -4,18 +4,18 @@ module WashOut
   # This class is a Rack middleware used to route SOAP requests to a proper
   # action of a given SOAP controller.
   class Router
-    def self.lookup_soap_routes(controller_name, routes, path: [], &block)
+    def self.lookup_soap_routes(controller_name, routes, path=[], &block)
       routes.each do |x|
         defaults = x.defaults
         defaults = defaults[:defaults] if defaults.include?(:defaults) # Rails 5
         if defaults[:controller] == controller_name && defaults[:action] == 'soap'
-          yield path + [x]
+          yield path+[x]
         end
 
         app = x.app
         app = app.app if app.respond_to?(:app)
         if app.respond_to?(:routes)
-          lookup_soap_routes(controller_name, app.routes.routes, path: path+[x], &block)
+          lookup_soap_routes(controller_name, app.routes.routes, path+[x], &block)
         end
       end
     end
