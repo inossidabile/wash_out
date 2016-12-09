@@ -10,7 +10,7 @@ But if you have a chance, please [http://stopsoap.com/](http://stopsoap.com/).
 
 ## Compatibility
 
-Rails 3.2.13 and higher (if you are using SOAP and still on Ruby 1.9 - that's just too much evil, sorry)
+Rails 4.0 and higher is tested. Code is known to work with earlier versions but we don't bother testing outdated versions anymore - give it a try if you are THAT unlucky.
 
 ## Installation
 
