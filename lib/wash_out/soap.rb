@@ -14,6 +14,11 @@ module WashOut
       # An optional option :to can be passed to allow for names of SOAP actions
       # which are not valid Ruby function names.
       def soap_action(action, options={})
+        if options[:as].present?
+          options[:to] ||= action
+          action = options[:as]
+        end
+
         if action.is_a?(Symbol)
           if soap_config.camelize_wsdl.to_s == 'lower'
             options[:to] ||= action.to_s
