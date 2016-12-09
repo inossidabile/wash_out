@@ -4,41 +4,35 @@ module WashOut
   # This class is a Rack middleware used to route SOAP requests to a proper
   # action of a given SOAP controller.
   class Router
-    def self.lookup_soap_routes(controller_name, routes)
-      results = []
-
+    def self.lookup_soap_routes(controller_name, routes, path: [], &block)
       routes.each do |x|
         defaults = x.defaults
         defaults = defaults[:defaults] if defaults.include?(:defaults) # Rails 5
         if defaults[:controller] == controller_name && defaults[:action] == 'soap'
-          results << x
+          yield path + [x]
         end
 
         app = x.app
         app = app.app if app.respond_to?(:app)
         if app.respond_to?(:routes)
-          results += lookup_soap_routes(controller_name, app.routes.routes)
+          lookup_soap_routes(controller_name, app.routes.routes, path: path+[x], &block)
         end
       end
-
-      results
     end
 
     def self.url(request, controller_name)
-      route = lookup_soap_routes(controller_name, Rails.application.routes.routes).first
+      lookup_soap_routes(controller_name, Rails.application.routes.routes) do |routes|
 
-      path = if route.respond_to?(:optimized_path)      # Rails 4
-        route.optimized_path
-      elsif route.path.respond_to?(:build_formatter)    # Rails 5
-        route.path.build_formatter.evaluate(nil)
-      else
-        route.format({})                                # Rails 3.2
+        path = if routes.first.respond_to?(:optimized_path)      # Rails 4
+          routes.map(&:optimized_path)
+        elsif routes.first.path.respond_to?(:build_formatter)    # Rails 5
+          routes.map{|x| x.path.build_formatter.evaluate(nil)}
+        else
+          routes.map{|x| x.format({})}                           # Rails 3.2
+        end
+
+        return request.protocol + request.host_with_port + path.flatten.join('')
       end
-
-
-      path = path.join('') if path.is_a?(Array)
-
-      request.protocol + request.host_with_port + path
     end
 
     def initialize(controller_name)
