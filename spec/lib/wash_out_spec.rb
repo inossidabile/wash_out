@@ -344,10 +344,10 @@ describe WashOut do
 
         expect(savon(:gogogo)[:gogogo_response]).
           to eq({
-            :zoo=>"zoo", 
+            :zoo=>"zoo",
             :boo=>{
-              :moo=>"moo", 
-              :doo=>"doo", 
+              :moo=>"moo",
+              :doo=>"doo",
               :"@xsi:type"=>"tns:Boo"
             }
           })
@@ -489,6 +489,175 @@ describe WashOut do
         end
       end
     end
+
+    context "SOAP header" do
+      it "accepts requests with a simple header" do
+        mock_controller do
+          soap_action "answer", :args => nil, :return => :int, :header_args => :string
+          def answer
+            render :soap => "42"
+          end
+        end
+
+        request = <<-XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+              <tns:Auth>
+                <value>12345</value>
+              </tns:Auth>
+          </env:Header>
+          <env:Body>
+            <tns:answer>
+              <value>42</value>
+            </tns:answer>
+          </env:Body>
+          </env:Envelope>
+        XML
+
+        expect(HTTPI.post("http://app/route/api/action", request).body).to eq <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
+  <soap:Body>
+    <tns:answerResponse>
+      <Value xsi:type="xsd:int">42</Value>
+    </tns:answerResponse>
+  </soap:Body>
+</soap:Envelope>
+        XML
+      end
+
+      it "makes simple header values accessible" do
+        mock_controller do
+          soap_action "answer", :args => nil, :return => :int
+          def answer
+            expect(soap_request.headers).to eq({value: "12345"})
+            render :soap => "42"
+          end
+        end
+
+        request = <<-XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+            <value>12345</value>
+          </env:Header>
+          <env:Body>
+            <tns:answer>
+              <value>42</value>
+            </tns:answer>
+          </env:Body>
+          </env:Envelope>
+        XML
+
+        HTTPI.post("http://app/route/api/action", request)
+
+      end
+
+      it "makes complex header values accessible" do
+        mock_controller do
+          soap_action "answer", :args => nil, :return => :int
+          def answer
+            expect(soap_request.headers[:auth][:answer_response]).to eq "12345"
+            render :soap => "42"
+          end
+        end
+
+        request = <<-XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+            <Auth>
+              <AnswerResponse>12345</AnswerResponse>
+            </Auth>
+          </env:Header>
+          <env:Body>
+            <tns:answer>
+              <value>42</value>
+            </tns:answer>
+          </env:Body>
+          </env:Envelope>
+        XML
+
+        HTTPI.post("http://app/route/api/action", request)
+
+      end
+
+      it "renders a simple header if specified" do
+        mock_controller do
+          soap_action "answer", :args => nil, :return => :int, header_return: :string
+          def answer
+            render :soap => "42", :header => "12345"
+          end
+        end
+
+
+        request = <<-XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Body>
+            <tns:answer>
+              <value>42</value>
+            </tns:answer>
+          </env:Body>
+          </env:Envelope>
+        XML
+
+        expect(HTTPI.post("http://app/route/api/action", request).body).to eq <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
+  <soap:Header>
+    <tns:answerResponse>
+      <Value xsi:type="xsd:string">12345</Value>
+    </tns:answerResponse>
+  </soap:Header>
+  <soap:Body>
+    <tns:answerResponse>
+      <Value xsi:type="xsd:int">42</Value>
+    </tns:answerResponse>
+  </soap:Body>
+</soap:Envelope>
+        XML
+      end
+    end
+
+    it "renders a complex header if specified" do
+      mock_controller do
+        soap_action "answer", :args => nil, :return => :int, header_return: {:"Auth" => :string}
+        def answer
+          render :soap => "42", :header => {Auth: "12345"}
+        end
+      end
+
+
+      request = <<-XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+        <env:Body>
+          <tns:answer>
+            <value>42</value>
+          </tns:answer>
+        </env:Body>
+        </env:Envelope>
+      XML
+
+      expect(HTTPI.post("http://app/route/api/action", request).body).to eq <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
+  <soap:Header>
+    <tns:answerResponse>
+      <Auth xsi:type="xsd:string">12345</Auth>
+    </tns:answerResponse>
+  </soap:Header>
+  <soap:Body>
+    <tns:answerResponse>
+      <Value xsi:type="xsd:int">42</Value>
+    </tns:answerResponse>
+  </soap:Body>
+</soap:Envelope>
+        XML
+    end
+
 
     context "types" do
       it "recognize boolean" do
@@ -711,7 +880,7 @@ describe WashOut do
       response_hash = Nori.new.parse(HTTPI.post("http://app/route/api/action", invalid_request).body)
       expect(response_hash["soap:Envelope"]["soap:Body"]["soap:Fault"]['faultstring']).to eq "Invalid SOAP request"
     end
-      
+
     it "raises when SOAP message without SOAP Body arrives" do
       mock_controller do; end
       invalid_request = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"></s:Envelope>'
@@ -793,7 +962,7 @@ describe WashOut do
     it "handles auth callback" do
       mock_controller(
         wsse_auth_callback: lambda {|user, password|
-          return user == "gorilla" && password == "secret" 
+          return user == "gorilla" && password == "secret"
         }
       ) do
         soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
