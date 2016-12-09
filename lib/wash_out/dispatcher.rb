@@ -35,6 +35,10 @@ module WashOut
         _strip_empty_nodes(action_spec[:in], xml_data)
     end
 
+    def _map_soap_headers
+      @_soap_headers = xml_header_data
+    end
+
     def _strip_empty_nodes(params, hash)
       hash.keys.each do |key|
         param = params.detect { |a| a.raw_name.to_s == key.to_s }
@@ -127,9 +131,19 @@ module WashOut
         return result_spec
       }
 
+      header = options[:header]
+      if header.present?
+        header = { 'value' => header } unless header.is_a? Hash
+        header = HashWithIndifferentAccess.new(header)
+      end
+
       render :template => "wash_out/#{soap_config.wsdl_style}/response",
              :layout => false,
-             :locals => { :result => inject.call(result, @action_spec[:out]) },
+             :locals => {
+               :header => header.present? ? inject.call(header, @action_spec[:header_out])
+                                      : nil,
+               :result => inject.call(result, @action_spec[:out])
+             },
              :content_type => 'text/xml'
     end
 
@@ -159,17 +173,25 @@ module WashOut
              :content_type => 'text/xml'
     end
 
+    def soap_request
+      OpenStruct.new({
+        params: @_params,
+        headers: @_soap_headers
+      })
+    end
+
     def self.included(controller)
       entity = if defined?(Rails::VERSION::MAJOR) && (Rails::VERSION::MAJOR >= 4)
         'action'
       else
-        'filter' 
+        'filter'
       end
 
       controller.send :"around_#{entity}", :_catch_soap_errors
       controller.send :helper, :wash_out
       controller.send :"before_#{entity}", :_authenticate_wsse,   :if => :soap_action?
       controller.send :"before_#{entity}", :_map_soap_parameters, :if => :soap_action?
+      controller.send :"before_#{entity}", :_map_soap_headers, :if => :soap_action?
       controller.send :"skip_before_#{entity}", :verify_authenticity_token, :raise => false
     end
 
@@ -222,10 +244,15 @@ module WashOut
     end
 
     def xml_data
-      xml_data = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
-      xml_data = xml_data.values_at(:body, :Body).compact.first || {}
+      envelope = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
+      xml_data = envelope.values_at(:body, :Body).compact.first || {}
       return xml_data if soap_config.wsdl_style == "document"
       xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym, request_input_tag.to_sym).compact.first || {}
+    end
+
+    def xml_header_data
+      envelope = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
+      header_data = envelope.values_at(:header, :Header).compact.first || {}
     end
 
   end
