@@ -184,16 +184,15 @@ describe WashOut do
         XML
       end
 
-      xit "succeeds when protect_from_forgery is enabled" do
+      it "succeeds when protect_from_forgery is enabled" do
 
-        # Enable allow_forgery_protection for this spec only
+        # Enable allow_forgery_protection (affects all subsequent specs)
+        # Alternatively, assign in spec/dummy/config/environments/test.rb
         Rails.application.config.after_initialize do
           ActionController::Base.allow_forgery_protection = true
         end
 
         mock_controller do
-          protect_from_forgery with: :exception
-
           soap_action "answer", :args => nil, :return => :int
           def answer
             render :soap => "42"
