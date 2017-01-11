@@ -14,7 +14,7 @@ module WashOut
 
         app = x.app
         app = app.app if app.respond_to?(:app)
-        if app.respond_to?(:routes)
+        if app.respond_to?(:routes) && app.routes.respond_to?(:routes)
           lookup_soap_routes(controller_name, app.routes.routes, path+[x], &block)
         end
       end
