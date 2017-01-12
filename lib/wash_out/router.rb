@@ -31,6 +31,9 @@ module WashOut
           routes.map{|x| x.format({})}                           # Rails 3.2
         end
 
+        if Rails.application.config.relative_url_root.present?
+          path.prepend Rails.application.config.relative_url_root
+        end
         return request.protocol + request.host_with_port + path.flatten.join('')
       end
     end
