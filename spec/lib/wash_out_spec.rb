@@ -2,6 +2,29 @@
 
 require 'spec_helper'
 
+SIMPLE_REQUEST_XML = <<-SIMPLE_REQUEST_XML_HEREDOC
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+  <env:Body>
+    <tns:answer>
+      <value>42</value>
+    </tns:answer>
+  </env:Body>
+</env:Envelope>
+SIMPLE_REQUEST_XML_HEREDOC
+
+SIMPLE_RESPONSE_XML = <<-SIMPLE_RESPONSE_XML_HEREDOC
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="false">
+  <soap:Body>
+    <tns:answerResponse>
+      <Value xsi:type="xsd:int">42</Value>
+    </tns:answerResponse>
+  </soap:Body>
+</soap:Envelope>
+SIMPLE_RESPONSE_XML_HEREDOC
+
+
 describe WashOut do
 
   let :nori do
@@ -159,6 +182,25 @@ describe WashOut do
   </soap:Body>
 </soap:Envelope>
         XML
+      end
+
+      it "succeeds when protect_from_forgery is enabled" do
+
+        # Enable allow_forgery_protection (affects all subsequent specs)
+        # Alternatively, assign in spec/dummy/config/environments/test.rb
+        Rails.application.config.after_initialize do
+          ActionController::Base.allow_forgery_protection = true
+        end
+
+        mock_controller do
+          soap_action "answer", :args => nil, :return => :int
+          def answer
+            render :soap => "42"
+          end
+        end
+
+        expect(HTTPI.post("http://app/route/api/action", SIMPLE_REQUEST_XML).body).to eq SIMPLE_RESPONSE_XML
+
       end
 
       it "accept no parameters" do
