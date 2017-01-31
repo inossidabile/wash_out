@@ -1003,8 +1003,10 @@ describe WashOut do
 
     it "handles auth callback" do
       mock_controller(
-        wsse_auth_callback: lambda {|user, password|
-          return user == "gorilla" && password == "secret"
+        wsse_auth_callback: lambda {|user, password, nonce, timestamp|
+          authenticated = nonce ? WashOut::Wsse.matches_expected_digest?("secret", password, nonce, timestamp) : password == "secret"
+
+          return user == "gorilla" && authenticated
         }
       ) do
         soap_action "checkAuth", :args => :integer, :return => :boolean, :to => 'check_auth'
@@ -1019,7 +1021,7 @@ describe WashOut do
 
       # correct digest auth
       expect { savon(:check_auth, 42){ wsse_auth "gorilla", "secret", :digest } }.
-        to raise_exception(Savon::SOAPFault)
+        not_to raise_exception
 
       # wrong user
       expect { savon(:check_auth, 42){ wsse_auth "chimpanzee", "secret", :digest } }.
