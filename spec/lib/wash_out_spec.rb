@@ -91,6 +91,23 @@ describe WashOut do
       nori.parse wsdl
     end
 
+    it "has default name" do
+      name = xml[:definitions][:@name]
+      expect(name).to_not eq "washoutzin"
+    end
+
+    it "has a custom name" do
+      mock_controller(name: 'washoutzin') do
+        soap_action :result, :args => nil, :return => :int
+      end
+
+      custom_name_wsdl = HTTPI.get("http://app/route/api/wsdl").body
+      custom_name_xml = nori.parse custom_name_wsdl
+
+      name = custom_name_xml[:definitions][:@name]
+      expect(name).to eq "washoutzin"
+    end
+
     it "lists operations" do
       operations = xml[:definitions][:binding][:operation]
       expect(operations).to be_a_kind_of(Array)

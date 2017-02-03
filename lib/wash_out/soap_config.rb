@@ -6,6 +6,7 @@ module WashOut
     extend Forwardable
     DEFAULT_CONFIG = {
       parser: :rexml,
+      name: nil,
       namespace: 'urn:WashOut',
       wsdl_style: 'rpc',
       snakecase_input: false,
