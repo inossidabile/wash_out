@@ -137,12 +137,14 @@ module WashOut
         header = HashWithIndifferentAccess.new(header)
       end
 
+      result = inject.call(result, @action_spec[:out])
+
       render :template => "wash_out/#{soap_config.wsdl_style}/response",
              :layout => false,
              :locals => {
                :header => header.present? ? inject.call(header, @action_spec[:header_out])
                                       : nil,
-               :result => inject.call(result, @action_spec[:out])
+               :result => soap_config.wsdl_style == "rpc" ? result : result.first.map
              },
              :content_type => 'text/xml'
     end
