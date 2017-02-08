@@ -92,6 +92,10 @@ module WashOut
       token = Base64.decode64(nonce) + timestamp.strftime("%Y-%m-%dT%H:%M:%SZ") + expected_password
       flavors << Base64.encode64(Digest::SHA1.digest(token)).chomp!
 
+      # SoapUI
+      token = Base64.decode64(nonce) + timestamp.strftime("%Y-%m-%dT%H:%M:%S.%3NZ") + expected_password
+      flavors << Base64.encode64(Digest::SHA1.digest(token)).chomp!
+
       flavors.each do |f|
         return true if f == password
       end
