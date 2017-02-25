@@ -3,7 +3,7 @@ module WashOutHelper
   def wsdl_data_options(param)
     case controller.soap_config.wsdl_style
     when 'rpc'
-      if param.map.present? || param.value
+      if param.map.present? || !param.value.nil?
         { :"xsi:type" => param.namespaced_type }
       else
         { :"xsi:nil" => true }
