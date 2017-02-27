@@ -37,10 +37,29 @@ describe WashOut::Param do
     end
   end
 
-  it "should accept nested empty arrays" do
-    soap_config = WashOut::SoapConfig.new({ camelize_wsdl: false })
-    map = WashOut::Param.parse_def(soap_config, {:nested => {:some_attr => :string, :empty => [:integer] }} )
-    expect(map[0].load( {:nested => nil}, :nested)).to eq({})
+  describe "arrays" do
+    it "should accept nested empty arrays" do
+      soap_config = WashOut::SoapConfig.new({ camelize_wsdl: false })
+      map = WashOut::Param.parse_def(soap_config, {:nested => {:some_attr => :string, :empty => [:integer] }} )
+      expect(map[0].load( {:nested => nil}, :nested)).to eq({})
+    end
+
+    it "should accept nested empty strings" do
+      soap_config = WashOut::SoapConfig.new({ camelize_wsdl: false })
+      map = WashOut::Param.parse_def(soap_config, {:list => [{name: :string}]} )
+
+      data = {
+        list: [
+          # Nori converts empty elements with attributes into a hash.
+          {name: {"@xsi:type" => "xsd:string"}},
+          {name: {"@xsi:type" => "xsd:string"}}
+        ]
+      }
+      expect(map[0].load(data, :list)).to eq([
+        {"name" => ""},
+        {"name" => ""},
+      ])
+    end
   end
 
   describe "booleans" do
