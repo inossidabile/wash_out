@@ -63,6 +63,7 @@ module WashOut
       else
         operation = case type
           when 'string';       :to_s
+          when 'int';          :to_i
           when 'integer';      :to_i
           when 'long';         :to_i
           when 'double';       :to_f
