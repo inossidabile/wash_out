@@ -13,6 +13,12 @@ module WashOutHelper
     end
   end
 
+  def wsdl_schema_attrs
+    attrs = {}
+    attrs[:elementFormDefault] = 'qualified' if controller.soap_config.qualified_tags # All tags are in target namespace
+    attrs
+  end
+
   def wsdl_data_attrs(param)
     param.map.reduce({}) do |memo, p|
       if p.respond_to?(:attribute?) && p.attribute?
@@ -27,7 +33,7 @@ module WashOutHelper
     params.each do |param|
       next if param.attribute?
 
-      tag_name = param.name
+      tag_name = controller.soap_config.qualified_tags ? "tns:#{param.name}" : param.name
       param_options = wsdl_data_options(param)
       param_options.merge! wsdl_data_attrs(param)
 
