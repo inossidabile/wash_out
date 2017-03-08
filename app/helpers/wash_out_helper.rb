@@ -66,7 +66,7 @@ module WashOutHelper
       if !defined.include?(param.basic_type)
 
         if controller.soap_config.wsdl_style == 'document'
-          xml.tag! "element", :name => param.basic_type, :type => "tns:#{param.basic_type}"
+          xml.tag! "element", :name => param.element_type, :type => "tns:#{param.element_type}"
         end
 
         xml.tag! "xsd:complexType", :name => param.basic_type do

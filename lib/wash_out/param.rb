@@ -105,6 +105,10 @@ module WashOut
       return source_class.wash_out_param_name(@soap_config)
     end
 
+    def element_type
+      return basic_type.split(".").last
+    end
+
     def xsd_type
       return 'int' if type.to_s == 'integer'
       return 'dateTime' if type.to_s == 'datetime'

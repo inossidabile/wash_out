@@ -22,12 +22,12 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   @map.each do |operation, formats|
     xml.message :name => "#{operation}" do
       formats[:in].each do |p|
-        xml.part wsdl_occurence_part(p, false, :name => p.name, :element => p.namespaced_type)
+        xml.part wsdl_occurence_part(p, false, :name => p.name, :element => "tns:#{p.element_type}")
       end
     end
     xml.message :name => formats[:response_tag] do
       formats[:out].each do |p|
-        xml.part wsdl_occurence_part(p, false, :name => p.name, :element => p.namespaced_type)
+        xml.part wsdl_occurence_part(p, false, :name => p.name, :element => "tns:#{p.element_type}")
       end
     end
   end
