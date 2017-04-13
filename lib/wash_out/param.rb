@@ -102,7 +102,7 @@ module WashOut
 
     def basic_type
       return name unless classified?
-      return source_class.wash_out_param_name(@soap_config)
+      return source_class.wash_out_param_name
     end
 
     def xsd_type
