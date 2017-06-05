@@ -15,3 +15,5 @@ gem 'tzinfo'
 gem 'pry'
 gem 'simplecov'
 gem 'simplecov-summary'
+
+gem 'minitest', '<5.10.0'
