@@ -29,7 +29,7 @@ module WashOutHelper
 
       tag_name = param.name
       param_options = wsdl_data_options(param)
-      param_options.merge! wsdl_data_attrs(param)
+      param_options.merge! wsdl_data_attrs(param) if param_options.is_a?(Hash)
 
       if param.struct?
         if param.multiplied
