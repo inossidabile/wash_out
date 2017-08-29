@@ -29,7 +29,7 @@ module WashOutHelper
 
       tag_name = param.name
       param_options = wsdl_data_options(param)
-      param_options.merge! wsdl_data_attrs(param) unless param_options.nil?
+      param_options.merge! wsdl_data_attrs(param) if param_options.is_a?(Hash)
 
       if param.struct?
         if param.multiplied
@@ -39,7 +39,8 @@ module WashOutHelper
               blk = proc { wsdl_data(xml, p.map) }
             end
             attrs.reject! { |_, v| v.nil? }
-            xml.tag! tag_name, param_options.merge(attrs), &blk
+            options_and_attrs = param_options.is_a?(Hash) ? param_options.merge(attrs) : attrs
+            xml.tag! tag_name, options_and_attrs, &blk
           end
         else
           xml.tag! tag_name, param_options do
