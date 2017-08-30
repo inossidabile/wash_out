@@ -270,6 +270,18 @@ describe WashOut do
 
         expect(savon(:funky, :a => 42, :b => 'k')[:funky_response][:value]).to eq '420k'
       end
+
+      it 'responds with single strings without wraping the response' do
+        mock_controller do
+          soap_action 'single_string', args: { a: :string }, return: :string
+          def single_string
+            render soap: params[:a], wrap_response: false
+          end
+        end
+
+        response = savon(:single_string, a: 'single string')[:single_string_response]
+        expect(response).to match 'single string'
+      end
     end
 
     context "complex actions" do
