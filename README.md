@@ -42,6 +42,13 @@ class RumbasController < ApplicationController
     render :soap => params[:value].to_s
   end
 
+  soap_action 'single_string_response',
+              args:   { a: :string }
+              return: :string
+  def single_string_response
+    render soap: params[:a].to_s, wrap_response: false
+  end
+
   soap_action "concat",
               :args   => { :a => :string, :b => :string },
               :return => :string
