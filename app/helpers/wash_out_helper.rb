@@ -9,7 +9,9 @@ module WashOutHelper
         { :"xsi:nil" => true }
       end
     when 'document'
-      { }
+      {}
+    else
+      {}
     end
   end
 
