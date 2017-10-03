@@ -119,6 +119,40 @@ describe WashOut do
     end
   end
 
+  describe 'WSDL' do
+    let :wsdl do
+      mock_controller
+
+      HTTPI.get('http://app/route/api/wsdl').body
+    end
+
+    let :xml do
+      nori.parse wsdl
+    end
+
+    it "defines a default service name as 'service'" do
+      service_name = xml[:definitions][:service][:@name]
+      expect(service_name).to match 'service'
+    end
+  end
+
+  describe 'WSDL' do
+    let :wsdl do
+      mock_controller service_name: 'CustomServiceName'
+
+      HTTPI.get('http://app/route/api/wsdl').body
+    end
+
+    let :xml do
+      nori.parse wsdl
+    end
+
+    it 'allows to define a custom service name' do
+      service_name = xml[:definitions][:service][:@name]
+      expect(service_name).to match 'CustomServiceName'
+    end
+  end
+
   describe "Dispatcher" do
 
     context "simple actions" do
