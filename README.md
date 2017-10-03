@@ -42,6 +42,13 @@ class RumbasController < ApplicationController
     render :soap => params[:value].to_s
   end
 
+  soap_action 'single_string_response',
+              args:   { a: :string }
+              return: :string
+  def single_string_response
+    render soap: params[:a].to_s, wrap_response: false
+  end
+
   soap_action "concat",
               :args   => { :a => :string, :b => :string },
               :return => :string
@@ -254,6 +261,7 @@ Available properties are:
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **camelize_wsdl**: Determines if WashOut should camelize types within WSDL and responses. Supports `true` for CamelCase and `:lower` for camelCase. Default is `false`.
+* **service_name**: Allows to define a custom name for the SOAP service. By default, the name is set as `service`.
 
 ### Camelization
 
