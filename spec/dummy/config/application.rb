@@ -12,7 +12,6 @@ if Rails::VERSION::MAJOR >= 4
   end
 end
 
-Bundler.require
 require "wash_out"
 
 module Dummy
