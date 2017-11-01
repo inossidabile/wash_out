@@ -10,6 +10,8 @@ module WashOutHelper
       end
     when 'document'
       { }
+    else
+      { }
     end
   end
 
