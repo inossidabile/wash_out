@@ -8,16 +8,18 @@ module WashOut
     attr_accessor :value
     attr_accessor :source_class
     attr_accessor :soap_config
+    attr_accessor :optional
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
-    def initialize(soap_config, name, type, multiplied = false)
+    def initialize(soap_config, name, type, multiplied = false,optional=false)
       type ||= {}
       @soap_config = soap_config
       @name       = name.to_s
       @raw_name   = name.to_s
       @map        = {}
       @multiplied = multiplied
+      @optional = optional
 
       if soap_config.camelize_wsdl.to_s == 'lower'
         @name = @name.camelize(:lower)
@@ -43,7 +45,6 @@ module WashOut
       if !data.has_key? key
         raise WashOut::Dispatcher::SOAPError, "Required SOAP parameter '#{key}' is missing"
       end
-
       data = data[key]
       data = [data] if @multiplied && !data.is_a?(Array)
 
@@ -148,10 +149,12 @@ module WashOut
         definition.map do |name, opt|
           if opt.is_a? WashOut::Param
             opt
+          elsif (opt.is_a?(Array)) && (opt[0].is_a?(Array))
+            WashOut::Param.new(soap_config, name, opt[0][0], true,opt[0][1])
           elsif opt.is_a? Array
-            WashOut::Param.new(soap_config, name, opt[0], true)
+            WashOut::Param.new(soap_config, name, opt[0], false,opt[1])
           else
-            WashOut::Param.new(soap_config, name, opt)
+            WashOut::Param.new(soap_config, name, opt,false)
           end
         end
       else
@@ -160,7 +163,7 @@ module WashOut
     end
 
     def flat_copy
-      copy = self.class.new(@soap_config, @name, @type.to_sym, @multiplied)
+      copy = self.class.new(@soap_config, @name, @type.to_sym, @multiplied,@optional)
       copy.raw_name = raw_name
       copy.source_class = source_class
       copy
