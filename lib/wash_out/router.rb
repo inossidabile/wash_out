@@ -109,7 +109,9 @@ module WashOut
 
       soap_action = parse_soap_action(env)
 
-      action = if soap_action.blank?
+      action = if soap_action.blank? && env["QUERY_STRING"].to_s.downcase == "wsdl"
+        '_generate_wsdl'
+      elsif soap_action.blank?
         '_invalid_request'
       else
         soap_parameters = parse_soap_parameters(env)
