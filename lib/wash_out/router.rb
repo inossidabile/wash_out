@@ -14,7 +14,7 @@ module WashOut
 
         app = x.app
         app = app.app if app.respond_to?(:app)
-        if app.respond_to?(:routes)
+        if app.respond_to?(:routes) && app.routes.respond_to?(:routes)
           lookup_soap_routes(controller_name, app.routes.routes, path+[x], &block)
         end
       end
@@ -31,6 +31,9 @@ module WashOut
           routes.map{|x| x.format({})}                           # Rails 3.2
         end
 
+        if Rails.application.config.relative_url_root.present?
+          path.prepend Rails.application.config.relative_url_root
+        end
         return request.protocol + request.host_with_port + path.flatten.join('')
       end
     end

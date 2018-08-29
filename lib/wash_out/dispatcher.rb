@@ -7,13 +7,18 @@ module WashOut
     # response.
     class SOAPError < Exception
       attr_accessor :code
-      def initialize(message, code=nil)
+      attr_accessor :detail
+      attr_accessor :actor
+      def initialize(message, options={})
         super(message)
-        @code = code
+        options ||= {}
+        @code = options[:code] || 'Server'
+        @detail = options[:detail]
+        @actor = options[:actor]
       end
     end
 
-    class ProgrammerError < Exception; end
+    class ProgrammerError < SOAPError; end
 
     def _authenticate_wsse
       begin
@@ -74,7 +79,8 @@ module WashOut
     def _generate_wsdl
       @map       = self.class.soap_actions
       @namespace = soap_config.namespace
-      @name      = controller_path
+      @controller_path      = controller_path
+      @name      = soap_config.name || controller_path.gsub('/','.')
 
       render :template => "wash_out/#{soap_config.wsdl_style}/wsdl", :layout => false,
              :content_type => 'text/xml'
@@ -192,7 +198,12 @@ module WashOut
       controller.send :"before_#{entity}", :_authenticate_wsse,   :if => :soap_action?
       controller.send :"before_#{entity}", :_map_soap_parameters, :if => :soap_action?
       controller.send :"before_#{entity}", :_map_soap_headers, :if => :soap_action?
-      controller.send :"skip_before_#{entity}", :verify_authenticity_token, :raise => false
+
+      if defined?(Rails::VERSION::MAJOR) && (Rails::VERSION::MAJOR >= 5)
+        controller.send :"skip_before_#{entity}", :verify_authenticity_token, :raise => false
+      else
+        controller.send :"skip_before_#{entity}", :verify_authenticity_token
+      end
     end
 
     def self.deep_select(collection, result=[], &blk)

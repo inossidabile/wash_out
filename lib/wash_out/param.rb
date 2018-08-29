@@ -13,10 +13,10 @@ module WashOut
     # The type specifier format is described in #parse_def.
     def initialize(soap_config, name, type, multiplied = false)
       type ||= {}
-      @soap_config = soap_config
-      @name       = name.to_s
-      @raw_name   = name.to_s
-      @map        = {}
+      @soap_config = soap_config || WashOut::SoapConfig.new({})
+      @name = name.to_s
+      @raw_name = name.to_s
+      @map = {}
       @multiplied = multiplied
 
       if soap_config.camelize_wsdl.to_s == 'lower'
@@ -28,12 +28,12 @@ module WashOut
       if type.is_a?(Symbol)
         @type = type.to_s
       elsif type.is_a?(Class)
-        @type         = 'struct'
-        @map          = self.class.parse_def(soap_config, type.wash_out_param_map)
+        @type = 'struct'
+        @map = self.class.parse_def(soap_config, type.wash_out_param_map)
         @source_class = type
       else
         @type = 'struct'
-        @map  = self.class.parse_def(soap_config, type)
+        @map = self.class.parse_def(soap_config, type)
       end
     end
 
@@ -45,12 +45,12 @@ module WashOut
       end
 
       data = data[key]
-      data = [data] if @multiplied && !data.is_a?(Array)
 
       if struct?
         data ||= {}
         if @multiplied
-          data.map do |x|
+          list = array_load(data)
+          list.map do |x|
             map_struct x do |param, dat, elem|
               param.load(dat, elem)
             end
@@ -62,24 +62,35 @@ module WashOut
         end
       else
         operation = case type
-          when 'string';       :to_s
-          when 'integer';      :to_i
-          when 'long';         :to_i
-          when 'double';       :to_f
-          when 'boolean';      lambda{|dat| dat === "0" ? false : !!dat}
-          when 'date';         :to_date
-          when 'datetime';     :to_datetime
-          when 'time';         :to_time
-          when 'base64Binary'; lambda{|dat| Base64.decode64(dat)}
-          else raise RuntimeError, "Invalid WashOut simple type: #{type}"
-        end
+                      when 'string';
+                        :to_s
+                      when 'integer';
+                        :to_i
+                      when 'long';
+                        :to_i
+                      when 'double';
+                        :to_f
+                      when 'boolean';
+                        lambda { |dat| dat === "0" ? false : !!dat }
+                      when 'date';
+                        :to_date
+                      when 'datetime';
+                        :to_datetime
+                      when 'time';
+                        :to_time
+                      when 'base64Binary';
+                        lambda { |dat| Base64.decode64(dat) }
+                      else
+                        raise RuntimeError, "Invalid WashOut simple type: #{type}"
+                    end
 
         begin
           if data.nil?
             data
           elsif @multiplied
-            return data.map{|x| x.send(operation)} if operation.is_a?(Symbol)
-            return data.map{|x| operation.call(x)} if operation.is_a?(Proc)
+            list = array_load(data)
+            return list.map { |x| x.send(operation) } if operation.is_a?(Symbol)
+            return list.map { |x| operation.call(x) } if operation.is_a?(Proc)
           elsif operation.is_a? Symbol
             data.send(operation)
           else
@@ -91,6 +102,28 @@ module WashOut
       end
     end
 
+    def array_load(data)
+      if data.is_a?(Hash) && data[:Item]
+        data[:Item]
+      elsif data.is_a?(Array)
+        data
+      elsif data.blank?
+        []
+      else
+        [data]
+      end
+    end
+
+    def string_value
+      case value
+        when Time, DateTime, Date
+          value.iso8601
+        else
+          value.to_s
+      end
+    end
+
+
     # Checks if this Param defines a complex type.
     def struct?
       type == 'struct'
@@ -101,8 +134,40 @@ module WashOut
     end
 
     def basic_type
-      return name unless classified?
-      return source_class.wash_out_param_name(@soap_config)
+      if classified?
+        source_class_name
+      elsif struct?
+        name
+      else
+        type
+      end
+    end
+
+
+    def source_class_name
+      text = if @soap_config.ruby_namespace =='strip'
+               source_class.to_s.underscore.split("/").last
+             elsif @soap_config.ruby_namespace =='convert'
+               source_class.to_s.underscore.gsub '/', '.'
+             elsif @soap_config.ruby_namespace =='flatten'
+               source_class.to_s.underscore.gsub '/', '_'
+             else
+               source_class.to_s
+             end
+      struct? ? text.camelize : text.camelize(:lower)
+    end
+
+    def array_type
+      "#{basic_type}Array"
+    end
+
+    def array_instance_type
+      n = map.is_a?(Array) ? map.size : (value.is_a?(Array) ? value.size : 0)
+      "#{array_instance_type_namespace}:#{basic_type}[#{n.to_i}]"
+    end
+
+    def array_instance_type_namespace
+      value.nil? ? 'tns' : 'xsd'
     end
 
     def xsd_type
@@ -113,7 +178,19 @@ module WashOut
 
     # Returns a WSDL namespaced identifier for this type.
     def namespaced_type
-      struct? ? "tns:#{basic_type}" : "xsd:#{xsd_type}"
+      if struct?
+        (@multiplied ? "tns:#{array_type}" : "tns:#{basic_type}")
+      else
+        (@multiplied ? "tns:#{array_type}" : "xsd:#{xsd_type}")
+      end
+    end
+
+    def namespaced_basic_type
+      if struct?
+        "tns:#{basic_type}"
+      else
+        "xsd:#{xsd_type}"
+      end
     end
 
     # Parses a +definition+. The format of the definition is best described
@@ -141,7 +218,7 @@ module WashOut
       end
 
       if [Array, Symbol].include?(definition.class)
-        definition = { :value => definition }
+        definition = {:value => definition}
       end
 
       if definition.is_a? Hash
@@ -183,7 +260,7 @@ module WashOut
         raise WashOut::Dispatcher::SOAPError, "SOAP message structure is broken"
       end
 
-      data   = data.with_indifferent_access
+      data = data.with_indifferent_access
       struct = {}.with_indifferent_access
 
       # RUBY18 Enumerable#each_with_object is better, but 1.9 only.

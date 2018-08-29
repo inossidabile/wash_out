@@ -31,11 +31,11 @@ module WashOut
     end
 
     def auth_callback?
-      return !!soap_config.wsse_auth_callback && soap_config.wsse_auth_callback.respond_to?(:call) && soap_config.wsse_auth_callback.arity == 2
+      return !!soap_config.wsse_auth_callback && soap_config.wsse_auth_callback.respond_to?(:call) && soap_config.wsse_auth_callback.arity == 4
     end
 
-    def perform_auth_callback(user, password)
-      soap_config.wsse_auth_callback.call(user, password)
+    def perform_auth_callback(user, password, nonce, timestamp)
+      soap_config.wsse_auth_callback.call(user, password, nonce, timestamp)
     end
 
     def expected_user
@@ -46,10 +46,33 @@ module WashOut
       soap_config.wsse_password
     end
 
-    def matches_expected_digest?(password)
-      nonce     = @username_token.values_at(:nonce, :Nonce).compact.first
+    def eligible?
+      return true unless required?
+
+      user     = @username_token.values_at(:username, :Username).compact.first
+      password = @username_token.values_at(:password, :Password).compact.first
+
+      nonce = @username_token.values_at(:nonce, :Nonce).compact.first
       timestamp = @username_token.values_at(:created, :Created).compact.first
+
+      if (expected_user == user && self.class.matches_expected_digest?(expected_password, password, nonce, timestamp))
+        return true
+      end
+
+      if auth_callback?
+        return perform_auth_callback(user, password, nonce, timestamp)
+      end
+
+      if (expected_user == user && expected_password == password)
+        return true
+      end
+
+      return false
+    end
+
+    def self.matches_expected_digest?(expected_password, password, nonce, timestamp)
       return false if nonce.nil? || timestamp.nil?
+
       timestamp = timestamp.to_datetime
 
       # Token should not be accepted if timestamp is older than 5 minutes ago
@@ -69,33 +92,15 @@ module WashOut
       token = Base64.decode64(nonce) + timestamp.strftime("%Y-%m-%dT%H:%M:%SZ") + expected_password
       flavors << Base64.encode64(Digest::SHA1.digest(token)).chomp!
 
+      # SoapUI
+      token = Base64.decode64(nonce) + timestamp.strftime("%Y-%m-%dT%H:%M:%S.%3NZ") + expected_password
+      flavors << Base64.encode64(Digest::SHA1.digest(token)).chomp!
+
       flavors.each do |f|
         return true if f == password
       end
 
       return false
     end
-
-    def eligible?
-      return true unless required?
-
-      user     = @username_token.values_at(:username, :Username).compact.first
-      password = @username_token.values_at(:password, :Password).compact.first
-
-      if (expected_user == user && matches_expected_digest?(password))
-        return true
-      end
-
-      if auth_callback?
-        return perform_auth_callback(user, password)
-      end
-
-      if (expected_user == user && expected_password == password)
-        return true
-      end
-
-      return false
-    end
-
   end
 end

@@ -22,12 +22,12 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   @map.each do |operation, formats|
     xml.message :name => "#{operation}" do
       formats[:in].each do |p|
-        xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
+        xml.part wsdl_parameter(p)
       end
     end
     xml.message :name => formats[:response_tag] do
       formats[:out].each do |p|
-        xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
+        xml.part  wsdl_parameter(p)
       end
     end
   end
@@ -62,7 +62,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
 
   xml.service :name => "service" do
     xml.port :name => "#{@name}_port", :binding => "tns:#{@name}_binding" do
-      xml.tag! "soap:address", :location => WashOut::Router.url(request, @name)
+      xml.tag! "soap:address", :location => WashOut::Router.url(request, @controller_path)
     end
   end
 end
