@@ -241,7 +241,7 @@ module WashOut
     end
 
     def request_input_tag
-      action_spec[:request_tag]
+      action_spec[:request_tag] + action_spec[:tag_suffix].camelcase
     end
 
     def soap_action

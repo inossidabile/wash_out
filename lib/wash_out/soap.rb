@@ -40,6 +40,7 @@ module WashOut
         self.soap_actions[action] = options.merge(
           :in           => WashOut::Param.parse_def(soap_config, options[:args]),
           :request_tag  => options[:as] || action,
+          :tag_suffix   => options[:tag_suffix],
           :out          => WashOut::Param.parse_def(soap_config, options[:return]),
           :header_out   => options[:header_return].present? ? WashOut::Param.parse_def(soap_config, options[:header_return]) : nil,
           :to           => options[:to] || action,
