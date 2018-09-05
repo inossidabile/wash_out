@@ -1,6 +1,6 @@
 xml.instruct!
 xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
-                'xmlns:tns' => @namespace,
+                'xmlns:ns2' => @namespace,
                 'xmlns:soap' => 'http://schemas.xmlsoap.org/wsdl/soap/',
                 'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
                 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
@@ -35,13 +35,13 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   xml.portType :name => "#{@name}_port" do
     @map.each do |operation, formats|
       xml.operation :name => operation do
-        xml.input :message => "tns:#{operation}"
-        xml.output :message => "tns:#{formats[:response_tag]}"
+        xml.input :message => "ns2:#{operation}"
+        xml.output :message => "ns2:#{formats[:response_tag]}"
       end
     end
   end
 
-  xml.binding :name => "#{@name}_binding", :type => "tns:#{@name}_port" do
+  xml.binding :name => "#{@name}_binding", :type => "ns2:#{@name}_port" do
     xml.tag! "soap:binding", :style => 'rpc', :transport => 'http://schemas.xmlsoap.org/soap/http'
     @map.keys.each do |operation|
       xml.operation :name => operation do
@@ -61,7 +61,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   end
 
   xml.service :name => "service" do
-    xml.port :name => "#{@name}_port", :binding => "tns:#{@name}_binding" do
+    xml.port :name => "#{@name}_port", :binding => "ns2:#{@name}_binding" do
       xml.tag! "soap:address", :location => WashOut::Router.url(request, @name)
     end
   end
