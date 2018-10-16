@@ -246,6 +246,47 @@ Keep in mind that the password may already be hashed by the SOAP client, so you 
 Use `config.wash_out...` inside your environment configuration to setup WashOut globally.
 To override the values on a specific controller just add an override as part of the arguments to the `soap_service` method.
 
+## WSDL Documentation
+
+To generate a document of WSDL If the style is default "document" then generated document will be consist of nillable=true. To make a particular field as optional can do it by below:
+
+```ruby
+# config/routes.rb
+ # Reading SOAP Headers
+  # This is different than normal SOAP params, because we don't specify the incoming format of the header,
+  # but we can still access it through `soap_request.headers`.  Note that the values are all strings or hashes.
+  soap_action "AddCircleWithHeaderRadius",
+              :args   => { :circle => { :center => { :x => [:integer,true],
+                                                     :y => :integer } } },
+              :return => nil, # [] for wash_out below 0.3.0
+              :to     => :add_circle
+  # e.g. for a request to the 'AddCircleWithHeaderRadius' action:
+  #   <soapenv:Envelope>
+  #     <soap:Header>
+  #       <radius>12345</radius>
+  #     </soap:Header>
+  #     <soapenv:Body>
+  #       <AddCircle>
+  #         <Circle radius="5.0">
+  #           <Center x="10" y="12" />
+  #         </Circle>
+  #       </AddCircle>
+  #     </soapenv:Body>
+  #   </soapenv:Envelope>
+  def add_circle_with_header_radius
+    circle = params[:circle]
+    radius = soap_request.headers[:radius]
+    raise SOAPError, "radius must be specified in the SOAP header" if radius.blank?
+    radius = radius.to_f
+    raise SOAPError, "radius is too small" if radius < 3.0
+
+    Circle.new(circle[:center][:x], circle[:center][:y], radius)
+
+    render :soap => nil
+  end
+```
+If it generates nillable true for all then it will not valid a WSDL so to avoid it above option can help to make nillable true for particular section.
+
 Available properties are:
 
 * **parser**: XML parser to use – `:rexml` or `:nokogiri`. The first one is default but the latter is much faster. Be sure to add `gem nokogiri` if you want to use it.
