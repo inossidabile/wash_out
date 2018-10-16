@@ -254,6 +254,7 @@ Available properties are:
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **camelize_wsdl**: Determines if WashOut should camelize types within WSDL and responses. Supports `true` for CamelCase and `:lower` for camelCase. Default is `false`.
+* **service_name**: Allows to define a custom name for the SOAP service. By default, the name is set as `service`.
 
 ### Camelization
 
