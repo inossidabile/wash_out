@@ -83,10 +83,20 @@ module WashOut
 
     # Render a SOAP response.
     def _render_soap(result, options)
-      @namespace   = soap_config.namespace
-      @operation   = soap_action = request.env['wash_out.soap_action']
+      soap_action = request.env['wash_out.soap_action']
       @action_spec = self.class.soap_actions[soap_action]
-
+      if @action_spec.nil?
+        # "http://tempuri.org/RPB2BServer/action/ServerFunctions.getRPCompletedOrders"
+        soap_action = soap_action.split(".").last
+        @action_spec = self.class.soap_actions[soap_action]
+        if @action_spec 
+          Rails.logger.warn "Found SoapAction[#{soap_action}] from [#{request.env['wash_out.soap_action']}]"
+        else
+          Rails.logger.error "Couldn't find SoapAction[#{request.env['wash_out.soap_action']}]"
+        end
+      end
+      @namespace   = soap_config.namespace
+      @operation   = soap_action
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
 
@@ -238,7 +248,11 @@ module WashOut
     end
 
     def action_spec
-      self.class.soap_actions[soap_action]
+      found = self.class.soap_actions[soap_action]
+      # in case the soap_action is something like:
+      #     "http://tempuri.org/RPB2BServer/action/ServerFunctions.getRPCompletedOrders"
+      found ||= self.class.soap_actions[soap_action.split(".").last]
+      found
     end
 
     def request_input_tag
