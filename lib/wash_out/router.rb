@@ -1,4 +1,5 @@
 require 'nori'
+require 'uri'
 
 module WashOut
   # This class is a Rack middleware used to route SOAP requests to a proper
@@ -68,7 +69,7 @@ module WashOut
         soap_action.gsub!(/^(#{namespace}(\/|#)?)?([^"]*)$/, '\3')
       end
 
-      env['wash_out.soap_action'] = soap_action
+      env['wash_out.soap_action'] = URI(soap_action).path.split('/').last
     end
 
     def nori(snakecase=false)
