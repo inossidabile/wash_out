@@ -20,28 +20,28 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   end
 
   @map.each do |operation, formats|
-    xml.message :name => "#{operation}" do
+    xml.message :name => "#{operation}Request" do
       formats[:in].each do |p|
         xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
       end
     end
-    xml.message :name => formats[:response_tag] do
+    xml.message :name => "#{operation}Response" do
       formats[:out].each do |p|
         xml.part wsdl_occurence(p, false, :name => p.name, :type => p.namespaced_type)
       end
     end
   end
 
-  xml.portType :name => "#{@name}_port" do
+  xml.portType :name => "#{@service_name}PortType" do
     @map.each do |operation, formats|
       xml.operation :name => operation do
-        xml.input :message => "tns:#{operation}"
-        xml.output :message => "tns:#{formats[:response_tag]}"
+        xml.input :message => "tns:#{operation}Request"
+        xml.output :message => "tns:#{operation}Response"
       end
     end
   end
 
-  xml.binding :name => "#{@name}_binding", :type => "tns:#{@name}_port" do
+  xml.binding :name => "#{@service_name}Binding", :type => "tns:#{@service_name}PortType" do
     xml.tag! "soap:binding", :style => 'document', :transport => 'http://schemas.xmlsoap.org/soap/http'
     @map.keys.each do |operation|
       xml.operation :name => operation do
@@ -61,7 +61,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   end
 
   xml.service :name => @service_name do
-    xml.port :name => "#{@name}_port", :binding => "tns:#{@name}_binding" do
+    xml.port :name => "#{@service_name}Port", :binding => "tns:#{@service_name}Binding" do
       xml.tag! "soap:address", :location => WashOut::Router.url(request, @name)
     end
   end
