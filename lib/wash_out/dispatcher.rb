@@ -74,10 +74,26 @@ module WashOut
     def _generate_wsdl
       @map       = self.class.soap_actions
       @namespace = soap_config.namespace
-      @name      = controller_path
+      @name      = controller_path.gsub('/','.')
 
       render :template => "wash_out/#{soap_config.wsdl_style}/wsdl", :layout => false,
              :content_type => 'text/xml'
+    end
+
+    def dotnet_timestamps(result)
+      if result.is_a? Hash
+:x
+:x
+:q
+:x
+
+:visual
+          dotnet_timestamp(v)
+        end
+        result.select{|_, v| v.is_a?(Date) || v.is_a?(DateTime) || v.is_a?(Time)}.each do |k, v|
+          result[k] = v.to_datetime.to_s
+        end
+      end
     end
 
     # Render a SOAP response.
@@ -86,6 +102,7 @@ module WashOut
       @operation   = soap_action = request.env['wash_out.soap_action']
       @action_spec = self.class.soap_actions[soap_action]
 
+      dotnet_timestamps(result)
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
 
