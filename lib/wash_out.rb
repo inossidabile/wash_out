@@ -38,7 +38,9 @@ module ActionDispatch::Routing
 end
 
 Mime::Type.register "application/soap+xml", :soap
-ActiveRecord::Base.send :extend, WashOut::Model if defined?(ActiveRecord)
+ActiveSupport.on_load(:active_record) do
+  extend WashOut::Model
+end if defined?(ActiveRecord)
 
 ActionController::Renderers.add :soap do |what, options|
   _render_soap(what, options)
