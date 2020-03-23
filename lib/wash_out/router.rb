@@ -26,7 +26,7 @@ module WashOut
         path = if routes.first.respond_to?(:optimized_path)      # Rails 4
           routes.map(&:optimized_path)
         elsif routes.first.path.respond_to?(:build_formatter)    # Rails 5
-          routes.map{|x| x.path.build_formatter.evaluate(nil)}
+          routes.map{|x| x.path.build_formatter.evaluate({})}
         else
           routes.map{|x| x.format({})}                           # Rails 3.2
         end
