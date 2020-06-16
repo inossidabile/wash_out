@@ -90,48 +90,6 @@ module WashOut
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
 
-      inject = lambda {|data, map|
-        result_spec = []
-        return result_spec if data.nil?
-
-        map.each_with_index do |param, i|
-          result_spec[i] = param.flat_copy
-
-          unless data.is_a?(Hash)
-            raise ProgrammerError,
-              "SOAP response used #{data.inspect} (which is #{data.class.name}), " +
-              "in the context where a Hash with key of '#{param.raw_name}' " +
-              "was expected."
-          end
-
-          value = data[param.raw_name]
-
-          unless value.nil?
-            if param.multiplied && !value.is_a?(Array)
-              raise ProgrammerError,
-                "SOAP response tried to use '#{value.inspect}' " +
-                "(which is of type #{value.class.name}), as the value for " +
-                "'#{param.raw_name}' (which expects an Array)."
-            end
-
-            # Inline complex structure              {:foo => {bar: ...}}
-            if param.struct? && !param.multiplied
-              result_spec[i].map = inject.call(value, param.map)
-
-            # Inline array of complex structures    {:foo => [{bar: ...}]}
-            elsif param.struct? && param.multiplied
-              result_spec[i].map = value.map{|e| inject.call(e, param.map)}
-
-            # Inline scalar                         {:foo => :string}
-            else
-              result_spec[i].value = value
-            end
-          end
-        end
-
-        return result_spec
-      }
-
       header = options[:header]
       if header.present?
         header = { 'value' => header } unless header.is_a? Hash
@@ -141,11 +99,54 @@ module WashOut
       render :template => "wash_out/#{soap_config.wsdl_style}/response",
              :layout => false,
              :locals => {
-               :header => header.present? ? inject.call(header, @action_spec[:header_out])
+               :header => header.present? ? inject(header, @action_spec[:header_out])
                                       : nil,
-               :result => inject.call(result, @action_spec[:out])
+               :result => inject(result, @action_spec[:out])
              },
              :content_type => 'text/xml'
+    end
+
+
+    def inject(data, map)
+      result_spec = []
+      return result_spec if data.nil?
+
+      map.each_with_index do |param, i|
+        result_spec[i] = param.flat_copy
+
+        unless data.is_a?(Hash)
+          raise ProgrammerError,
+            "SOAP response used #{data.inspect} (which is #{data.class.name}), " +
+            "in the context where a Hash with key of '#{param.raw_name}' " +
+            "was expected."
+        end
+
+        value = data[param.raw_name]
+
+        unless value.nil?
+          if param.multiplied && !value.is_a?(Array)
+            raise ProgrammerError,
+              "SOAP response tried to use '#{value.inspect}' " +
+              "(which is of type #{value.class.name}), as the value for " +
+              "'#{param.raw_name}' (which expects an Array)."
+          end
+
+          # Inline complex structure              {:foo => {bar: ...}}
+          if param.struct? && !param.multiplied
+            result_spec[i].map = inject(value, param.map)
+
+          # Inline array of complex structures    {:foo => [{bar: ...}]}
+          elsif param.struct? && param.multiplied
+            result_spec[i].map = value.map{|e| inject(e, param.map)}
+
+          # Inline scalar                         {:foo => :string}
+          else
+            result_spec[i].value = value
+          end
+        end
+      end
+
+      return result_spec
     end
 
     # This action is a fallback for all undefined SOAP actions.
