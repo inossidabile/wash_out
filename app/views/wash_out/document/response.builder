@@ -1,7 +1,7 @@
 xml.instruct!
 xml.tag! "soap:Envelope", "xmlns:soap" => 'http://schemas.xmlsoap.org/soap/envelope/',
                           "xmlns:xsd" => 'http://www.w3.org/2001/XMLSchema',
-                          "xmlns:#{@response_tag.nil? ? 'tns:' : @response_tag}}" => @namespace do
+                          "xmlns:#{@response_tag.nil? ? 'tns:' : @response_tag}" => @namespace do
   if !header.nil?
     xml.tag! "soap:Header" do
       if @response_attribute_tags.nil?
