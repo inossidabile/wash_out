@@ -72,10 +72,12 @@ module WashOut
 
     # This action generates the WSDL for defined SOAP methods.
     def _generate_wsdl
-      @map          = self.class.soap_actions
-      @namespace    = soap_config.namespace
-      @name         = controller_path
-      @service_name = soap_config.service_name
+      @map                     = self.class.soap_actions
+      @namespace               = soap_config.namespace
+      @response_tag            = soap_config.response_tag
+      @response_attribute_tags = soap_config.response_attribute_tags
+      @name                    = controller_path
+      @service_name            = soap_config.service_name
 
       render :template => "wash_out/#{soap_config.wsdl_style}/wsdl", :layout => false,
              :content_type => 'text/xml'
@@ -83,9 +85,11 @@ module WashOut
 
     # Render a SOAP response.
     def _render_soap(result, options)
-      @namespace   = soap_config.namespace
-      @operation   = soap_action = request.env['wash_out.soap_action']
-      @action_spec = self.class.soap_actions[soap_action]
+      @namespace               = soap_config.namespace
+      @response_tag            = soap_config.response_tag
+      @response_attribute_tags = soap_config.response_attribute_tags
+      @operation               = soap_action = request.env['wash_out.soap_action']
+      @action_spec             = self.class.soap_actions[soap_action]
 
       result = { 'value' => result } unless result.is_a? Hash
       result = HashWithIndifferentAccess.new(result)
