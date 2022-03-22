@@ -7,6 +7,7 @@ module WashOut
     attr_accessor :multiplied
     attr_accessor :value
     attr_accessor :source_class
+    attr_accessor :soap_config
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
@@ -63,6 +64,7 @@ module WashOut
         operation = case type
           when 'string';       :to_s
           when 'integer';      :to_i
+          when 'long';         :to_i
           when 'double';       :to_f
           when 'boolean';      lambda{|dat| dat === "0" ? false : !!dat}
           when 'date';         :to_date
@@ -160,8 +162,17 @@ module WashOut
     def flat_copy
       copy = self.class.new(@soap_config, @name, @type.to_sym, @multiplied)
       copy.raw_name = raw_name
-      copy.source_class = copy.source_class
+      copy.source_class = source_class
       copy
+    end
+
+    def attribute?
+      name[0] == "@"
+    end
+
+    def attr_name
+      raise 'Not attribute' unless attribute?
+      name[1..-1]
     end
 
     private
@@ -178,7 +189,8 @@ module WashOut
       # RUBY18 Enumerable#each_with_object is better, but 1.9 only.
       @map.map do |param|
         if data.has_key? param.raw_name
-          struct[param.raw_name] = yield param, data, param.raw_name
+          param_name = param.attribute? ? param.attr_name : param.raw_name
+          struct[param_name] = yield param, data, param.raw_name
         end
       end
 

@@ -11,15 +11,28 @@ require 'wash_out/model'
 require 'wash_out/wsse'
 require 'wash_out/middleware'
 
+module WashOut
+  def self.root
+    File.expand_path '../..', __FILE__
+  end
+end
+
 module ActionDispatch::Routing
   class Mapper
     # Adds the routes for a SOAP endpoint at +controller+.
     def wash_out(controller_name, options={})
-      options.each_with_index { |key, value|  @scope[key] = value } if @scope
-      controller_class_name = [options[:module], controller_name].compact.join("/")
+      if @scope
+        scope_frame = @scope.respond_to?(:frame) ? @scope.frame : @scope
+        options.each{ |key, value|  scope_frame[key] = value }
+      end
 
-      match "#{controller_name}/wsdl"   => "#{controller_name}#_generate_wsdl", :via => :get, :format => false
-      match "#{controller_name}/action" => WashOut::Router.new(controller_class_name), :via => [:get, :post], :defaults => { :controller => controller_class_name, :action => '_action' }, :format => false
+      controller_class_name = [scope_frame[:module], controller_name].compact.join("/").underscore
+
+      match "#{controller_name}/wsdl"   => "#{controller_name}#_generate_wsdl", :via => :get, :format => false,
+        :as => "#{controller_class_name}_wsdl"
+      match "#{controller_name}/action" => WashOut::Router.new(controller_class_name), :via => [:get, :post],
+        :defaults => { :controller => controller_class_name, :action => 'soap' }, :format => false,
+        :as => "#{controller_class_name}_soap"
     end
   end
 end
@@ -31,7 +44,7 @@ ActionController::Renderers.add :soap do |what, options|
   _render_soap(what, options)
 end
 
-ActionController::Base.class_eval do
+ActionController::Metal.class_eval do
 
   # Define a SOAP service. The function has no required +options+:
   # but allow any of :parser, :namespace, :wsdl_style, :snakecase_input,
@@ -43,5 +56,21 @@ ActionController::Base.class_eval do
   def self.soap_service(options={})
     include WashOut::SOAP
     self.soap_config = options
+  end
+end
+
+if Rails::VERSION::MAJOR >= 5
+  if defined?(ActionView::Rendering)
+    module ActionController
+      module ApiRendering
+        include ActionView::Rendering
+      end
+    end
+  end
+
+  ActiveSupport.on_load :action_controller do
+    if self == ActionController::API
+      include ActionController::Helpers
+    end
   end
 end
