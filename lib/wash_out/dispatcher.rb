@@ -153,13 +153,18 @@ module WashOut
     end
 
     def self.included(controller)
-      controller.send :around_filter, :_catch_soap_errors
+      entity = if defined?(Rails::VERSION::MAJOR) && (Rails::VERSION::MAJOR >= 4)
+        'action'
+      else
+        'filter'
+      end
+      controller.send :"around_#{entity}", :_catch_soap_errors
       controller.send :helper, :wash_out
-      controller.send :before_filter, :_authenticate_wsse,     :except => [
+      controller.send :"before_#{entity}", :_authenticate_wsse,     :except => [
         :_generate_wsdl, :_invalid_action ]
-      controller.send :before_filter, :_map_soap_parameters,   :except => [
+      controller.send :"before_#{entity}", :_map_soap_parameters,   :except => [
         :_generate_wsdl, :_invalid_action ]
-      controller.send :skip_before_filter, :verify_authenticity_token
+      controller.send :"skip_before_#{entity}", :verify_authenticity_token
     end
 
     def self.deep_select(hash, result=[], &blk)
