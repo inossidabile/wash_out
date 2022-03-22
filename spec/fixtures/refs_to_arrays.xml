@@ -1,0 +1,16 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Body s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <first_list href="#id1" />
+    <second_list href="#id2" />
+    <q1:Array id="id1" q1:arrayType="xsd:int[1]" xmlns:q1="http://schemas.xmlsoap.org/soap/encoding/">
+      <Item>1</Item>
+      <Item>2</Item>
+    </q1:Array>
+    <q2:Array id="id2" q2:arrayType="xsd:int[1]" xmlns:q2="http://schemas.xmlsoap.org/soap/encoding/">
+      <Item>11</Item>
+      <Item>22</Item>
+    </q2:Array>
+  </s:Body>
+</s:Envelope>

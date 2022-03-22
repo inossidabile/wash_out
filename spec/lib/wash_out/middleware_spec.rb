@@ -11,23 +11,23 @@ describe WashOut::Middleware do
     end
 
     env = {}
-    lambda {
+    expect {
       WashOut::Middleware.raise_or_render_rexml_parse_error err, env
-    }.should raise_exception
+    }.to raise_exception(REXML::ParseException)
 
     env['HTTP_SOAPACTION'] = 'pretend_action'
     env['rack.errors'] = double 'logger', {:puts => true} 
     env['rack.input'] = double 'basic-rack-input', {:string => '<hi>'} 
     result = WashOut::Middleware.raise_or_render_rexml_parse_error err, env
-    result[0].should == 400
-    result[1]['Content-Type'].should == 'text/xml'
+    expect(result[0]).to eq 400
+    expect(result[1]['Content-Type']).to eq 'text/xml'
     msg = result[2][0]
-    msg.should include 'Error parsing SOAP Request XML'
-    msg.should include 'soap:Fault'
-    msg.should_not include __FILE__
+    expect(msg).to include 'Error parsing SOAP Request XML'
+    expect(msg).to include 'soap:Fault'
+    expect(msg).not_to include __FILE__
     
     env['rack.input'] = double 'passenger-input', {:read => '<hi>'}
     result = WashOut::Middleware.raise_or_render_rexml_parse_error err, env
-    result[0].should == 400
+    expect(result[0]).to eq 400
   end
 end

@@ -10,11 +10,7 @@ But if you have a chance, please [http://stopsoap.com/](http://stopsoap.com/).
 
 ## Compatibility
 
-Rails >3.0 only. MRI 1.9, 2.0, JRuby (--1.9).
-
-Ruby 1.8 is not officially supported since 0.5.3. We will accept further compatibilty pull-requests but no upcoming versions will be tested against it.
-
-Rubinius support temporarily dropped since 0.6.2 due to Rails 4 incompatibility.
+Rails 4.0 and higher is tested. Code is known to work with earlier versions but we don't bother testing outdated versions anymore - give it a try if you are THAT unlucky.
 
 ## Installation
 
@@ -75,8 +71,46 @@ class RumbasController < ApplicationController
               :args => { :data => [:integer] },
               :return => [:boolean]
   def integers_to_boolean
-    render :soap => params[:data].map{|x| x ? 1 : 0}
+    render :soap => params[:data].map{|i| i > 0}
   end
+
+  # Params from XML attributes;
+  # e.g. for a request to the 'AddCircle' action:
+  #   <soapenv:Envelope>
+  #     <soapenv:Body>
+  #       <AddCircle>
+  #         <Circle radius="5.0">
+  #           <Center x="10" y="12" />
+  #         </Circle>
+  #       </AddCircle>
+  #     </soapenv:Body>
+  #   </soapenv:Envelope>
+  soap_action "AddCircle",
+              :args   => { :circle => { :center => { :@x => :integer,
+                                                     :@y => :integer },
+                                        :@radius => :double } },
+              :return => nil, # [] for wash_out below 0.3.0
+              :to     => :add_circle
+  def add_circle
+    circle = params[:circle]
+    Circle.new(circle[:center][:x], circle[:center][:y], circle[:radius])
+
+    render :soap => nil
+  end
+
+  # With a customised input tag name, in case params are wrapped;
+  # e.g. for a request to the 'IntegersToBoolean' action:
+  #   <soapenv:Envelope>
+  #     <soapenv:Body>
+  #       <MyRequest>  <!-- not <IntegersToBoolean> -->
+  #         <Data>...</Data>
+  #       </MyRequest>
+  #     </soapenv:Body>
+  #   </soapenv:Envelope>
+  soap_action "integers_to_boolean",
+              :args => { :my_request => { :data => [:integer] } },
+              :as => 'MyRequest',
+              :return => [:boolean]
 
   # You can use all Rails features like filtering, too. A SOAP controller
   # is just like a normal controller with a special routing.
@@ -84,6 +118,50 @@ class RumbasController < ApplicationController
   def dump_parameters
     Rails.logger.debug params.inspect
   end
+  
+  
+  # Rendering SOAP headers
+  soap_action "integer_to_header_string",
+              :args   => :integer,
+              :return => :string,
+              :header_return => :string
+  def integer_to_header_string
+    render :soap => params[:value].to_s, :header => (params[:value]+1).to_s
+  end
+  
+  # Reading SOAP Headers
+  # This is different than normal SOAP params, because we don't specify the incoming format of the header,
+  # but we can still access it through `soap_request.headers`.  Note that the values are all strings or hashes.
+  soap_action "AddCircleWithHeaderRadius",
+              :args   => { :circle => { :center => { :x => :integer,
+                                                     :y => :integer } } },
+              :return => nil, # [] for wash_out below 0.3.0
+              :to     => :add_circle
+  # e.g. for a request to the 'AddCircleWithHeaderRadius' action:
+  #   <soapenv:Envelope>
+  #     <soap:Header>
+  #       <radius>12345</radius>
+  #     </soap:Header>
+  #     <soapenv:Body>
+  #       <AddCircle>
+  #         <Circle radius="5.0">
+  #           <Center x="10" y="12" />
+  #         </Circle>
+  #       </AddCircle>
+  #     </soapenv:Body>
+  #   </soapenv:Envelope>
+  def add_circle_with_header_radius
+    circle = params[:circle]
+    radius = soap_request.headers[:radius]
+    raise SOAPError, "radius must be specified in the SOAP header" if radius.blank?
+    radius = radius.to_f
+    raise SOAPError, "radius is too small" if radius < 3.0
+
+    Circle.new(circle[:center][:x], circle[:center][:y], radius)
+
+    render :soap => nil
+  end
+  
 end
 ```
 
@@ -122,7 +200,7 @@ inside separate classes for the complex ones. Here's the way to do that:
 class Fluffy < WashOut::Type
   map :universe => {
         :name => :string,
-        :age  => :int
+        :age  => :integer
       }
 end
 
@@ -176,6 +254,7 @@ Available properties are:
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
 * **camelize_wsdl**: Determines if WashOut should camelize types within WSDL and responses. Supports `true` for CamelCase and `:lower` for camelCase. Default is `false`.
+* **service_name**: Allows to define a custom name for the SOAP service. By default, the name is set as `service`.
 
 ### Camelization
 
