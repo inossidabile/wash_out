@@ -1,7 +1,11 @@
-before_install:
-  - gem install bundler
+script: bundle exec rspec
+gemfile:
+  - gemfiles/rails_4.0.0.gemfile
+  - gemfiles/rails_4.1.0.gemfile
+  - gemfiles/rails_4.2.0.gemfile
+  - gemfiles/rails_5.0.0.gemfile
+  - gemfiles/rails_5.1.1.gemfile
 rvm:
-  - 1.9.3
-  - jruby-19mode
-  - 2.0.0
-  - 2.1.0
+  - 2.3.0
+before_install:
+  - gem update bundler

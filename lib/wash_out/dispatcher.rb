@@ -18,7 +18,7 @@ module WashOut
     def _authenticate_wsse
 
       begin
-        xml_security   = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
+        xml_security   = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
         xml_security   = xml_security.values_at(:header, :Header).compact.first
         xml_security   = xml_security.values_at(:security, :Security).compact.first
         username_token = xml_security.values_at(:username_token, :UsernameToken).compact.first
@@ -153,13 +153,24 @@ module WashOut
     end
 
     def self.included(controller)
-      controller.send :around_filter, :_catch_soap_errors
+      entity = if defined?(Rails::VERSION::MAJOR) && (Rails::VERSION::MAJOR >= 4)
+        'action'
+      else
+        'filter' 
+      end
+
+      controller.send :"around_#{entity}", :_catch_soap_errors
       controller.send :helper, :wash_out
-      controller.send :before_filter, :_authenticate_wsse,     :except => [
+      controller.send :"before_#{entity}", :_authenticate_wsse,     :except => [
         :_generate_wsdl, :_invalid_action ]
-      controller.send :before_filter, :_map_soap_parameters,   :except => [
+      controller.send :"before_#{entity}", :_map_soap_parameters,   :except => [
         :_generate_wsdl, :_invalid_action ]
-      controller.send :skip_before_filter, :verify_authenticity_token
+
+      if defined?(Rails::VERSION::MAJOR) && (Rails::VERSION::MAJOR >= 5)
+        controller.send :"skip_before_#{entity}", :verify_authenticity_token, :raise => false
+      else
+        controller.send :"skip_before_#{entity}", :verify_authenticity_token
+      end
     end
 
     def self.deep_select(hash, result=[], &blk)
@@ -193,7 +204,7 @@ module WashOut
     end
 
     def xml_data
-      xml_data = env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
+      xml_data = request.env['wash_out.soap_data'].values_at(:envelope, :Envelope).compact.first
       xml_data = xml_data.values_at(:body, :Body).compact.first
       xml_data = xml_data.values_at(soap_action.underscore.to_sym, soap_action.to_sym).compact.first || {}
     end
