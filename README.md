@@ -249,7 +249,7 @@ To override the values on a specific controller just add an override as part of 
 Available properties are:
 
 * **parser**: XML parser to use – `:rexml` or `:nokogiri`. The first one is default but the latter is much faster. Be sure to add `gem nokogiri` if you want to use it.
-* **wsdl_style**: sets WSDL style. Supported values are: 'document' and 'rpc'.
+* **wsdl_style**: sets WSDL style. Supported values are: 'rpc', 'document' or 'document_without_tns_prefix'.
 * **catch_xml_errors**: intercept Rails parsing exceptions to return correct XML response for corrupt XML input. Default is `false`.
 * **namespace**: SOAP namespace to use. Default is `urn:WashOut`.
 * **snakecase_input**: Determines if WashOut should modify parameters keys to snakecase. Default is `false`.
