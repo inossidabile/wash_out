@@ -71,6 +71,7 @@ module WashOut
           when 'datetime';     :to_datetime
           when 'time';         :to_time
           when 'base64Binary'; lambda{|dat| Base64.decode64(dat)}
+          when 'uuid';         :to_s
           else raise RuntimeError, "Invalid WashOut simple type: #{type}"
         end
 
